@@ -40,6 +40,20 @@ def main():
         # Build the enhanced prompt with git information for visionOS development
         enhanced_prompt = f"""{prompt}
 
+## Commit Strategy Instructions
+IMPORTANT: Analyze the changes and decide whether to create ONE commit or MULTIPLE commits based on:
+- **Create MULTIPLE commits when:**
+  - Changes affect different features or logical areas
+  - There are distinct bug fixes separate from features
+  - Refactoring is mixed with new functionality
+  - Changes touch unrelated parts of the codebase
+- **Create ONE commit when:**
+  - All changes are related to a single feature or fix
+  - Changes are small and focused
+  - It's a simple update or configuration change
+
+Keep each commit atomic and focused on a single concern. Review the changes below and determine the best commit strategy.
+
 ## Commit Message Style Guide
 Recent commits for visionOS project style reference:
 ```
