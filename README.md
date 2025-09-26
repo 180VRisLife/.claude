@@ -40,7 +40,7 @@ Triggered automatically by hooks when relevant keywords are detected.
 ## Hooks
 
 ### Automatically Triggered (every message)
-- **visionos/visionos-custom-reminder.py** - Injects contextual reminders based on keywords (debug→debugging workflow, investigate→investigation guide, improve prompt→prompting guide, plan→planning workflow, parallel→parallel guide)
+- **visionos/visionos-custom-reminder.py** - Injects contextual reminders based on keywords (debug, investigate, improve prompt, plan, parallel)
 - **visionos/visionos-git-hook.py** - Enhances prompt with git status/diffs/commits when user types exactly `!git`
 - **visionos/visionos-output-style-switcher.py** - Switches Claude's personality/behavior based on keywords (brainstorm, business panel, deep research, planning, implement)
 
