@@ -107,7 +107,7 @@ This workflow ensures efficient visionOS investigation based on task complexity.
 PROMPT_IMPROVEMENT_PROMPT = """
 <system-reminder>The user has mentioned improving or enhancing prompts/prompting for visionOS development.
 
-CRITICAL: You MUST first read ~/.claude/guides/prompting-guide.md for comprehensive guidance on writing effective prompts for spatial computing. If you haven't read this guide yet in this conversation, read it immediately before proceeding with any prompt-related suggestions.
+CRITICAL: You MUST first read ~/.claude/guides/visionos/visionos-prompting-guide.md for comprehensive guidance on writing effective prompts for spatial computing. If you haven't read this guide yet in this conversation, read it immediately before proceeding with any prompt-related suggestions.
 
 Only after reading and understanding this guide should you provide prompt improvement recommendations.
 

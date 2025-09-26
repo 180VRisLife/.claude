@@ -24,19 +24,22 @@ fi
 # Read the hook type from the first argument
 HOOK_TYPE="$1"
 
+# Debug: Log when script is called
+echo "[$(date)] Pushover script called with argument: '$HOOK_TYPE'" >> /tmp/pushover-debug.log
+
 # Set notification parameters based on hook type
 case "$HOOK_TYPE" in
     "stop")
         # Claude finished a task
-        TITLE="Claude Task Complete"
-        MESSAGE="Claude has finished the current task."
+        TITLE="Claude has finished"
+        MESSAGE="Your task has been completed."
         PRIORITY="0"  # Normal priority
         SOUND="cosmic"  # Pleasant completion sound
         ;;
     "notification")
         # Claude needs your help/permission
-        TITLE="Claude Needs Your Help"
-        MESSAGE="Claude is requesting your permission or input to continue."
+        TITLE="Claude needs your help"
+        MESSAGE="Input or permission required to continue."
         PRIORITY="1"  # High priority
         SOUND="tugboat"  # Attention-grabbing sound
         ;;
@@ -48,6 +51,9 @@ case "$HOOK_TYPE" in
         SOUND="pushover"
         ;;
 esac
+
+# Debug: Log what we're sending
+echo "[$(date)] Sending notification - Title: '$TITLE', Type: '$HOOK_TYPE'" >> /tmp/pushover-debug.log
 
 # Send the Pushover notification
 curl -s \

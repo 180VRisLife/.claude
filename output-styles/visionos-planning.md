@@ -270,7 +270,7 @@ Deploy agents for research:
 - Multiple agents: Parallel domain investigation
 
 Reference templates:
-- Use parallel.template.md structure for complex plans
+- Use visionos-parallel.template.md structure for complex plans
 - Adapt based on actual discovered complexity
 
 ## What NOT to Do
