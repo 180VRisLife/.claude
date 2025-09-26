@@ -1,0 +1,17 @@
+# Environment variables
+.env
+hooks/.env
+
+# OS files
+.DS_Store
+
+# Claude Code project files
+projects/
+
+# Temporary files
+*.tmp
+*.log
+
+# Backup files
+*.bak
+*~

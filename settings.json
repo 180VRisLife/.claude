@@ -1,0 +1,62 @@
+{
+  "model": "opus",
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 /Users/chrisjamesbliss/.claude/hooks/custom-reminder.py"
+          },
+          {
+            "type": "command",
+            "command": "python3 /Users/chrisjamesbliss/.claude/hooks/git-hook.py"
+          },
+          {
+            "type": "command",
+            "command": "python3 /Users/chrisjamesbliss/.claude/hooks/output-style-switcher.py"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "ExitPlanMode",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 /Users/chrisjamesbliss/.claude/hooks/parallel.py"
+          }
+        ]
+      }
+    ],
+    "Notification": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash /Users/chrisjamesbliss/.claude/hooks/notification-sound.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash /Users/chrisjamesbliss/.claude/hooks/pushover-notify.sh notification"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash /Users/chrisjamesbliss/.claude/hooks/play-sound.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash /Users/chrisjamesbliss/.claude/hooks/pushover-notify.sh stop"
+          }
+        ]
+      }
+    ]
+  }
+}
