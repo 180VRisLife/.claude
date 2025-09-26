@@ -28,7 +28,7 @@ None of the agents are explicitly triggered. Claude automatically recognizes bas
 - **/execute:implement-plan** - Orchestrates parallel agent execution based on plan dependencies, running batches simultaneously
 
 ### Git Commands
-- **/git commit all changes** - Reviews git status/diffs, stages files, and creates commits with project-appropriate messages
+- **Commit all changes /git** - Reviews git status/diffs, stages files, and creates commits with project-appropriate messages
 
 ## Guides
 Triggered automatically by hooks when relevant keywords are detected.

@@ -7,6 +7,19 @@ hooks/.env
 
 # Claude Code project files
 projects/
+*.jsonl
+
+# Shell snapshots
+shell-snapshots/
+
+# Statsig cache and session files
+statsig/
+
+# Todo tracking files
+todos/
+
+# Local settings
+settings.json
 
 # Temporary files
 *.tmp
