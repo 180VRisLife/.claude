@@ -1,0 +1,22 @@
+[
+  {
+    "content": "Review example project structure and code",
+    "status": "in_progress",
+    "activeForm": "Reviewing example project structure and code"
+  },
+  {
+    "content": "Analyze VisionOS 26 requirements against current implementation",
+    "status": "pending",
+    "activeForm": "Analyzing VisionOS 26 requirements against current implementation"
+  },
+  {
+    "content": "Review .claude configuration files",
+    "status": "pending",
+    "activeForm": "Reviewing .claude configuration files"
+  },
+  {
+    "content": "Create comprehensive list of files to create/modify",
+    "status": "pending",
+    "activeForm": "Creating comprehensive list of files to create/modify"
+  }
+]
