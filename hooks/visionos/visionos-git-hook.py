@@ -24,8 +24,8 @@ def main():
     input_data = json.load(sys.stdin)
     prompt = input_data.get('prompt', '')
 
-    # Check if this is exactly the /git command
-    if prompt.strip() == '/git':
+    # Check if this is exactly the !git command
+    if prompt.strip() == '!git':
         # Get recent commit messages as style guide for visionOS project
         recent_commits = run_git_command('git log --oneline -8')
 

@@ -28,7 +28,7 @@ None of the agents are explicitly triggered. Claude automatically recognizes bas
 - **/execute:implement-plan** - Orchestrates parallel agent execution based on plan dependencies, running batches simultaneously
 
 ### Git Commands
-- **Commit all changes /git** - Reviews git status/diffs, stages files, and creates commits with project-appropriate messages
+- **Commit all changes !git** - Reviews git status/diffs, stages files, and creates commits with project-appropriate messages
 
 ## Guides
 Triggered automatically by hooks when relevant keywords are detected.
@@ -41,7 +41,7 @@ Triggered automatically by hooks when relevant keywords are detected.
 
 ### Automatically Triggered (every message)
 - **visionos/visionos-custom-reminder.py** - Injects contextual reminders based on keywords (debug→debugging workflow, investigate→investigation guide, improve prompt→prompting guide, plan→planning workflow, parallel→parallel guide)
-- **visionos/visionos-git-hook.py** - Enhances prompt with git status/diffs/commits when user types exactly `/git`
+- **visionos/visionos-git-hook.py** - Enhances prompt with git status/diffs/commits when user types exactly `!git`
 - **visionos/visionos-output-style-switcher.py** - Switches Claude's personality/behavior based on keywords (brainstorm, business panel, deep research, planning, implement)
 
 ### Conditionally Triggered
