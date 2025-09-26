@@ -7,15 +7,15 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 /Users/chrisjamesbliss/.claude/hooks/custom-reminder.py"
+            "command": "python3 /Users/chrisjamesbliss/.claude/hooks/visionos/visionos-custom-reminder.py"
           },
           {
             "type": "command",
-            "command": "python3 /Users/chrisjamesbliss/.claude/hooks/git-hook.py"
+            "command": "python3 /Users/chrisjamesbliss/.claude/hooks/visionos/visionos-git-hook.py"
           },
           {
             "type": "command",
-            "command": "python3 /Users/chrisjamesbliss/.claude/hooks/output-style-switcher.py"
+            "command": "python3 /Users/chrisjamesbliss/.claude/hooks/visionos/visionos-output-style-switcher.py"
           }
         ]
       }
@@ -26,7 +26,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 /Users/chrisjamesbliss/.claude/hooks/parallel.py"
+            "command": "python3 /Users/chrisjamesbliss/.claude/hooks/visionos/visionos-parallel.py"
           }
         ]
       }
@@ -36,11 +36,11 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash /Users/chrisjamesbliss/.claude/hooks/notification-sound.sh"
+            "command": "bash /Users/chrisjamesbliss/.claude/hooks/notifications/notifications-notification-sound.sh"
           },
           {
             "type": "command",
-            "command": "bash /Users/chrisjamesbliss/.claude/hooks/pushover-notify.sh notification"
+            "command": "bash /Users/chrisjamesbliss/.claude/hooks/notifications/notifications-pushover-notify.sh notification"
           }
         ]
       }
@@ -50,11 +50,11 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash /Users/chrisjamesbliss/.claude/hooks/play-sound.sh"
+            "command": "bash /Users/chrisjamesbliss/.claude/hooks/notifications/notifications-play-sound.sh"
           },
           {
             "type": "command",
-            "command": "bash /Users/chrisjamesbliss/.claude/hooks/pushover-notify.sh stop"
+            "command": "bash /Users/chrisjamesbliss/.claude/hooks/notifications/notifications-pushover-notify.sh stop"
           }
         ]
       }
