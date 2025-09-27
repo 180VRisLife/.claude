@@ -4,12 +4,6 @@ A comprehensive configuration system for Claude to build production-ready applic
 
 ## Copy-Pastable Commands & Prompts
 
-### Git Command
-```
-!git
-```
-Commit all changes - Reviews git status/diffs, stages files, and creates commits with project-appropriate messages
-
 ### Planning Commands
 *Execute in this order when building a new feature:*
 ```
@@ -31,6 +25,12 @@ Creates parallelizable task breakdown with dependencies, agent assignments, and 
 /execute:implement-plan
 ```
 Orchestrates parallel agent execution based on plan dependencies, running batches simultaneously
+
+### Git Command
+```
+/visionos:git
+```
+Analyzes git changes and orchestrates commits with documentation - Determines if changes are small (handle directly) or large (delegate documentation to parallel agents), then stages and commits with conventional commit messages
 
 ### New Feature Prompt
 ```
@@ -108,7 +108,7 @@ None of the agents are explicitly triggered. Claude automatically recognizes bas
 
 #### Automatically Triggered
 - **visionos/visionos-custom-reminder.py** - Injects contextual reminders based on keywords
-- **visionos/visionos-git-hook.py** - Enhances prompt with git status/diffs/commits when user types exactly `!git`
+- **visionos/git-hook.py** - Enhances prompt with git status/diffs when user types exactly `/git` (simple git info hook)
 - **visionos/visionos-output-style-switcher.py** - Switches Claude's personality/behavior based on keywords
 
 #### Conditionally Triggered
