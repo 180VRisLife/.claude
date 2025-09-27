@@ -23,39 +23,25 @@ def main():
     # Read the prompt from stdin
     input_data = json.load(sys.stdin)
     prompt = input_data.get('prompt', '')
-
-    # Check if !git appears anywhere in the message
-    if '!git' in prompt:
-        # Get recent commit messages as style guide for visionOS project
+    
+    # Check if this is exactly the /git command
+    if prompt.strip() == '/git':
+        # Get recent commit messages as style guide
         recent_commits = run_git_command('git log --oneline -8')
-
+        
         # Run git commands in sequence
         git_status = run_git_command('git status')
         git_diff_cached = run_git_command('git diff --cached')
         git_diff = run_git_command('git diff')
-
+        
         # Get git status short
         git_status_short = run_git_command('git status --short')
-
-        # Build the enhanced prompt with git information for visionOS development
+        
+        # Build the enhanced prompt with git information
         enhanced_prompt = f"""{prompt}
 
-## Commit Strategy Instructions
-IMPORTANT: Analyze the changes and decide whether to create ONE commit or MULTIPLE commits based on:
-- **Create MULTIPLE commits when:**
-  - Changes affect different features or logical areas
-  - There are distinct bug fixes separate from features
-  - Refactoring is mixed with new functionality
-  - Changes touch unrelated parts of the codebase
-- **Create ONE commit when:**
-  - All changes are related to a single feature or fix
-  - Changes are small and focused
-  - It's a simple update or configuration change
-
-Keep each commit atomic and focused on a single concern. Review the changes below and determine the best commit strategy.
-
 ## Commit Message Style Guide
-Recent commits for visionOS project style reference:
+Recent commits for style reference:
 ```
 {recent_commits}
 ```
@@ -82,11 +68,11 @@ Recent commits for visionOS project style reference:
 {git_status_short if git_status_short else '(No changes)'}
 ```
 """
-
+        
         # Output the modified prompt
         print(enhanced_prompt)
         sys.exit(0)
-
+    
     # For all other prompts, let them through unchanged
     sys.exit(0)
 
