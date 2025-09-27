@@ -1,4 +1,6 @@
-# Claude visionOS Development Configuration
+# Claude Development Configuration
+
+A comprehensive configuration system for Claude to build production-ready applications across any domain with parallel agent orchestration, automated workflows, and extensible templates.
 
 ## Copy-Pastable Commands & Prompts
 
@@ -60,6 +62,11 @@ Note, some subfolders have additional subfolders as well. For example, commands/
 ```
 
 ## Trigger Keywords
+
+### Thinking Keywords
+- **think** → Allocates 4,000 tokens for standard problem-solving (5-15 seconds)
+- **megathink** → Allocates 10,000 tokens for complex refactoring and design (40% better architectural decisions)
+- **ultrathink** → Allocates maximum 31,999 tokens for tackling seemingly impossible tasks (solves team-stumping bugs)
 
 ### Output Style Keywords
 - **brainstorm** → Socratic questioning with emojis, collaborative discovery mindset
