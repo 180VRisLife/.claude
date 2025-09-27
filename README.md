@@ -4,9 +4,10 @@ A comprehensive configuration system for Claude to build production-ready applic
 
 ## Copy-Pastable Commands & Prompts
 
-### Planning Commands
+### Planning Commands (Domain-Specific)
 *Execute in this order when building a new feature:*
-*Clear claude code and tag in .docs/plans/[FEATURENAME] directory each time you run these commands*
+*Clear Claude's memory and tag in .docs/plans/[FEATURENAME] directory each time you run these commands*
+*Note: These commands are domain-specific and exist within each domain folder (e.g., /commands/visionos/plan/)*
 ```
 /plan:requirements
 ```
@@ -27,13 +28,14 @@ Creates parallelizable task breakdown with dependencies, agent assignments, and 
 ```
 Orchestrates parallel agent execution based on plan dependencies, running batches simultaneously
 
-### Git Command
+### Git Command (Domain-Agnostic)
 ```
-/visionos:git
+/git
 ```
-Analyzes git changes and orchestrates commits with documentation - Determines if changes are small (handle directly) or large (delegate documentation to parallel agents), then stages and commits with conventional commit messages
+Analyzes git changes and orchestrates commits - Determines if changes are small (handle directly) or large (delegate documentation to parallel agents), then stages and commits
+*Note: This command is domain-agnostic and works across all projects*
 
-### New Feature Prompt
+### New Feature Prompt (Domain-Aware)
 ```
 Add a new feature for [FEATURE_NAME] within the [DOMAIN_NAME].
 
@@ -47,7 +49,7 @@ Start by researching best practices for the specified feature in the given domai
 Note: Be sure to follow naming conventions the same as the visionOS examples.
 ```
 
-### New Domain Prompt
+### New Domain Prompt (Domain Creation)
 ```
 Create a new development domain for [DOMAIN_NAME] in Claude's configuration.
 
@@ -66,19 +68,19 @@ Note, some subfolders have additional subfolders as well. For example, commands/
 
 ## Trigger Keywords
 
-### Thinking Keywords
+### Thinking Keywords (Domain-Agnostic)
 - **think** → Allocates 4,000 tokens for standard problem-solving (5-15 seconds)
 - **megathink** → Allocates 10,000 tokens for complex refactoring and design (40% better architectural decisions)
 - **ultrathink** → Allocates maximum 31,999 tokens for tackling seemingly impossible tasks (solves team-stumping bugs)
 
-### Output Style Keywords
+### Output Style Keywords (Domain-Specific)
 - **brainstorm** → Socratic questioning with emojis, collaborative discovery mindset
 - **business panel** → Channels 9 business thought leaders for multi-perspective strategic analysis
 - **deep research** → Evidence-based systematic investigation with parallel research streams
 - **plan out/planning** → Research-only mode with no implementation, creates strategic documentation
 - **implement/build/code/spatial** → Sr. Swift Developer mode for implementation with agent orchestration (default)
 
-### Hook Trigger Keywords
+### Hook Trigger Keywords (Domain-Specific)
 - **debug** → Triggers debugging reminders
 - **investigate** → Triggers investigation reminders
 - **improve prompt** → Triggers prompting guide
@@ -93,8 +95,9 @@ Commands, Output Styles, and Hooks operate independently. To trigger multiple be
 - Example: `/plan out the feature` triggers both the command AND Planning output style (via "plan out" keywords)
 - Keywords in your message may trigger hooks and output styles regardless of commands used
 
-### Agents (Auto-Selected by Claude)
+### Agents (Domain-Specific, Auto-Selected by Claude)
 None of the agents are explicitly triggered. Claude automatically recognizes based on the nature of the request.
+*Note: Agents are domain-specific and exist within each domain folder (e.g., /agents/visionos/)*
 
 - **swift-systems-developer** - Creates/modifies backend Swift components, services, data persistence, and system integrations (ARKit, CloudKit, Core Data)
 - **swiftui-spatial-developer** - Creates/modifies SwiftUI spatial interfaces, visionOS windows/volumes/spaces, and spatial interaction patterns
@@ -103,20 +106,25 @@ None of the agents are explicitly triggered. Claude automatically recognizes bas
 - **code-finder-advanced** - Deep investigation for complex relationships, cross-file analysis, and semantic understanding (uses Sonnet)
 - **implementor** - Executes specific implementation tasks from parallel plans with strict adherence to requirements
 
-### Guides (Auto-Triggered)
+### Guides (Domain-Specific, Auto-Triggered)
+*Note: Guides are domain-specific and exist within each domain folder (e.g., /guides/visionos/)*
 - **visionos/visionos-parallel.md** - Triggered after ExitPlanMode; explains task independence analysis, dependency management, and parallel execution strategies
 - **visionos/visionos-prompting-guide.md** - Triggered by "improve prompt" keywords; provides best practices for effective visionOS development prompts
 
 ### Hooks
 
-#### Automatically Triggered
+#### Domain-Specific Hooks
+*Note: Domain-specific hooks exist within each domain folder (e.g., /hooks/visionos/)*
 - **visionos/visionos-custom-reminder.py** - Injects contextual reminders based on keywords
-- **visionos/git-hook.py** - Enhances prompt with git status/diffs when user types exactly `/git` (simple git info hook)
 - **visionos/visionos-output-style-switcher.py** - Switches Claude's personality/behavior based on keywords
+
+#### Domain-Agnostic Hooks
+- **git-hook.py** - Enhances prompt with git status/diffs when user types exactly `/git` (simple git info hook)
+- **notifications/notification-sound.sh** - Plays system sounds when Claude needs user attention (Notification hook)
 
 #### Conditionally Triggered
 - **visionos/visionos-parallel.py** - Injects visionos-parallel.md guide after ExitPlanMode tool usage (PostToolUse hook)
-- **notifications/notification-sound.sh** - Plays system sounds when Claude needs user attention (Notification hook)
 
-### File Templates
+### File Templates (Domain-Specific)
 Formatting guides automatically referenced by /plan commands - not executed directly.
+*Note: Templates are domain-specific and exist within each domain folder (e.g., /file-templates/visionos/)*
