@@ -6,6 +6,7 @@ A comprehensive configuration system for Claude to build production-ready applic
 
 ### Planning Commands
 *Execute in this order when building a new feature:*
+*Clear claude code and tag in .docs/plans/[FEATURENAME] directory each time you run these commands*
 ```
 /plan:requirements
 ```
