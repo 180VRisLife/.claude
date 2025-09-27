@@ -1,8 +1,8 @@
-# Parallel Execution and Agent Management Guide for visionOS Development
+# Parallel Execution and Agent Management Guide
 
 ## Core Philosophy
 
-Parallelization through agent delegation is a powerful strategy for efficient visionOS development. By distributing work across multiple specialized agents, we prevent context window saturation, improve success rates, and enable concurrent processing of independent spatial computing tasks.
+Parallelization through agent delegation is a powerful strategy for efficient task execution. By distributing work across multiple specialized agents, we prevent context window saturation, improve success rates, and enable concurrent processing of independent tasks.
 
 ## Fundamental Principles
 
@@ -52,7 +52,7 @@ Tasks with dependencies MUST run after their prerequisites complete.
 
 ### Context Provision Strategy
 When delegating to agents, include:
-- **Relevant file paths**: Exact locations of Swift files to read or modify
+- **Relevant file paths**: Exact locations of files to read or modify
 - **Documentation references**: Links to relevant Apple docs or specifications
 - **Critical context**: Key information the agent needs but won't discover independently
 - **Success criteria**: Clear definition of task completion
@@ -82,7 +82,7 @@ Always use a single `function_calls` block for parallel execution:
 ## Decision Framework
 
 ### When to Parallelize
-- **Multiple independent changes**: Different Swift files or modules that don't interact
+- **Multiple independent changes**: Different files or modules that don't interact
 - **Research tasks**: Investigating different aspects of a spatial computing problem
 - **Test suites**: Running different test categories
 - **Documentation updates**: Updating different doc sections
@@ -91,7 +91,7 @@ Always use a single `function_calls` block for parallel execution:
 ### When NOT to Parallelize
 - **Single file modification**: One focused change in one location
 - **Sequential operations**: Tasks that naturally build on each other
-- **Shared resource conflicts**: Multiple agents modifying the same Swift file
+- **Shared resource conflicts**: Multiple agents modifying the same file
 - **Complex interdependencies**: When most tasks depend on others
 
 ### Parallelization Thresholds

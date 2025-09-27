@@ -61,6 +61,8 @@ Start by researching best practices for the specified domain's development, then
 Note, some subfolders have additional subfolders as well. For example, commands/visionos/plan or /execute. And be sure to keep the naming conventions of all the folders, sub-folders, and files the same as the visionOS examples.
 ```
 
+**After running either prompt:** Review changes to verify domain-agnostic sections (like parallel execution logic) remain unchanged.
+
 ## Trigger Keywords
 
 ### Thinking Keywords
