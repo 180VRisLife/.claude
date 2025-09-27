@@ -1,4 +1,4 @@
-# Parallel Execution and Agent Management Guide
+# Parallel Execution and Agent Management Guide for VisionOS Development
 
 ## Core Philosophy
 
@@ -17,8 +17,6 @@ Dependencies are critical and must be strictly respected:
 - **Protocol dependencies**: Interfaces, protocols, and type definitions that other code relies on
 - **Core utilities**: Shared functions, helpers, and base classes
 - **Core Data schemas**: Entity definitions and migrations that affect data access
-- **CloudKit schemas**: Record types and sync dependencies
-- **ARKit setup**: Session configurations that affect spatial tracking
 
 Tasks with dependencies MUST run after their prerequisites complete.
 
@@ -83,7 +81,7 @@ Always use a single `function_calls` block for parallel execution:
 
 ### When to Parallelize
 - **Multiple independent changes**: Different files or modules that don't interact
-- **Research tasks**: Investigating different aspects of a spatial computing problem
+- **Research tasks**: Investigating different aspects of a problem
 - **Test suites**: Running different test categories
 - **Documentation updates**: Updating different doc sections
 - **Multi-file refactoring**: When changes don't have interdependencies

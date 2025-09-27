@@ -11,7 +11,7 @@
           },
           {
             "type": "command",
-            "command": "python3 /Users/chrisjamesbliss/.claude/hooks/visionos/git-hook.py"
+            "command": "python3 /Users/chrisjamesbliss/.claude/hooks/git-hook.py"
           },
           {
             "type": "command",
