@@ -1,4 +1,4 @@
-I have just finished one or more changes. It's time to push commits and to potentially update the documentation.
+I have just finished one or more changes. It's time to commit changes and potentially update the documentation.
 
 ## Phase 1: Analysis
 
@@ -145,8 +145,7 @@ Each documentation agent should receive:
 
 1. Wait for all documentation agents to complete
 2. Stage and commit changes in logical batches
-3. Push to remote: `git push origin [branch]`
-4. List commits and link to any new/updated documentation files
+3. List commits and link to any new/updated documentation files
 
 ## Documentation Standards
 
