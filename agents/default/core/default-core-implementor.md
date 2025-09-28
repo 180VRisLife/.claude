@@ -1,5 +1,5 @@
 ---
-name: default-implementor
+name: default-core-implementor
 description: Use this agent when you need to implement specific engineering tasks that have been explicitly assigned and tagged for parallel execution. This agent receives a single task from a master plan and implements it with planning documentation context.
 color: red
 model: opus
