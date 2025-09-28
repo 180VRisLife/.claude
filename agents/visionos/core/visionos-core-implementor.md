@@ -1,5 +1,5 @@
 ---
-name: visionos-implementor
+name: visionos-core-implementor
 description: Use this agent when you need to implement specific visionOS Swift engineering tasks for spatial computing applications that have been explicitly assigned and tagged for parallel execution. This agent receives a single visionOS task from a master plan and implements it with spatial computing planning documentation context, specializing in SwiftUI spatial components, RealityKit entities, and ARKit integrations.
 color: red
 model: opus
