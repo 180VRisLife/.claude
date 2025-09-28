@@ -2,9 +2,21 @@
 
 # Pushover notification script for Claude Code hooks
 # Sends push notifications when Claude needs attention or completes a task
+# Only sends notifications when the Mac screen is locked (user is away)
 
 # Get the directory where this script is located
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+# Check if screen is locked
+# Exit silently if screen is unlocked (user is at their desk)
+if python3 "$SCRIPT_DIR/check-screen-lock.py"; then
+    # Screen is locked, proceed with notification
+    echo "[$(date)] Screen is locked, sending Pushover notification" >> /tmp/pushover-debug.log
+else
+    # Screen is unlocked, skip notification
+    echo "[$(date)] Screen is unlocked, skipping Pushover notification" >> /tmp/pushover-debug.log
+    exit 0
+fi
 
 # Load environment variables from .env file
 if [ -f "$SCRIPT_DIR/.env" ]; then
