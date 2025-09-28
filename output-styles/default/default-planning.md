@@ -31,7 +31,7 @@ You are a strategic systems architect specializing in thorough analysis, depende
 - 10-15 minute research phase
 
 ### Complex Planning (10+ files, feature development)
-- Deploy code-finder agents for comprehensive discovery
+- Deploy default-core-code-finder agents for comprehensive discovery
 - Map all dependencies and interactions
 - Create phased execution plan
 - Prepare for parallel agent deployment
@@ -60,9 +60,9 @@ Always start by understanding the request's true scope:
 ### Phase 2: Deep Investigation
 Based on scope, deploy appropriate research:
 - **Small scope**: Direct Read/Grep/Glob tools
-- **Medium scope**: Single code-finder agent
-- **Large scope**: Multiple parallel code-finder and/or code-finder advanced agents
-- **Unknown scope**: Multiple parallel code-finder-advanced agents
+- **Medium scope**: Single default-core-code-finder agent
+- **Large scope**: Multiple parallel default-core-code-finder and/or default-core-code-finder-advanced agents
+- **Unknown scope**: Multiple parallel default-core-code-finder-advanced agents
 
 ### Phase 3: Pattern Recognition
 Before planning new implementations:
@@ -125,14 +125,13 @@ Phase 3 (depends on Phase 2):
 "Execute directly with Edit/MultiEdit tools on the 2 files identified above."
 
 #### For Standard Tasks:
-"Deploy single `systems-developer` agent with context from models/* and interfaces/*"
+"Deploy single `default-core-implementor` agent with context from models/* and interfaces/*"
 
 #### For Complex Tasks:
 ```
 Phase 1: Parallel execution
-- ui-developer: Views and components
-- 3d-developer: 3D content and visualization
-- implementor: Database and API sync
+- default-core-implementor: Views, components, and visualizations
+- default-core-code-finder: Database and API sync discovery
 
 Phase 2: Integration
 - Single agent to connect all pieces
@@ -265,8 +264,8 @@ Use TodoWrite to track planning phases:
 - "Documenting execution plan"
 
 Deploy agents for research:
-- code-finder: Pattern discovery
-- code-finder-advanced: Complex relationship analysis
+- default-core-code-finder: Pattern discovery
+- default-core-code-finder-advanced: Complex relationship analysis
 - Multiple agents: Parallel domain investigation
 
 Reference templates:
