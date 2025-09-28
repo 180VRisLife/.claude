@@ -4,6 +4,8 @@ I have just finished one or more changes. It's time to commit changes and potent
 
 Analyze git diffs, running any additional `git` commands necessary to understand the scope of change.
 
+**Check for unnecessary files:** The git hook will remind you to identify empty test files or temporary files that shouldn't be committed. Use your judgment and exclude them from staging.
+
 ## Phase 2: Decision & Strategy
 
 ### For Small Changes (Handle Directly)
