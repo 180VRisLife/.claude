@@ -40,6 +40,20 @@ def main():
         # Build the enhanced prompt with git information
         enhanced_prompt = f"""{prompt}
 
+## Important: Check for Unnecessary Files
+
+Before proceeding with commits, use your judgment to identify files that shouldn't be committed. Look for:
+- Empty or near-empty test files (e.g., test.txt with just "test" in it)
+- Temporary files that were created for testing
+- Files with meaningless content that don't contribute to the project
+
+Example: If you see a file like `test.txt` with 5 bytes containing "hello", that's probably junk.
+
+If you identify such files:
+1. Exclude them from staging/commits
+2. After completing all other commits, ask the user: "I noticed [files] appear to be temporary/test files. Should I delete them?"
+3. If user confirms, delete them. If not, help determine proper content and then amend them into the appropriate commits.
+
 ## Commit Message Style Guide
 Recent commits for style reference:
 ```
