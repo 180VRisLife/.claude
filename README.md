@@ -37,31 +37,65 @@ Analyzes git changes and orchestrates commits - Determines if changes are small 
 
 ### New Feature Prompt (Domain-Aware)
 ```
-Add a new feature for [FEATURE_NAME] within the [DOMAIN_NAME].
+Add a new feature for [FEATURE_NAME] within the [DOMAIN_NAME] that [FEATURE_DESCRIPTION e.g., "enables users to export their data in multiple formats"].
 
+CRITICAL STRUCTURE REQUIREMENT:
+- BEFORE creating ANY file, you MUST first Read the corresponding visionOS example file
+- The structure must be EXACTLY the same as the visionOS version
+- ONLY replace the specific visionOS/spatial computing parts with the new domain equivalents
+- Keep ALL formatting, sections, subsections, and organizational patterns identical
+
+Steps:
 1. Create feature documentation in /agents/ for the specified domain and feature
 2. Research the specified feature's best practices for the domain's development thoroughly on the internet
-3. Use the visionos features documentation structure as an exact template for format and organization
+3. For EACH file you create:
+   a. FIRST read the corresponding visionOS feature file as your exact template
+   b. Maintain the EXACT same structure, headers, and organization
+   c. Replace ONLY the visionOS-specific technical content with domain-specific content
+   d. Keep the same level of detail and documentation style
 4. Build comprehensive documentation that covers all aspects of implementing the specified feature while maintaining consistency with existing domain patterns
 
-Start by researching best practices for the specified feature in the given domain, then create the feature documentation.
+Start by researching best practices for the specified feature in the given domain, then create the feature documentation by reading each visionOS template file immediately before creating its domain equivalent.
 
-Note: Be sure to follow naming conventions the same as the visionOS examples.
+Note: Follow the EXACT naming conventions used in the visionOS examples (e.g., feature-name-feature.md pattern).
 ```
 
 ### New Domain Prompt (Domain Creation)
 ```
-Create a new development domain for [DOMAIN_NAME] in Claude's configuration.
+Create a new development domain for [DOMAIN_NAME] in Claude's configuration that [DOMAIN_DESCRIPTION e.g., "supports building scalable web applications with React"].
 
+CRITICAL STRUCTURE REQUIREMENT:
+- BEFORE creating ANY file or folder, you MUST first Read the corresponding visionOS example
+- The structure must be EXACTLY the same as the visionOS version
+- ONLY replace the specific visionOS/spatial computing parts with the new domain equivalents
+- Be EXTREMELY skeptical about making changes - when in doubt, keep it identical to visionOS
+
+Steps:
 1. Create subfolders for this domain in: agents, commands, file-templates, guides, and hooks folders
-2. Use the existing visionOS domain documentation in each folder as exact templates for structure and format
+2. For EACH file you create:
+   a. FIRST read the corresponding visionOS file to use as your EXACT template
+   b. Analyze what needs changing:
+      - File Templates: Need MINIMAL changes (often just domain name references)
+      - Agents/Features: Need MAJOR content changes BUT exact same structure
+      - Commands/Hooks: Need moderate changes, keep the same logic flow
+   c. Maintain EXACTLY the same:
+      - File and folder naming patterns
+      - Section headers and organization
+      - Documentation depth and style
+      - Code structure and patterns
+   d. Replace ONLY the visionOS-specific technical content
 3. Research the specified domain's development best practices thoroughly on the internet
-4. Create all documentation files within each subfolder, adapting content for the specified domain while maintaining the exact same format as the visionOS documentation. Use them as examples.
-5. Note: some subfolders, like file-templates, need minor domain-specific adjustments, while others, like agents, need major content overhauls but keep the same structural format
+4. Create all documentation files within each subfolder, maintaining the EXACT format as visionOS
+5. Preserve ALL subfolders structure (e.g., commands/[domain]/plan/, commands/[domain]/execute/)
 
-Start by researching best practices for the specified domain's development, then systematically create each subfolder and its documentation.
+Start by researching best practices for the specified domain's development, then systematically create each subfolder by:
+1. Reading the visionOS equivalent folder structure
+2. Creating the exact same folder hierarchy
+3. For each file: Read visionOS version → Create domain version with identical structure
 
-Note, some subfolders have additional subfolders as well. For example, commands/visionos/plan or /execute. And be sure to keep the naming conventions of all the folders, sub-folders, and files the same as the visionOS examples.
+VALIDATION: After each file creation, verify that someone could do a side-by-side comparison with the visionOS version and see the EXACT same structure with only domain-specific terms changed.
+
+Note: Keep ALL naming conventions identical to visionOS (folder names, file names, internal structure).
 ```
 
 **After running either prompt:** Review changes to verify domain-agnostic sections (like parallel execution logic) remain unchanged.
