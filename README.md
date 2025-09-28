@@ -72,7 +72,8 @@ CRITICAL STRUCTURE REQUIREMENT:
 
 Steps:
 1. Create subfolders for this domain in: agents, commands, file-templates, guides, hooks, and output-styles folders
-2. For EACH file you create:
+2. Update unified dispatcher files in /hooks/ to recognize the new domain (unified-context-dispatcher.py, unified-output-style-switcher.py, unified-parallel-handler.py)
+3. For EACH file you create:
    a. FIRST read the corresponding default file to use as your EXACT template
    b. Analyze what needs changing:
       - File Templates: Need MINIMAL changes (often just domain name references)
@@ -84,9 +85,9 @@ Steps:
       - Documentation depth and style
       - Code structure and patterns
    d. Replace ONLY the default-specific technical content
-3. Research the specified domain's development best practices thoroughly on the internet
-4. Create all documentation files within each subfolder, maintaining the EXACT format as default
-5. Preserve ALL subfolders structure (e.g., commands/[domain]/plan/, commands/[domain]/execute/)
+4. Research the specified domain's development best practices thoroughly on the internet
+5. Create all documentation files within each subfolder, maintaining the EXACT format as default
+6. Preserve ALL subfolders structure (e.g., commands/[domain]/plan/, commands/[domain]/execute/)
 
 Start by researching best practices for the specified domain's development, then systematically create each subfolder by:
 1. Reading the default equivalent folder structure
@@ -128,6 +129,14 @@ Commands, Output Styles, and Hooks operate independently. To trigger multiple be
 - Example: `/plan` alone only executes the command
 - Example: `/plan out the feature` triggers both the command AND Planning output style (via "plan out" keywords)
 - Keywords in your message may trigger hooks and output styles regardless of commands used
+
+### Unified Hook System
+The system uses context-aware unified hooks to prevent duplicate execution across domains:
+- **unified-context-dispatcher.py** - Detects project context (visionOS vs default) and routes to appropriate domain hook for debugging/investigation workflows
+- **unified-output-style-switcher.py** - Automatically switches Claude's personality based on detected context (runs on every message)
+- **unified-parallel-handler.py** - Loads the correct parallel execution guide after planning based on context
+
+These unified hooks detect context through keyword analysis and file extensions, then either call domain-specific hooks or directly apply the appropriate configuration.
 
 ### Agents (Domain-Specific, Auto-Selected by Claude)
 None of the agents are explicitly triggered. Claude automatically recognizes based on the nature of the request.
