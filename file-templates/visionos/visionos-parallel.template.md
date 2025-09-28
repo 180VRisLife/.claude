@@ -2,7 +2,7 @@
 [3-4 sentence, information-dense breakdown]
 
 ## Critically Relevant Files and Documentation
-- /Sources/path
+- /src/path
 - /more/paths
 - /documentation/path
 - /more-documentation/paths
@@ -15,7 +15,7 @@
 Agent: swiftui-spatial-developer
 
 **READ THESE BEFORE TASK**
-- /Sources/path
+- /src/path
 - /more/paths
 - /documentation/path
 - /more-documentation/paths
@@ -37,7 +37,7 @@ Concise instructions on what needs to be implemented
 Agent: agent-name
 
 **READ THESE BEFORE TASK**
-- /Sources/path
+- /src/path
 - /more/paths
 - /documentation/path
 - /more-documentation/paths

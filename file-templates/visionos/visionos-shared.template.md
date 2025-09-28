@@ -2,7 +2,7 @@
 [3-4 sentence breakdown of how the architecture fits together]
 
 ## Relevant Files
-- /Sources/path: very brief description
+- /src/path: very brief description
 - /more/paths: very brief description
 
 ## Relevant Core Data Entities / CloudKit Schemas
