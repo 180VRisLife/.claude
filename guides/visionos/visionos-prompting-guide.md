@@ -156,19 +156,19 @@ Organize multiple visionOS project files with clear metadata and boundaries:
 
 <documents>
   <document>
-    <source>Sources/Views/SpatialView.swift</source>
+    <source>src/Views/SpatialView.swift</source>
     <document_content>
       {{SWIFTUI_SPATIAL_CODE}}
     </document_content>
   </document>
   <document>
-    <source>Sources/Managers/ARSessionManager.swift</source>
+    <source>src/Managers/ARSessionManager.swift</source>
     <document_content>
       {{ARKIT_MANAGER_CODE}}
     </document_content>
   </document>
   <document>
-    <source>Sources/Models/SpatialAnchor.swift</source>
+    <source>src/Models/SpatialAnchor.swift</source>
     <document_content>
       {{CORE_DATA_MODEL_CODE}}
     </document_content>
@@ -187,13 +187,13 @@ You are analyzing visionOS project architecture to assist with spatial computing
 
 <documents>
   <document index="1">
-    <source>Sources/Views/ImmersiveView.swift</source>
+    <source>src/Views/ImmersiveView.swift</source>
     <document_content>
       {{IMMERSIVE_VIEW_CODE}}
     </document_content>
   </document>
   <document index="2">
-    <source>Sources/Services/SpatialDataService.swift</source>
+    <source>src/Services/SpatialDataService.swift</source>
     <document_content>
       {{SPATIAL_DATA_SERVICE_CODE}}
     </document_content>

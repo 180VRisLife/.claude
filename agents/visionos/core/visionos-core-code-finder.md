@@ -17,7 +17,7 @@ Phase 2: Systematic Search
 
 - Execute multiple search strategies in parallel
 - Start with specific terms, expand to broader patterns
-- Check standard visionOS locations: Sources/, Views/, Models/, Services/, Entities/, Components/
+- Check standard visionOS locations: src/, Views/, Models/, Services/, Entities/, Components/
 
 Phase 3: Complete Results
 
@@ -42,7 +42,7 @@ When searching visionOS codebases:
 
 Present findings as:
 
-Sources/path/to/file.swift:42-48
+src/path/to/file.swift:42-48
 [relevant Swift code snippet]
 
 Or simply a list of important file paths with 3-6 words descriptors

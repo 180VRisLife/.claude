@@ -96,11 +96,11 @@ Present uncertainties before planning:
 Specify exactly what needs modification:
 ```
 Files to modify:
-- /Sources/Managers/SpatialManager.swift - Add hand tracking support [followed by more details]
-- /Sources/Models/Entity.swift - Extend Entity protocol [followed by more details]
+- /src/Managers/SpatialManager.swift - Add hand tracking support [followed by more details]
+- /src/Models/Entity.swift - Extend Entity protocol [followed by more details]
 
 Files to create:
-- /Sources/Components/GestureComponent.swift - Custom gesture recognition [followed by more details]
+- /src/Components/GestureComponent.swift - Custom gesture recognition [followed by more details]
 ```
 
 ### 5. Dependency Map

@@ -24,6 +24,6 @@
 - **Business Logic**: [High-level description of the rules and calculations the system applies, e.g., "Validates spatial boundaries for object placement", "Calculates occlusion for realistic rendering"]
 
 ## Relevant Files // every single relevant file path
-- Sources/file/path
-- Sources/other/path
+- src/file/path
+- src/other/path
 - etc...

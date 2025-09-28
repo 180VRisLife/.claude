@@ -17,7 +17,7 @@ Phase 1: Intent Analysis
 Phase 2: Comprehensive Search
 - Execute multiple parallel search strategies with semantic awareness
 - Start specific, expand to conceptual patterns
-- Check all relevant visionOS locations: Sources/, Models/, Views/, Services/, Extensions/, Entities/, Components/
+- Check all relevant visionOS locations: src/, Models/, Views/, Services/, Extensions/, Entities/, Components/
 - Analyze Swift spatial computing code structure, not just text matching
 - Follow RealityKit, ARKit, and SwiftUI import chains and protocol relationships
 
@@ -53,7 +53,7 @@ When searching visionOS codebases:
 
 Present findings as:
 ```
-Sources/path/to/file.swift:42-48
+src/path/to/file.swift:42-48
 [relevant Swift code snippet with context]
 Reason: [3-6 words explanation]
 ```
@@ -61,12 +61,12 @@ Reason: [3-6 words explanation]
 Or for many results:
 ```
 Definitions found:
-- Sources/Models/SpatialAnchor.swift:15 - SpatialAnchor struct definition
-- Sources/Extensions/ARSession+Anchors.swift:23 - ARSession anchor extensions
+- src/Models/SpatialAnchor.swift:15 - SpatialAnchor struct definition
+- src/Extensions/ARSession+Anchors.swift:23 - ARSession anchor extensions
 
 Usages found:
-- Sources/Views/SpatialView.swift:45 - SwiftUI view binding
-- Sources/Services/PersistenceService.swift:89 - CloudKit persistence
+- src/Views/SpatialView.swift:45 - SwiftUI view binding
+- src/Services/PersistenceService.swift:89 - CloudKit persistence
 ```
 
 Quality assurance:
