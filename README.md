@@ -71,7 +71,7 @@ CRITICAL STRUCTURE REQUIREMENT:
 - Be EXTREMELY skeptical about making changes - when in doubt, keep it identical to visionOS
 
 Steps:
-1. Create subfolders for this domain in: agents, commands, file-templates, guides, and hooks folders
+1. Create subfolders for this domain in: agents, commands, file-templates, guides, hooks, and output-styles folders
 2. For EACH file you create:
    a. FIRST read the corresponding visionOS file to use as your EXACT template
    b. Analyze what needs changing:
