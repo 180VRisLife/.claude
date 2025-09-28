@@ -36,29 +36,33 @@ fi
 # Read the hook type from the first argument
 HOOK_TYPE="$1"
 
+# Get the project name from the current working directory
+# Extract the last directory name from PWD (project folder name)
+PROJECT_NAME=$(basename "$PWD")
+
 # Debug: Log when script is called
-echo "[$(date)] Pushover script called with argument: '$HOOK_TYPE'" >> /tmp/pushover-debug.log
+echo "[$(date)] Pushover script called with argument: '$HOOK_TYPE' from project: '$PROJECT_NAME'" >> /tmp/pushover-debug.log
 
 # Set notification parameters based on hook type
 case "$HOOK_TYPE" in
     "stop")
         # Claude finished a task
-        TITLE="Claude has finished"
-        MESSAGE="Your task has been completed."
+        TITLE="[$PROJECT_NAME] Claude has finished"
+        MESSAGE="Your task in $PROJECT_NAME has been completed."
         PRIORITY="0"  # Normal priority
         SOUND="cosmic"  # Pleasant completion sound
         ;;
     "notification")
         # Claude needs your help/permission
-        TITLE="Claude needs your help"
-        MESSAGE="Input or permission required to continue."
+        TITLE="[$PROJECT_NAME] Claude needs your help"
+        MESSAGE="Input or permission required to continue in $PROJECT_NAME."
         PRIORITY="1"  # High priority
         SOUND="tugboat"  # Attention-grabbing sound
         ;;
     *)
         # Default case
-        TITLE="Claude Notification"
-        MESSAGE="Claude has sent a notification."
+        TITLE="[$PROJECT_NAME] Claude Notification"
+        MESSAGE="Claude has sent a notification from $PROJECT_NAME."
         PRIORITY="0"
         SOUND="pushover"
         ;;
