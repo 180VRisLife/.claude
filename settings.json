@@ -7,7 +7,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 /Users/chrisjamesbliss/.claude/hooks/visionos/visionos-custom-reminder.py"
+            "command": "python3 /Users/chrisjamesbliss/.claude/hooks/unified-context-dispatcher.py"
           },
           {
             "type": "command",
@@ -15,7 +15,7 @@
           },
           {
             "type": "command",
-            "command": "python3 /Users/chrisjamesbliss/.claude/hooks/visionos/visionos-output-style-switcher.py"
+            "command": "python3 /Users/chrisjamesbliss/.claude/hooks/unified-output-style-switcher.py"
           }
         ]
       }
@@ -26,7 +26,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 /Users/chrisjamesbliss/.claude/hooks/visionos/visionos-parallel.py"
+            "command": "python3 /Users/chrisjamesbliss/.claude/hooks/unified-parallel-handler.py"
           }
         ]
       }
