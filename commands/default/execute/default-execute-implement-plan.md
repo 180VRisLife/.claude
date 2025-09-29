@@ -1,8 +1,8 @@
-I have created detailed planning and research documentation for changes to the code, located here:
+I need to execute a parallel implementation plan for your project.
 
-$ARGUMENTS
+Please provide the path to the planning documentation directory (e.g., `.docs/plans/feature-name/`):
 
-Specifically, the `parallel-plan.md` file contains the exact steps to take, and in what order. The other files contain documentation and other planning information that will be useful for implementing individual aspects of the master plan.
+Once you provide the path, I will access the detailed planning and research documentation you've created. Specifically, the `parallel-plan.md` file contains the exact steps to take, and in what order. The other files contain documentation and other planning information that will be useful for implementing individual aspects of the master plan.
 
 1. Read `parallel-plan.md` and `shared.md`. Parallel-plan.md also contains a list of relevant files at the top that you must also read.
 2. Make a comprehensive todo, with a todo item for each task in `parallel-plan.md`. For each todo, name the tasks it's dependent on. Don't include any testing steps, except for the last step which should run type validation.

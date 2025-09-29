@@ -1,6 +1,8 @@
 For this task, make a `.docs/plans/[feature-name]/parallel-plan.md` document, outlining what needs to get done, following the format here `/Users/chrisjamesbliss/.claude/file-templates/visionos/visionos-parallel.template.md`. You are the senior developer for this project, and you need to break down the problem into actionable tasks, optimized for parallel building.
 
-Begin by looking at existing research. Read all other documents in $ARGUMENTS, starting with shared.md and requirements.md, if they exist. If no shared.md file is present, abort the plan and tell me to run `/shared` first.
+Please provide the path to the planning documentation directory (e.g., `.docs/plans/feature-name/`):
+
+Once you provide the path, I'll read all existing research documents, starting with shared.md and requirements.md. If no shared.md file is present, I'll abort the plan and ask you to run `/shared` first.
 
 After reading the research documents, read any other files you believe would be relevant to creating a comprehensive research plan.
 
