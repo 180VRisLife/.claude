@@ -1,4 +1,6 @@
-For this task, make a `.docs/plans/[plan-dir]/shared.md` document, containing high level information on files and architectures relevant to the new feature: $ARGUMENTS.
+I need to create a `.docs/plans/[plan-dir]/shared.md` document containing high level information on files and architectures relevant to a new feature.
+
+Please provide the feature description or the path to the planning directory (e.g., `.docs/plans/feature-name/`):
 
 First, if it does not exist yet, create a `.docs/plans/[feature-name]` directory. If it exists already, read every file within `.docs/plans/[feature-name]/`.
 

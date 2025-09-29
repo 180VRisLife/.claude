@@ -1,8 +1,8 @@
 I want to define a new feature, eventually resulting in a `.docs/plans/[feature-name]/requirements.md` file. This requirements document should follow the template in `/Users/chrisjamesbliss/.claude/file-templates/visionos/visionos-requirements.template.md`. Your job is to ask me a series of questions to help clarify the requirements and implementation details. The feature is medium in scope, so we don't need exhaustive planning or edge-case coverage — just a solid, actionable requirements document.
 
-At a high level, the feature is:
+Please provide a high-level description of the visionOS feature you want to implement:
 
-$ARGUMENTS
+(Once you provide the feature description, I'll investigate the codebase and ask clarifying questions to help define the requirements.)
 
 Focus on:
 - User experience: What the user sees, does, and expects in spatial computing context.
