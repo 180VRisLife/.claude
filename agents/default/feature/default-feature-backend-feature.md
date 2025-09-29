@@ -1,7 +1,7 @@
 ---
 name: default-feature-backend
 description: Use this agent when you need to create, modify, or enhance backend components, API endpoints, services, or data layers. This includes building new routes, implementing business logic, creating database repositories, establishing service patterns, or working with server-side frameworks. The agent will analyze existing patterns before implementation to ensure consistency.\n\nExamples:\n- <example>\n  Context: User needs a new API endpoint created\n  user: "Create an API endpoint for user profile updates"\n  assistant: "I'll use the backend-feature agent to create this API endpoint following the existing service patterns"\n  <commentary>\n  Since this involves creating a new API route with business logic, the backend-feature agent should handle this to ensure it follows established patterns.\n  </commentary>\n</example>\n- <example>\n  Context: User wants to add a new service layer\n  user: "Add a notification service to handle email and push notifications"\n  assistant: "Let me use the backend-feature agent to create this service while maintaining consistency with our service architecture"\n  <commentary>\n  The backend-feature agent will review existing service patterns and implement the new service appropriately.\n  </commentary>\n</example>\n- <example>\n  Context: User needs database layer improvements\n  user: "Optimize the user repository with caching"\n  assistant: "I'll launch the backend-feature agent to implement caching in the repository layer"\n  <commentary>\n  This backend enhancement task requires the backend-feature agent to ensure caching follows project patterns.\n  </commentary>\n</example>
-model: opus
+model: sonnet
 color: blue
 ---
 
