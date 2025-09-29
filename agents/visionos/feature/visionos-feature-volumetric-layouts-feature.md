@@ -1,32 +1,6 @@
 ---
 name: visionos-feature-volumetric-layouts
-description: Use this agent when you need to create, modify, or enhance volumetric layouts with embedded 2D surfaces in visionOS applications. This includes building single volumetric windows with multiple RealityView attachment panels positioned in 3D space, implementing ornaments attached externally to volumes, creating cohesive volumetric units where all elements move together, or working with SwiftUI-to-RealityKit integration patterns. The agent will analyze existing spatial patterns before implementation to ensure consistency.
-
-Examples:
-- <example>
-  Context: User needs a new volumetric layout with embedded UI panels
-  user: "Create a volumetric window that displays multiple 2D control panels positioned around a 3D model"
-  assistant: "I'll use the volumetric-layouts-feature agent to create this volumetric window with positioned attachment panels following the existing spatial patterns"
-  <commentary>
-  Since this involves creating a volumetric window with RealityView attachments positioned in 3D space, the volumetric-layouts-feature agent should handle this to ensure it matches existing spatial architecture.
-  </commentary>
-</example>
-- <example>
-  Context: User wants to add ornaments to a volume
-  user: "Add external toolbar ornaments to our volumetric content viewer"
-  assistant: "Let me use the volumetric-layouts-feature agent to add volume ornaments while maintaining consistency with our spatial design system"
-  <commentary>
-  The volumetric-layouts-feature agent will review existing ornament patterns and add the new toolbar ornaments appropriately to the volume.
-  </commentary>
-</example>
-- <example>
-  Context: User needs cohesive spatial positioning improvements
-  user: "Make all attachment panels and ornaments move together as one unit with the volume"
-  assistant: "I'll launch the volumetric-layouts-feature agent to ensure cohesive spatial unit behavior for the volumetric layout"
-  <commentary>
-  This spatial cohesion task requires the volumetric-layouts-feature agent to ensure proper volume and attachment coordination following visionOS best practices.
-  </commentary>
-</example>
+description: Use this agent when you need to create, modify, or enhance volumetric layouts with embedded 2D surfaces in visionOS applications. This includes building single volumetric windows with multiple RealityView attachment panels positioned in 3D space, implementing ornaments attached externally to volumes, creating cohesive volumetric units where all elements move together, or working with SwiftUI-to-RealityKit integration patterns. The agent will analyze existing spatial patterns before implementation to ensure consistency.\n\nExamples:\n- <example>\n  Context: User needs a new volumetric layout with embedded UI panels\n  user: "Create a volumetric window that displays multiple 2D control panels positioned around a 3D model"\n  assistant: "I'll use the volumetric-layouts-feature agent to create this volumetric window with positioned attachment panels following the existing spatial patterns"\n  <commentary>\n  Since this involves creating a volumetric window with RealityView attachments positioned in 3D space, the volumetric-layouts-feature agent should handle this to ensure it matches existing spatial architecture.\n  </commentary>\n</example>\n- <example>\n  Context: User wants to add ornaments to a volume\n  user: "Add external toolbar ornaments to our volumetric content viewer"\n  assistant: "Let me use the volumetric-layouts-feature agent to add volume ornaments while maintaining consistency with our spatial design system"\n  <commentary>\n  The volumetric-layouts-feature agent will review existing ornament patterns and add the new toolbar ornaments appropriately to the volume.\n  </commentary>\n</example>\n- <example>\n  Context: User needs cohesive spatial positioning improvements\n  user: "Make all attachment panels and ornaments move together as one unit with the volume"\n  assistant: "I'll launch the volumetric-layouts-feature agent to ensure cohesive spatial unit behavior for the volumetric layout"\n  <commentary>\n  This spatial cohesion task requires the volumetric-layouts-feature agent to ensure proper volume and attachment coordination following visionOS best practices.\n  </commentary>\n</example>
 model: sonnet
 color: purple
 ---
