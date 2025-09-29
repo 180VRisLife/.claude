@@ -18,6 +18,9 @@ statsig/
 # Todo tracking files
 todos/
 
+# File history
+file-history/
+
 # Local settings
 settings.json
 
