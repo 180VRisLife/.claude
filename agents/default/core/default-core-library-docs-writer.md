@@ -1,7 +1,7 @@
 ---
 name: default-core-library-docs-writer
 description: Use this agent to fetch and compress external library documentation into concise reference files. This agent retrieves the latest documentation from web sources and context7, then creates condensed local documentation files that serve as a single source of truth. Perfect for creating quick-reference docs for external dependencies like React hooks, Node.js APIs, Python libraries, or any third-party package.\n\n<example>\nContext: User needs latest React Server Components documentation stored locally.\nuser: "Create a reference doc for React Server Components with the latest patterns"\nassistant: "I'll use the library-docs-writer agent to fetch the latest React Server Components documentation and create a condensed reference file."\n<commentary>\nUser wants external library docs compressed into local file - use library-docs-writer to fetch and condense.\n</commentary>\n</example>\n\n<example>\nContext: User wants Express.js middleware documentation.\nuser: "Get me the latest Express middleware documentation and save it to docs/"\nassistant: "Let me use the library-docs-writer agent to retrieve current Express middleware docs and create a compressed reference."\n<commentary>\nExternal library documentation needed locally - library-docs-writer will fetch and compress it.\n</commentary>\n</example>
-model: opus
+model: sonnet
 color: pink
 ---
 
