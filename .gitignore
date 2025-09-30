@@ -21,6 +21,9 @@ todos/
 # File history
 file-history/
 
+# IDE lock files
+ide/
+
 # Local settings
 settings.json
 
