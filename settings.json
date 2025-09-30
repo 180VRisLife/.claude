@@ -6,26 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 /Users/chrisjamesbliss/.claude/hooks/unified-context-dispatcher.py"
-          },
-          {
-            "type": "command",
             "command": "python3 /Users/chrisjamesbliss/.claude/hooks/git-hook.py"
-          },
-          {
-            "type": "command",
-            "command": "python3 /Users/chrisjamesbliss/.claude/hooks/unified-output-style-switcher.py"
-          }
-        ]
-      }
-    ],
-    "PostToolUse": [
-      {
-        "matcher": "ExitPlanMode",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python3 /Users/chrisjamesbliss/.claude/hooks/unified-parallel-handler.py"
           }
         ]
       }
@@ -35,11 +16,11 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash /Users/chrisjamesbliss/.claude/hooks/_system/notifications/_system-notifications-attention-sound.sh"
+            "command": "bash .claude/hooks/_system/notifications/_system-notifications-attention-sound.sh"
           },
           {
             "type": "command",
-            "command": "bash /Users/chrisjamesbliss/.claude/hooks/_system/notifications/_system-notifications-pushover.sh notification"
+            "command": "bash .claude/hooks/_system/notifications/_system-notifications-pushover.sh notification"
           }
         ]
       }
@@ -49,14 +30,13 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash /Users/chrisjamesbliss/.claude/hooks/_system/notifications/_system-notifications-play-sound.sh"
+            "command": "bash .claude/hooks/_system/notifications/_system-notifications-play-sound.sh"
           },
           {
             "type": "command",
-            "command": "bash /Users/chrisjamesbliss/.claude/hooks/_system/notifications/_system-notifications-pushover.sh stop"
+            "command": "bash .claude/hooks/_system/notifications/_system-notifications-pushover.sh stop"
           }
         ]
       }
     ]
   }
-}

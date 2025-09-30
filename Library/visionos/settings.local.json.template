@@ -1,0 +1,30 @@
+{
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 $CLAUDE_HOME/hooks/custom-reminder.py"
+          },
+          {
+            "type": "command",
+            "command": "python3 $CLAUDE_HOME/hooks/output-style-switcher.py"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "ExitPlanMode",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 $CLAUDE_HOME/hooks/parallel.py"
+          }
+        ]
+      }
+    ]
+  },
+  "outputStyle": "main"
+}

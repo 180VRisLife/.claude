@@ -4,10 +4,17 @@ A comprehensive configuration system for Claude to build production-ready applic
 
 ## Copy-Pastable Commands & Prompts
 
+### Getting Started
+
+**First time in a new project:**
+```
+/init-workspace
+```
+This command automatically detects your project type (visionos, web, etc.) and copies the appropriate domain configuration from the Library to your local `.claude/` folder.
+
 ### Planning Commands (Domain-Specific)
 *Execute in this order when building a new feature:*
 *Clear Claude's memory and tag in .docs/plans/[FEATURENAME] directory each time you run these commands*
-*Note: These commands are domain-specific and exist within each domain folder (e.g., /commands/default/plan/)*
 ```
 /plan:requirements
 ```
@@ -33,48 +40,49 @@ Orchestrates parallel agent execution based on plan dependencies, running batche
 /git
 ```
 Analyzes git changes and orchestrates commits - Determines if changes are small (handle directly) or large (delegate documentation to parallel agents), then stages and commits
-*Note: This command is domain-agnostic and works across all projects*
 
 ### New Feature Prompt (Domain-Aware)
 ```
-Add a new feature for [FEATURE_NAME] within the [DOMAIN_NAME] that [FEATURE_DESCRIPTION e.g., "enables users to export their data in multiple formats"].
+Add a new feature for [FEATURE_NAME] within the [DOMAIN_NAME] domain that [FEATURE_DESCRIPTION e.g., "enables users to export their data in multiple formats"].
 
 CRITICAL STRUCTURE REQUIREMENT:
-- BEFORE creating ANY file, you MUST first Read the corresponding default example file
+- BEFORE creating ANY file, you MUST first Read the corresponding default example from Library/default/agents/feature/
 - The structure must be EXACTLY the same as the default version
-- ONLY replace the specific default/core parts with the new domain equivalents
+- ONLY replace the specific default/core parts with the new feature-specific content
 - Keep ALL formatting, sections, subsections, and organizational patterns identical
 
 Steps:
-1. Create feature documentation in /agents/ for the specified domain and feature
+1. Create feature agent in Library: ~/.claude/Library/[domain]/agents/feature/[feature-name].md
 2. Research the specified feature's best practices for the domain's development thoroughly on the internet
-3. For EACH file you create:
-   a. FIRST read the corresponding default feature file as your exact template
+3. For the feature file you create:
+   a. FIRST read a corresponding default feature agent from Library/default/agents/feature/ as your exact template
    b. Maintain the EXACT same structure, headers, and organization
-   c. Replace ONLY the default-specific technical content with domain-specific content
+   c. Replace ONLY the default-specific technical content with feature-specific content
    d. Keep the same level of detail and documentation style
 4. Build comprehensive documentation that covers all aspects of implementing the specified feature while maintaining consistency with existing domain patterns
 
-Start by researching best practices for the specified feature in the given domain, then create the feature documentation by reading each default template file immediately before creating its domain equivalent.
+File structure:
+- Feature agents: agents/feature/[feature-name].md (e.g., agents/feature/backend-feature.md, agents/feature/shareplay-feature.md)
 
-Note: Follow the EXACT naming conventions used in the default examples (e.g., feature-name-feature.md pattern).
+Start by researching best practices for the specified feature in the given domain, then create the feature documentation by reading a default feature template immediately before creating the domain-specific version.
 ```
 
 ### New Domain Prompt (Domain Creation)
 ```
-Create a new development domain for [DOMAIN_NAME] in Claude's configuration that [DOMAIN_DESCRIPTION e.g., "supports building scalable web applications with React"].
+Create a new development domain for [DOMAIN_NAME] in Claude's Library that [DOMAIN_DESCRIPTION e.g., "supports building scalable web applications with React"].
 
-CRITICAL STRUCTURE REQUIREMENT:
-- BEFORE creating ANY file or folder, you MUST first Read the corresponding default example
+CRITICAL INSTRUCTIONS:
+- Do NOT create any files unless explicitly listed below (no README, no extra documentation)
+- BEFORE creating ANY file or folder, you MUST first Read the corresponding default example from Library/default/
 - The structure must be EXACTLY the same as the default version
 - ONLY replace the specific default/core parts with the new domain equivalents
 - Be EXTREMELY skeptical about making changes - when in doubt, keep it identical to default
 
 Steps:
-1. Create subfolders for this domain in: agents, commands, file-templates, guides, hooks, and output-styles folders
-2. Update unified dispatcher files in /hooks/ to recognize the new domain (unified-context-dispatcher.py, unified-output-style-switcher.py, unified-parallel-handler.py)
+1. Create a new domain folder in Library: ~/.claude/Library/[domain]/
+2. Create subfolders: agents, commands, file-templates, guides, hooks, output-styles
 3. For EACH file you create:
-   a. FIRST read the corresponding default file to use as your EXACT template
+   a. FIRST read the corresponding Library/default/ file to use as your EXACT template
    b. Analyze what needs changing:
       - File Templates: Need MINIMAL changes (often just domain name references)
       - Agents/Features: Need MAJOR content changes BUT exact same structure
@@ -86,20 +94,37 @@ Steps:
       - Code structure and patterns
    d. Replace ONLY the default-specific technical content
 4. Research the specified domain's development best practices thoroughly on the internet
-5. Create all documentation files within each subfolder, maintaining the EXACT format as default
-6. Preserve ALL subfolders structure (e.g., commands/[domain]/plan/, commands/[domain]/execute/)
+5. Create a settings.local.json.template matching the structure in Library/default/settings.local.json.template
+6. Preserve flat folder structure (all files directly in their respective top-level folders)
+7. Update ~/.claude/scripts/init-workspace.py to add detection logic for the new domain:
+   a. Read the script to understand the detection pattern
+   b. Add domain indicators (strong and medium) following the existing pattern
+   c. Add detection logic in the correct priority order
+   d. Ensure package.json/config file checks are domain-specific
 
-Start by researching best practices for the specified domain's development, then systematically create each subfolder by:
-1. Reading the default equivalent folder structure
-2. Creating the exact same folder hierarchy
+Agent Requirements:
+- Create ALL 5 core agents (code-finder, code-finder-advanced, implementor, library-docs-writer, root-cause-analyzer)
+- Create EXACTLY 3 feature agents that represent the most important/common features for this domain
+- Feature agents should cover distinct aspects of the domain (e.g., frontend/backend/fullstack or different framework capabilities)
+
+File structure conventions:
+- agents/core/: code-finder.md, code-finder-advanced.md, implementor.md, library-docs-writer.md, root-cause-analyzer.md
+- agents/feature/: [name1].md, [name2].md, [name3].md
+- commands/: plan-requirements.md, plan-shared.md, plan-parallel.md, execute-implement-plan.md
+- hooks/: custom-reminder.py, output-style-switcher.py, parallel.py
+- file-templates/: requirements.template.md, shared.template.md, parallel.template.md
+- output-styles/: main.md, planning.md, brainstorming.md, business-panel.md, deep-research.md
+
+Start by researching best practices for the specified domain's development, then systematically create each folder by:
+1. Reading the Library/default/ equivalent
+2. Creating the exact same structure in Library/[domain]/
 3. For each file: Read default version → Create domain version with identical structure
+4. Update init-workspace.py with detection logic
 
-VALIDATION: After each file creation, verify that someone could do a side-by-side comparison with the default version and see the EXACT same structure with only domain-specific terms changed.
-
-Note: Keep ALL naming conventions identical to default (folder names, file names, internal structure).
+VALIDATION: After each file creation, verify that someone could do a side-by-side comparison with the Library/default/ version and see the EXACT same structure with only domain-specific terms changed.
 ```
 
-**After running either prompt:** Review changes to verify domain-agnostic sections (like parallel execution logic) remain unchanged.
+**After creating the domain:** Test it by running `/init-workspace` in a project of that type to verify domain detection and file copying works correctly.
 
 ## Trigger Keywords
 
@@ -113,7 +138,7 @@ Note: Keep ALL naming conventions identical to default (folder names, file names
 - **business panel** → Channels 9 business thought leaders for multi-perspective strategic analysis
 - **deep research** → Evidence-based systematic investigation with parallel research streams
 - **plan out/planning** → Research-only mode with no implementation, creates strategic documentation
-- **implement/build/code/spatial** → Sr. Swift Developer mode for implementation with agent orchestration (default)
+- **implement/build/code** → Main development mode for implementation with agent orchestration (default)
 
 ### Hook Trigger Keywords (Domain-Specific)
 - **debug** → Triggers debugging reminders
@@ -124,47 +149,58 @@ Note: Keep ALL naming conventions identical to default (folder names, file names
 
 ## Reference Documentation
 
+### Architecture Overview
+
+This system uses a **Library-based architecture** where domain-specific configurations are stored in a central Library and deployed to individual workspaces:
+
+- **Global Config** (`~/.claude/`): Domain-agnostic commands (like `/git`), system hooks, and the Library
+- **Library** (`~/.claude/Library/`): Domain-specific templates for agents, commands, hooks, file-templates, guides, and output-styles
+- **Workspace Config** (`./.claude/`): Per-project configuration initialized from the Library for a specific domain
+
 ### System Architecture
 Commands, Output Styles, and Hooks operate independently. To trigger multiple behaviors:
 - Example: `/plan` alone only executes the command
 - Example: `/plan out the feature` triggers both the command AND Planning output style (via "plan out" keywords)
 - Keywords in your message may trigger hooks and output styles regardless of commands used
 
-### Unified Hook System
-The system uses context-aware unified hooks to prevent duplicate execution across domains:
-- **unified-context-dispatcher.py** - Detects project context (visionOS vs default) and routes to appropriate domain hook for debugging/investigation workflows
-- **unified-output-style-switcher.py** - Automatically switches Claude's personality based on detected context (runs on every message)
-- **unified-parallel-handler.py** - Loads the correct parallel execution guide after planning based on context
+### Domain-Specific Hook System
+After running `/init-workspace`, your project will have domain-specific hooks that automatically enhance Claude's behavior:
+- **custom-reminder.py** - Injects contextual reminders based on keywords (debug, investigate, parallel, etc.)
+- **output-style-switcher.py** - Automatically switches output styles based on keywords
+- **parallel.py** - Loads the parallel execution guide after planning (PostToolUse hook)
 
-These unified hooks detect context through keyword analysis and file extensions, then either call domain-specific hooks or directly apply the appropriate configuration.
+These hooks are workspace-local and automatically use the domain-appropriate guides and styles from your `.claude/` folder.
 
 ### Agents (Domain-Specific, Auto-Selected by Claude)
 None of the agents are explicitly triggered. Claude automatically recognizes based on the nature of the request.
-*Note: Agents are domain-specific and exist within each domain folder (e.g., /agents/default/)*
+*Note: Agents are workspace-local after running `/init-workspace` and exist in `./.claude/agents/` organized in `core/` and `feature/` subdirectories*
 
+**Core Agents (Available in all domains):**
+Located in `./.claude/agents/core/`
 - **code-finder** - Quickly locates specific code files, functions, classes, or patterns across the codebase (uses Haiku)
 - **code-finder-advanced** - Deep investigation for complex relationships, cross-file analysis, and semantic understanding (uses Sonnet)
 - **implementor** - Executes specific implementation tasks from parallel plans with strict adherence to requirements
+- **library-docs-writer** - Fetches and compresses external library documentation into concise reference files
+- **root-cause-analyzer** - Diagnoses why bugs are occurring through systematic investigation
+
+**Feature Agents (Domain-specific):**
+Feature agents vary by domain and exist in `./.claude/agents/feature/`. For example:
+- **Default domain**: backend-feature.md, frontend-feature.md, fullstack-feature.md
+- **VisionOS domain**: openimmersive-feature.md, shareplay-feature.md, volumetric-layouts-feature.md, storekit-feature.md, expert-visionos-26-feature.md
 
 ### Guides (Domain-Specific, Auto-Triggered)
-*Note: Guides are domain-specific and exist within each domain folder (e.g., /guides/default/)*
-- **default/default-parallel.md** - Triggered after ExitPlanMode; explains task independence analysis, dependency management, and parallel execution strategies
-- **default/default-prompting-guide.md** - Triggered by "improve prompt" keywords; provides best practices for effective development prompts
-
-### Hooks
-
-#### Domain-Specific Hooks
-*Note: Domain-specific hooks exist within each domain folder (e.g., /hooks/default/)*
-- **default/default-custom-reminder.py** - Injects contextual reminders based on keywords
-- **default/default-output-style-switcher.py** - Switches Claude's personality/behavior based on keywords
-
-#### Domain-Agnostic Hooks
-- **git-hook.py** - Enhances prompt with git status/diffs when user types exactly `/git` (simple git info hook)
-- **notifications/notification-sound.sh** - Plays system sounds when Claude needs user attention (Notification hook)
-
-#### Conditionally Triggered
-- **default/default-parallel.py** - Injects default-parallel.md guide after ExitPlanMode tool usage (PostToolUse hook)
+*Note: Guides are workspace-local after running `/init-workspace` and exist in `./.claude/guides/`*
+- **parallel.md** - Triggered after ExitPlanMode; explains task independence analysis, dependency management, and parallel execution strategies
+- **prompting-guide.md** - Triggered by "improve prompt" keywords; provides best practices for effective development prompts
 
 ### File Templates (Domain-Specific)
 Formatting guides automatically referenced by /plan commands - not executed directly.
-*Note: Templates are domain-specific and exist within each domain folder (e.g., /file-templates/default/)*
+*Note: Templates are workspace-local after running `/init-workspace` and exist in `./.claude/file-templates/`*
+- **requirements.template.md** - Template for requirements documents
+- **shared.template.md** - Template for shared architecture documentation
+- **parallel.template.md** - Template for parallel execution plans
+
+### Global Hooks (Domain-Agnostic)
+These hooks remain in the global `~/.claude/hooks/` folder and work across all workspaces:
+- **git-hook.py** - Enhances prompt with git status/diffs when user types exactly `/git`
+- **_system/notifications/** - System notification hooks (sounds, Pushover integration)
