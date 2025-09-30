@@ -94,7 +94,7 @@ Steps:
       - Code structure and patterns
    d. Replace ONLY the default-specific technical content
 4. Research the specified domain's development best practices thoroughly on the internet
-5. Create a settings.local.json.template matching the structure in Library/default/settings.local.json.template
+5. Create a settings.local.template.json matching the structure in Library/default/settings.local.template.json
 6. Preserve flat folder structure (all files directly in their respective top-level folders)
 7. Update ~/.claude/scripts/init-workspace.py to add detection logic for the new domain:
    a. Read the script to understand the detection pattern
