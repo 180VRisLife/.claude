@@ -320,7 +320,7 @@ def main():
 
     # Merge settings
     print(f"\n⚙️  Configuring settings...")
-    domain_settings_template = library_path / "settings.local.json.template"
+    domain_settings_template = library_path / "settings.local.template.json"
     merge_settings(domain_settings_template, workspace_claude, preserved)
 
     # Create domain marker

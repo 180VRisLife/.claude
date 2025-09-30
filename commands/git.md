@@ -41,7 +41,7 @@ Map each feature/module change that needs documentation:
     <parameter name="prompt">
       Create documentation for Feature A:
 
-      1. Read the template at ~/.claude/file-templates/feature-doc.template.md
+      1. Read the template at ~/.claude/file-templates/feature-doc.template.md (if it exists)
       2. Analyze these changed files and any other necessary surrounding code: [list specific files]
       3. Create/update .docs/features/feature-a.doc.md following the template
       4. Focus on:
@@ -58,7 +58,7 @@ Map each feature/module change that needs documentation:
     <parameter name="prompt">
       Create documentation for Feature B:
 
-      1. Read the template at ~/.claude/file-templates/feature-doc.template.md
+      1. Read the template at ~/.claude/file-templates/feature-doc.template.md (if it exists)
       2. Analyze these changed files and any other necessary surrounding code: [list specific files]
       3. Create/update .docs/features/feature-b.doc.md
       4. Focus on user perspective and implementation details
@@ -72,7 +72,7 @@ Map each feature/module change that needs documentation:
     <parameter name="prompt">
       Update CLAUDE.md for major architectural change:
 
-      1. Read template at ~/.claude/file-templates/claude.template.md
+      1. Read template at ~/.claude/file-templates/claude.template.md (if it exists)
       2. Read existing src/module/CLAUDE.md
       3. Update with new critical patterns (keep under 20 lines)
       4. Only document:
