@@ -14,8 +14,21 @@ from typing import Dict, Optional, Tuple
 def detect_domain(workspace_path: Path) -> str:
     """
     Detect the project domain based on file patterns.
-    Returns: 'visionos', 'webdev', 'default', or other supported domains
+    Returns: 'ios', 'visionos', 'webdev', 'default', or other supported domains
     """
+    # iOS indicators (standard iOS apps without visionOS)
+    ios_indicators = {
+        'strong': [
+            ('**/*.xcodeproj', 'Xcode project'),
+            ('**/*.xcworkspace', 'Xcode workspace'),
+        ],
+        'medium': [
+            ('**/*.swift', 'Swift files'),
+            ('**/Podfile', 'CocoaPods dependency file'),
+            ('**/Package.swift', 'Swift Package Manager'),
+        ]
+    }
+
     # VisionOS indicators (must be specific to avoid false positives)
     visionos_indicators = {
         'strong': [
@@ -61,28 +74,73 @@ def detect_domain(workspace_path: Path) -> str:
         ('**/go.mod', 'Go project'),
     ]
 
-    # Check for strong visionOS indicators
+    # Check for strong visionOS indicators first (more specific than iOS)
     for pattern, description in visionos_indicators['strong']:
         matches = list(workspace_path.glob(pattern))
         if matches:
+            # Check for RealityKitContent which is visionOS-specific
+            if 'RealityKitContent' in pattern:
+                print(f"  ✓ Found {description}: {len(matches)} file(s)")
+                return 'visionos'
+
+            # For Xcode projects, need to check Swift files for visionOS frameworks
             print(f"  ✓ Found {description}: {len(matches)} file(s)")
-            # Additional check for Swift files with RealityKit/SwiftUI
             swift_files = list(workspace_path.glob('**/*.swift'))
             if swift_files:
-                # Sample a few Swift files to check for visionOS frameworks
+                # Sample Swift files to check for visionOS frameworks
                 has_visionos_frameworks = False
-                for swift_file in swift_files[:5]:
+                has_ios_frameworks = False
+                for swift_file in swift_files[:10]:
                     try:
                         content = swift_file.read_text()
-                        if any(fw in content for fw in ['import RealityKit', 'import SwiftUI', 'import ARKit']):
+                        if any(fw in content for fw in ['import RealityKit', 'WindowGroup { ImmersiveSpace']):
                             has_visionos_frameworks = True
                             break
+                        if any(fw in content for fw in ['import UIKit', 'UIViewController', 'UIView']):
+                            has_ios_frameworks = True
                     except:
                         pass
 
                 if has_visionos_frameworks:
                     print(f"  ✓ Swift files contain visionOS frameworks")
                     return 'visionos'
+                elif has_ios_frameworks:
+                    # Break out to check iOS indicators
+                    break
+
+    # Check for iOS indicators (standard iOS without visionOS)
+    ios_strong_score = 0
+    for pattern, description in ios_indicators['strong']:
+        matches = list(workspace_path.glob(pattern))
+        if matches:
+            ios_strong_score += 1
+            print(f"  ✓ Found {description}: {len(matches)} file(s)")
+
+    # If we found Xcode projects, check for iOS-specific indicators
+    if ios_strong_score > 0:
+        swift_files = list(workspace_path.glob('**/*.swift'))
+        if swift_files:
+            # Check for iOS frameworks (UIKit, SwiftUI without visionOS)
+            has_ios_frameworks = False
+            for swift_file in swift_files[:10]:
+                try:
+                    content = swift_file.read_text()
+                    if any(fw in content for fw in ['import UIKit', 'UIViewController', 'import SwiftUI']):
+                        has_ios_frameworks = True
+                        print(f"  ✓ Swift files contain iOS frameworks")
+                        break
+                except:
+                    pass
+
+            if has_ios_frameworks:
+                return 'ios'
+
+        # Check for iOS-specific dependency management
+        for pattern, description in ios_indicators['medium']:
+            matches = list(workspace_path.glob(pattern))
+            if matches:
+                print(f"  ✓ Found {description}")
+                return 'ios'
 
     # Check for strong Web Development indicators (Next.js/React)
     webdev_strong_score = 0
@@ -269,7 +327,7 @@ def main():
     # Parse command line arguments
     if len(sys.argv) < 2:
         print("Usage: python3 init-workspace.py <domain> [workspace_path]")
-        print("\nAvailable domains: visionos, webdev, default")
+        print("\nAvailable domains: ios, visionos, webdev, default")
         sys.exit(1)
 
     domain = sys.argv[1]
@@ -277,7 +335,7 @@ def main():
     workspace_claude = workspace_path / ".claude"
 
     # Validate domain
-    available_domains = ['visionos', 'webdev', 'default']
+    available_domains = ['ios', 'visionos', 'webdev', 'default']
     if domain not in available_domains:
         print(f"❌ Error: Invalid domain '{domain}'")
         print(f"   Available domains: {', '.join(available_domains)}")
