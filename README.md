@@ -16,22 +16,22 @@ This command automatically detects your project type (visionos, web, etc.) and c
 *Execute in this order when building a new feature:*
 *Clear Claude's memory and tag in .docs/plans/[FEATURENAME] directory each time you run these commands*
 ```
-/plan:requirements
+/plan-requirements
 ```
 Creates a requirements document with user flows, functional requirements, and UI/system specifications
 
 ```
-/plan:shared
+/plan-shared
 ```
 Documents architecture overview, relevant files, patterns, and Core Data/CloudKit schemas
 
 ```
-/plan:parallel
+/plan-parallel
 ```
 Creates parallelizable task breakdown with dependencies, agent assignments, and implementation phases
 
 ```
-/execute:implement-plan
+/execute-implement-plan
 ```
 Orchestrates parallel agent execution based on plan dependencies, running batches simultaneously
 
