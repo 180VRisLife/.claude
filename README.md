@@ -46,16 +46,16 @@ Analyzes git changes and orchestrates commits - Determines if changes are small 
 Add a new feature for [FEATURE_NAME] within the [DOMAIN_NAME] domain that [FEATURE_DESCRIPTION e.g., "enables users to export their data in multiple formats"].
 
 CRITICAL STRUCTURE REQUIREMENT:
-- BEFORE creating ANY file, you MUST first Read the corresponding default example from Library/default/agents/feature/
+- BEFORE creating ANY file, you MUST first Read the corresponding default example from library/default/agents/feature/
 - The structure must be EXACTLY the same as the default version
 - ONLY replace the specific default/core parts with the new feature-specific content
 - Keep ALL formatting, sections, subsections, and organizational patterns identical
 
 Steps:
-1. Create feature agent in Library: ~/.claude/Library/[domain]/agents/feature/[feature-name].md
+1. Create feature agent in library: ~/.claude/library/[domain]/agents/feature/[feature-name].md
 2. Research the specified feature's best practices for the domain's development thoroughly on the internet
 3. For the feature file you create:
-   a. FIRST read a corresponding default feature agent from Library/default/agents/feature/ as your exact template
+   a. FIRST read a corresponding default feature agent from library/default/agents/feature/ as your exact template
    b. Maintain the EXACT same structure, headers, and organization
    c. Replace ONLY the default-specific technical content with feature-specific content
    d. Keep the same level of detail and documentation style
@@ -73,16 +73,16 @@ Create a new development domain for [DOMAIN_NAME] in Claude's Library that [DOMA
 
 CRITICAL INSTRUCTIONS:
 - Do NOT create any files unless explicitly listed below (no README, no extra documentation)
-- BEFORE creating ANY file or folder, you MUST first Read the corresponding default example from Library/default/
+- BEFORE creating ANY file or folder, you MUST first Read the corresponding default example from library/default/
 - The structure must be EXACTLY the same as the default version
 - ONLY replace the specific default/core parts with the new domain equivalents
 - Be EXTREMELY skeptical about making changes - when in doubt, keep it identical to default
 
 Steps:
-1. Create a new domain folder in Library: ~/.claude/Library/[domain]/
+1. Create a new domain folder in library: ~/.claude/library/[domain]/
 2. Create subfolders: agents, commands, file-templates, guides, hooks, output-styles
 3. For EACH file you create:
-   a. FIRST read the corresponding Library/default/ file to use as your EXACT template
+   a. FIRST read the corresponding library/default/ file to use as your EXACT template
    b. Analyze what needs changing:
       - File Templates: Need MINIMAL changes (often just domain name references)
       - Agents/Features: Need MAJOR content changes BUT exact same structure
@@ -94,7 +94,7 @@ Steps:
       - Code structure and patterns
    d. Replace ONLY the default-specific technical content
 4. Research the specified domain's development best practices thoroughly on the internet
-5. Create a settings.local.template.json matching the structure in Library/default/settings.local.template.json
+5. Create a settings.local.template.json matching the structure in library/default/settings.local.template.json
 6. Preserve flat folder structure (all files directly in their respective top-level folders)
 7. Update ~/.claude/scripts/init-workspace.py to add detection logic for the new domain:
    a. Read the script to understand the detection pattern
@@ -116,12 +116,12 @@ File structure conventions:
 - output-styles/: main.md, planning.md, brainstorming.md, business-panel.md, deep-research.md
 
 Start by researching best practices for the specified domain's development, then systematically create each folder by:
-1. Reading the Library/default/ equivalent
-2. Creating the exact same structure in Library/[domain]/
+1. Reading the library/default/ equivalent
+2. Creating the exact same structure in library/[domain]/
 3. For each file: Read default version → Create domain version with identical structure
 4. Update init-workspace.py with detection logic
 
-VALIDATION: After each file creation, verify that someone could do a side-by-side comparison with the Library/default/ version and see the EXACT same structure with only domain-specific terms changed.
+VALIDATION: After each file creation, verify that someone could do a side-by-side comparison with the library/default/ version and see the EXACT same structure with only domain-specific terms changed.
 ```
 
 **After creating the domain:** Test it by running `/init-workspace` in a project of that type to verify domain detection and file copying works correctly.
@@ -154,7 +154,7 @@ VALIDATION: After each file creation, verify that someone could do a side-by-sid
 This system uses a **Library-based architecture** where domain-specific configurations are stored in a central Library and deployed to individual workspaces:
 
 - **Global Config** (`~/.claude/`): Domain-agnostic commands (like `/git`), system hooks, and the Library
-- **Library** (`~/.claude/Library/`): Domain-specific templates for agents, commands, hooks, file-templates, guides, and output-styles
+- **library** (`~/.claude/library/`): Domain-specific templates for agents, commands, hooks, file-templates, guides, and output-styles
 - **Workspace Config** (`./.claude/`): Per-project configuration initialized from the Library for a specific domain
 
 ### System Architecture

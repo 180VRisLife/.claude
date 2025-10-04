@@ -368,7 +368,7 @@ def main():
 
     # Copy domain files from Library
     print(f"\n📦 Installing {domain} domain configuration...")
-    library_path = Path.home() / ".claude" / "Library" / domain
+    library_path = Path.home() / ".claude" / "library" / domain
 
     if not library_path.exists():
         print(f"❌ Error: Domain library not found at {library_path}")
