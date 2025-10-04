@@ -14,7 +14,7 @@ from typing import Dict, Optional, Tuple
 def detect_domain(workspace_path: Path) -> str:
     """
     Detect the project domain based on file patterns.
-    Returns: 'ios', 'visionos', 'webdev', 'default', or other supported domains
+    Returns: 'ios', 'macos', 'visionos', 'webdev', 'default', or other supported domains
     """
     # iOS indicators (standard iOS apps without visionOS)
     ios_indicators = {
@@ -25,6 +25,18 @@ def detect_domain(workspace_path: Path) -> str:
         'medium': [
             ('**/*.swift', 'Swift files'),
             ('**/Podfile', 'CocoaPods dependency file'),
+            ('**/Package.swift', 'Swift Package Manager'),
+        ]
+    }
+
+    # macOS indicators (macOS applications)
+    macos_indicators = {
+        'strong': [
+            ('**/*.xcodeproj', 'Xcode project'),
+            ('**/*.xcworkspace', 'Xcode workspace'),
+        ],
+        'medium': [
+            ('**/*.swift', 'Swift files'),
             ('**/Package.swift', 'Swift Package Manager'),
         ]
     }
@@ -108,39 +120,119 @@ def detect_domain(workspace_path: Path) -> str:
                     # Break out to check iOS indicators
                     break
 
-    # Check for iOS indicators (standard iOS without visionOS)
-    ios_strong_score = 0
-    for pattern, description in ios_indicators['strong']:
-        matches = list(workspace_path.glob(pattern))
-        if matches:
-            ios_strong_score += 1
-            print(f"  ✓ Found {description}: {len(matches)} file(s)")
+    # Check Xcode projects to distinguish macOS from iOS
+    xcode_projects = list(workspace_path.glob('**/*.xcodeproj')) + list(workspace_path.glob('**/*.xcworkspace'))
 
-    # If we found Xcode projects, check for iOS-specific indicators
-    if ios_strong_score > 0:
+    has_macos_project = False
+    has_ios_project = False
+    has_macos_frameworks = False
+    has_ios_frameworks = False
+
+    if xcode_projects:
+        print(f"  ✓ Found Xcode project(s): {len(xcode_projects)} file(s)")
+
+        # Check project files for platform identifiers
+        for project in xcode_projects:
+            if project.suffix == '.xcodeproj':
+                pbxproj = project / 'project.pbxproj'
+                if pbxproj.exists():
+                    try:
+                        content = pbxproj.read_text()
+
+                        # Check for macOS platform identifiers (more comprehensive)
+                        if any(indicator in content for indicator in [
+                            'SDKROOT = macosx',
+                            'MACOSX_DEPLOYMENT_TARGET',
+                            '"macOS"',
+                            'SUPPORTED_PLATFORMS = macosx',
+                            'PRODUCT_BUNDLE_IDENTIFIER.*macos',
+                        ]):
+                            has_macos_project = True
+                            print(f"  ✓ Found macOS-specific project configuration in {project.name}")
+
+                        # Check for iOS platform identifiers
+                        if any(indicator in content for indicator in [
+                            'SDKROOT = iphoneos',
+                            'IPHONEOS_DEPLOYMENT_TARGET',
+                            '"iOS"',
+                            'SUPPORTED_PLATFORMS = iphoneos',
+                        ]):
+                            has_ios_project = True
+                            print(f"  ✓ Found iOS-specific project configuration in {project.name}")
+                    except:
+                        pass
+
+        # Check ALL Swift files for framework usage (more thorough than before)
         swift_files = list(workspace_path.glob('**/*.swift'))
         if swift_files:
-            # Check for iOS frameworks (UIKit, SwiftUI without visionOS)
-            has_ios_frameworks = False
-            for swift_file in swift_files[:10]:
+            print(f"  ✓ Checking {len(swift_files)} Swift file(s) for framework usage...")
+
+            for swift_file in swift_files:
                 try:
-                    content = swift_file.read_text()
-                    if any(fw in content for fw in ['import UIKit', 'UIViewController', 'import SwiftUI']):
+                    swift_content = swift_file.read_text()
+
+                    # macOS frameworks
+                    if any(fw in swift_content for fw in [
+                        'import AppKit',
+                        'import Cocoa',
+                        'NSWindow',
+                        'NSView',
+                        'NSViewController',
+                        'NSApplication'
+                    ]):
+                        has_macos_frameworks = True
+
+                    # iOS frameworks
+                    if any(fw in swift_content for fw in [
+                        'import UIKit',
+                        'UIViewController',
+                        'UIView',
+                        'UIApplication',
+                        'UIWindow'
+                    ]):
                         has_ios_frameworks = True
-                        print(f"  ✓ Swift files contain iOS frameworks")
+
+                    # Early exit if we found both (edge case)
+                    if has_macos_frameworks and has_ios_frameworks:
                         break
                 except:
                     pass
 
+            if has_macos_frameworks:
+                print(f"  ✓ Swift files contain AppKit/Cocoa frameworks (macOS)")
             if has_ios_frameworks:
-                return 'ios'
+                print(f"  ✓ Swift files contain UIKit frameworks (iOS)")
 
-        # Check for iOS-specific dependency management
-        for pattern, description in ios_indicators['medium']:
-            matches = list(workspace_path.glob(pattern))
-            if matches:
-                print(f"  ✓ Found {description}")
+        # Decision logic: prioritize framework usage over project config
+        # Framework imports are more reliable than pbxproj parsing
+        if has_macos_frameworks and not has_ios_frameworks:
+            return 'macos'
+        elif has_ios_frameworks and not has_macos_frameworks:
+            return 'ios'
+        elif has_macos_frameworks and has_ios_frameworks:
+            # Edge case: multi-platform project - prefer macOS if pbxproj indicates it
+            if has_macos_project:
+                print(f"  ℹ Multi-platform project detected, prioritizing macOS")
+                return 'macos'
+            else:
+                print(f"  ℹ Multi-platform project detected, prioritizing iOS")
                 return 'ios'
+        elif has_macos_project and not has_ios_project:
+            # Project config says macOS but no framework found - trust the config
+            print(f"  ℹ Project configured for macOS (no framework imports found)")
+            return 'macos'
+        elif has_ios_project and not has_macos_project:
+            # Project config says iOS but no framework found - trust the config
+            print(f"  ℹ Project configured for iOS (no framework imports found)")
+            return 'ios'
+        # If we still can't determine, continue to iOS check below
+
+    # Fallback: Check for iOS-specific dependency management (CocoaPods, etc.)
+    for pattern, description in ios_indicators['medium']:
+        matches = list(workspace_path.glob(pattern))
+        if matches and 'Podfile' in pattern:
+            print(f"  ✓ Found {description}, assuming iOS")
+            return 'ios'
 
     # Check for strong Web Development indicators (Next.js/React)
     webdev_strong_score = 0
@@ -327,7 +419,7 @@ def main():
     # Parse command line arguments
     if len(sys.argv) < 2:
         print("Usage: python3 init-workspace.py <domain> [workspace_path]")
-        print("\nAvailable domains: ios, visionos, webdev, default")
+        print("\nAvailable domains: ios, macos, visionos, webdev, default")
         sys.exit(1)
 
     domain = sys.argv[1]
@@ -335,7 +427,7 @@ def main():
     workspace_claude = workspace_path / ".claude"
 
     # Validate domain
-    available_domains = ['ios', 'visionos', 'webdev', 'default']
+    available_domains = ['ios', 'macos', 'visionos', 'webdev', 'default']
     if domain not in available_domains:
         print(f"❌ Error: Invalid domain '{domain}'")
         print(f"   Available domains: {', '.join(available_domains)}")
