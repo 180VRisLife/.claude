@@ -41,6 +41,50 @@ Orchestrates parallel agent execution based on plan dependencies, running batche
 ```
 Analyzes git changes and orchestrates commits - Determines if changes are small (handle directly) or large (delegate documentation to parallel agents), then stages and commits
 
+### Parallel Development with Git Worktrees
+
+**Use worktrees to run multiple Claude instances on different features simultaneously.**
+
+**Complete Workflow:**
+
+1. Create worktree and implement feature:
+```
+Create a worktree and implement [feature description]
+```
+Claude will auto-name the worktree directory and branch based on your feature description.
+
+2. Test the feature in the worktree directory
+
+3. Commit changes:
+```
+/git
+```
+
+4. Merge back to parent branch:
+```
+Merge back to main
+```
+
+5. Clean up worktree (REQUIRED - worktrees persist on disk after merge):
+```
+Remove the worktree
+```
+
+**Useful Commands:**
+```bash
+# List all active worktrees
+git worktree list
+
+# Manually remove a worktree
+git worktree remove ../worktree-directory-name
+```
+
+**Key Points:**
+- Each worktree is a separate directory on disk with its own branch checked out
+- Worktrees enable multiple Claude instances to work on different features without file conflicts
+- Worktrees do NOT auto-delete after merging - you must manually remove them
+- Main workspace remains untouched while Claude works in the worktree
+
 ### New Feature Prompt (Domain-Aware)
 ```
 Add a new feature for [FEATURE_NAME] within the [DOMAIN_NAME] domain that [FEATURE_DESCRIPTION e.g., "enables users to export their data in multiple formats"].
