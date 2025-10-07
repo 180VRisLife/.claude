@@ -1,4 +1,12 @@
 {
+  "permissions": {
+    "allow": [
+      "Read(/**)",
+      "Write(/**)",
+      "Edit(/**)",
+      "Bash(*)"
+    ]
+  },
   "hooks": {
     "UserPromptSubmit": [
       {
