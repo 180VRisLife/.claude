@@ -34,3 +34,6 @@ settings.json
 # Backup files
 *.bak
 *~
+
+# Debug output
+debug/
