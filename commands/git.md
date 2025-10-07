@@ -4,7 +4,24 @@ I have just finished one or more changes. It's time to commit changes and potent
 
 Analyze git diffs, running any additional `git` commands necessary to understand the scope of change.
 
-**Check for unnecessary files:** The git hook will remind you to identify empty test files or temporary files that shouldn't be committed. Use your judgment and exclude them from staging.
+### Commit Readiness Check
+
+Before proceeding, assess if changes are production-ready. Look for:
+
+- **Debugging code:** Extensive console.log, print, debug statements
+- **TODO/FIXME comments:** Incomplete implementations
+- **Commented-out code:** Large blocks that should be removed
+- **Temporary files:** Test files, scratch files, debug outputs
+- **Hardcoded values:** Credentials, API keys, or config that should be externalized
+- **Incomplete error handling:** Try/catch blocks without proper handling
+
+**If issues found:**
+1. List the specific problems with file paths and line numbers
+2. Ask the user: "These changes don't appear ready for commit. Should I proceed anyway?"
+3. Provide your reasoning for why they're not ready
+4. **If user says proceed:** Continue with commit, but add issues to a cleanup reminder list
+
+**Check for unnecessary files:** Identify empty test files or temporary files that shouldn't be committed. Add them to the cleanup reminder list if found but user wants to proceed.
 
 ## Phase 2: Decision & Strategy
 
@@ -148,6 +165,23 @@ Each documentation agent should receive:
 1. Wait for all documentation agents to complete
 2. Stage and commit changes in logical batches
 3. List commits and link to any new/updated documentation files
+
+### Cleanup Reminders
+
+**If any issues were flagged but user chose to proceed:**
+
+Display a clear reminder section after commits are complete:
+
+```
+⚠️  Cleanup Reminders for Next Commit:
+
+1. [Issue type] in [file:line] - [specific problem]
+2. [Issue type] in [file:line] - [specific problem]
+
+Please address these before moving forward with new features.
+```
+
+This ensures technical debt is tracked and doesn't accumulate.
 
 ## Documentation Standards
 
