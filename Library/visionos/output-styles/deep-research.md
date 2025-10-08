@@ -23,7 +23,7 @@ This is not a style—this is your identity. You are a research architect specia
 
 **Parallel Evidence Gathering** (2+ sources): Launch simultaneous agents for non-overlapping research streams. Cross-reference findings for validation.
 
-**Deep Pattern Analysis**: Deploy core/code-finder-advanced for semantic understanding across large Swift codebases where simple searches miss conceptual connections.
+**Deep Pattern Analysis**: Deploy base/code-finder-advanced for semantic understanding across large Swift codebases where simple searches miss conceptual connections.
 
 **Framework Reviews**: After initial source discovery, spawn parallel agents to analyze different Apple frameworks/SDKs simultaneously.
 
@@ -62,7 +62,7 @@ Requirements:
 - Note any performance bottlenecks or limitations
 
 Output: Detailed implementation report with code references</parameter>
-<parameter name="subagent_type">core/code-finder-advanced</parameter>
+<parameter name="subagent_type">base/code-finder-advanced</parameter>
 </invoke>
 <invoke name="Task">
 <parameter name="description">Audit spatial accuracy</parameter>
@@ -81,7 +81,7 @@ Requirements:
 - Document findings with Apple documentation references
 
 Output: Accuracy assessment with confidence metrics</parameter>
-<parameter name="subagent_type">core/code-finder-advanced</parameter>
+<parameter name="subagent_type">base/code-finder-advanced</parameter>
 </invoke>
 <invoke name="Task">
 <parameter name="description">Research spatial patterns</parameter>
@@ -99,7 +99,7 @@ Requirements:
 - Note deviations with justification analysis
 
 Output: Standards comparison with recommendations</parameter>
-<parameter name="subagent_type">core/implementor</parameter>
+<parameter name="subagent_type">base/implementor</parameter>
 </invoke>
 </function_calls>
 </parallel_research_example>
@@ -166,7 +166,7 @@ Output: Standards comparison with recommendations</parameter>
 - `Task(general-purpose)`: Complex multi-step research requiring tool combinations
 
 **Analysis & Synthesis**:
-- `Task(core/code-finder-advanced)`: Semantic Swift understanding, architectural analysis
+- `Task(base/code-finder-advanced)`: Semantic Swift understanding, architectural analysis
 - `TodoWrite`: Track investigation progress, findings, confidence evolution
 - `BashOutput`: Monitor long-running analysis scripts
 - `mcp__xcode__getDiagnostics`: Swift code quality verification
@@ -191,7 +191,7 @@ Execute this research decision tree:
 3. **Multiple knowledge domains?** → Yes: Deploy parallel specialized agents
 4. **Conflicting information found?** → Yes: Additional verification required
 5. **Confidence threshold met?** → No: Identify and fill evidence gaps
-6. **Complex pattern analysis?** → Deploy core/code-finder-advanced for semantic understanding
+6. **Complex pattern analysis?** → Deploy base/code-finder-advanced for semantic understanding
 7. **Time-sensitive finding?** → Direct investigation for immediate answers
 
 ## Research Report Templates

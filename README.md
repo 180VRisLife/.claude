@@ -90,23 +90,23 @@ git worktree remove ../worktree-directory-name
 Add a new feature for [FEATURE_NAME] within the [DOMAIN_NAME] domain that [FEATURE_DESCRIPTION e.g., "enables users to export their data in multiple formats"].
 
 CRITICAL STRUCTURE REQUIREMENT:
-- BEFORE creating ANY file, you MUST first Read the corresponding default example from library/default/agents/feature/
+- BEFORE creating ANY file, you MUST first Read the corresponding default example from library/default/agents/specialist/
 - The structure must be EXACTLY the same as the default version
-- ONLY replace the specific default/core parts with the new feature-specific content
+- ONLY replace the specific default/base parts with the new specialist-specific content
 - Keep ALL formatting, sections, subsections, and organizational patterns identical
 
 Steps:
-1. Create feature agent in library: ~/.claude/library/[domain]/agents/feature/[feature-name].md
+1. Create specialist agent in library: ~/.claude/library/[domain]/agents/specialist/[specialist-name].md
 2. Research the specified feature's best practices for the domain's development thoroughly on the internet
-3. For the feature file you create:
-   a. FIRST read a corresponding default feature agent from library/default/agents/feature/ as your exact template
+3. For the specialist file you create:
+   a. FIRST read a corresponding default specialist agent from library/default/agents/specialist/ as your exact template
    b. Maintain the EXACT same structure, headers, and organization
-   c. Replace ONLY the default-specific technical content with feature-specific content
+   c. Replace ONLY the default-specific technical content with specialist-specific content
    d. Keep the same level of detail and documentation style
 4. Build comprehensive documentation that covers all aspects of implementing the specified feature while maintaining consistency with existing domain patterns
 
 File structure:
-- Feature agents: agents/feature/[feature-name].md (e.g., agents/feature/backend-feature.md, agents/feature/shareplay-feature.md)
+- Specialist agents: agents/specialist/[specialist-name].md (e.g., agents/specialist/backend-feature.md, agents/specialist/shareplay-feature.md)
 
 Start by researching best practices for the specified feature in the given domain, then create the feature documentation by reading a default feature template immediately before creating the domain-specific version.
 ```
@@ -147,13 +147,13 @@ Steps:
    d. Ensure package.json/config file checks are domain-specific
 
 Agent Requirements:
-- Create ALL 5 core agents (code-finder, code-finder-advanced, implementor, library-docs-writer, root-cause-analyzer)
-- Create EXACTLY 3 feature agents that represent the most important/common features for this domain
-- Feature agents should cover distinct aspects of the domain (e.g., frontend/backend/fullstack or different framework capabilities)
+- Create ALL 5 base agents (code-finder, code-finder-advanced, implementor, library-docs-writer, root-cause-analyzer)
+- Create EXACTLY 3 specialist agents that represent the most important/common features for this domain
+- Specialist agents should cover distinct aspects of the domain (e.g., frontend/backend/fullstack or different framework capabilities)
 
 File structure conventions:
-- agents/core/: code-finder.md, code-finder-advanced.md, implementor.md, library-docs-writer.md, root-cause-analyzer.md
-- agents/feature/: [name1].md, [name2].md, [name3].md
+- agents/base/: code-finder.md, code-finder-advanced.md, implementor.md, library-docs-writer.md, root-cause-analyzer.md
+- agents/specialist/: [name1].md, [name2].md, [name3].md
 - commands/: plan-requirements.md, plan-shared.md, plan-parallel.md, execute-implement-plan.md
 - hooks/: custom-reminder.py, output-style-switcher.py, parallel.py
 - file-templates/: requirements.template.md, shared.template.md, parallel.template.md
@@ -217,18 +217,18 @@ These hooks are workspace-local and automatically use the domain-appropriate gui
 
 ### Agents (Domain-Specific, Auto-Selected by Claude)
 None of the agents are explicitly triggered. Claude automatically recognizes based on the nature of the request.
-*Note: Agents are workspace-local after running `/init-workspace` and exist in `./.claude/agents/` organized in `core/` and `feature/` subdirectories*
+*Note: Agents are workspace-local after running `/init-workspace` and exist in `./.claude/agents/` organized in `base/` and `specialist/` subdirectories*
 
-**Core Agents (Available in all domains):**
-Located in `./.claude/agents/core/`
+**Base Agents (Available in all domains):**
+Located in `./.claude/agents/base/`
 - **code-finder** - Quickly locates specific code files, functions, classes, or patterns across the codebase (uses Haiku)
 - **code-finder-advanced** - Deep investigation for complex relationships, cross-file analysis, and semantic understanding (uses Sonnet)
 - **implementor** - Executes specific implementation tasks from parallel plans with strict adherence to requirements
 - **library-docs-writer** - Fetches and compresses external library documentation into concise reference files
 - **root-cause-analyzer** - Diagnoses why bugs are occurring through systematic investigation
 
-**Feature Agents (Domain-specific):**
-Feature agents vary by domain and exist in `./.claude/agents/feature/`. For example:
+**Specialist Agents (Domain-specific):**
+Specialist agents vary by domain and exist in `./.claude/agents/specialist/`. For example:
 - **Default domain**: backend-feature.md, frontend-feature.md, fullstack-feature.md
 - **VisionOS domain**: openimmersive-feature.md, shareplay-feature.md, volumetric-layouts-feature.md, storekit-feature.md, expert-visionos-26-feature.md
 

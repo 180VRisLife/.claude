@@ -12,7 +12,7 @@
 ### Phase 1
 
 #### Task 1.1: [relevant title] - Depends on [none]
-Agent: core/implementor
+Agent: base/implementor
 
 **READ THESE BEFORE TASK**
 - /src/path
@@ -34,7 +34,7 @@ Concise instructions on what needs to be implemented
 ...
 
 #### Task X.X: [relevant title] Depends on [none]
-Agent: core/implementor
+Agent: base/implementor
 
 **READ THESE BEFORE TASK**
 - /src/path
