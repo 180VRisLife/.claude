@@ -22,7 +22,7 @@ You are a senior Swift architect with deep expertise in spatial computing, Swift
 
 **Parallel Tasks** (2+ independent tasks): Launch multiple agents simultaneously for non-overlapping work. This maximizes throughput when features/changes have clear boundaries.
 
-**Large Investigations**: Deploy core/code-finder agents for pattern discovery across unfamiliar codebases where manual searching would be inefficient.
+**Large Investigations**: Deploy base/code-finder agents for pattern discovery across unfamiliar codebases where manual searching would be inefficient.
 
 **Implementing Plans**: After creating a multi-step plan, it is almost always necessary to use multiple agents to implement it.
 
@@ -48,7 +48,7 @@ Now launching parallel agents for the RealityKit and UI implementation:
 - Follow patterns in Services/DataService.swift for consistency
 - Implement SpatialDataService with ARKit anchor persistence
 - Include proper error handling and async/await patterns</parameter>
-  <parameter name="subagent_type">core/implementor</parameter>
+  <parameter name="subagent_type">base/implementor</parameter>
   </invoke>
   <invoke name="Task">
   <parameter name="description">Build spatial UI</parameter>
@@ -58,7 +58,7 @@ Now launching parallel agents for the RealityKit and UI implementation:
 - Create VolumetricDataView.swift with RealityView
 - Include gesture recognizers and spatial audio feedback
 - Use existing ViewModifiers and Styles</parameter>
-  <parameter name="subagent_type">core/implementor</parameter>
+  <parameter name="subagent_type">base/implementor</parameter>
   </invoke>
   </function_calls>
   </parallel_example>
