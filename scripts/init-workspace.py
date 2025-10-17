@@ -53,6 +53,19 @@ def detect_domain(workspace_path: Path) -> str:
         ]
     }
 
+    # Stream Deck plugin indicators
+    streamdeck_indicators = {
+        'strong': [
+            ('**/*.sdPlugin', 'Stream Deck plugin folder'),
+            ('**/*.sdPlugin/manifest.json', 'Stream Deck manifest'),
+        ],
+        'medium': [
+            ('**/package.json', 'package.json with Stream Deck SDK check'),
+            ('**/rollup.config.mjs', 'Rollup config for Stream Deck'),
+            ('**/src/**/*.ts', 'TypeScript action files'),
+        ]
+    }
+
     # Web Development indicators (React/Next.js focused)
     webdev_indicators = {
         'strong': [
@@ -233,6 +246,42 @@ def detect_domain(workspace_path: Path) -> str:
         if matches and 'Podfile' in pattern:
             print(f"  ✓ Found {description}, assuming iOS")
             return 'ios'
+
+    # Check for strong Stream Deck indicators
+    streamdeck_strong_score = 0
+    for pattern, description in streamdeck_indicators['strong']:
+        matches = list(workspace_path.glob(pattern))
+        if matches:
+            streamdeck_strong_score += 1
+            print(f"  ✓ Found {description}: {len(matches)} file(s)")
+
+    # If we found strong Stream Deck indicators, it's streamdeck
+    if streamdeck_strong_score > 0:
+        return 'streamdeck'
+
+    # Check for medium Stream Deck indicators
+    streamdeck_medium_score = 0
+    for pattern, description in streamdeck_indicators['medium']:
+        matches = list(workspace_path.glob(pattern))
+        if matches:
+            # For package.json, check if it contains @elgato/streamdeck
+            if 'package.json' in pattern:
+                for match in matches:
+                    try:
+                        content = match.read_text()
+                        if '@elgato/streamdeck' in content:
+                            streamdeck_medium_score += 2  # Strong indicator
+                            print(f"  ✓ Found {description} with @elgato/streamdeck dependency")
+                            break
+                    except:
+                        pass
+            else:
+                streamdeck_medium_score += 1
+                print(f"  ✓ Found {description}")
+
+    # If we have multiple streamdeck indicators, it's likely a Stream Deck plugin
+    if streamdeck_medium_score >= 2:
+        return 'streamdeck'
 
     # Check for strong Web Development indicators (Next.js/React)
     webdev_strong_score = 0
@@ -419,7 +468,7 @@ def main():
     # Parse command line arguments
     if len(sys.argv) < 2:
         print("Usage: python3 init-workspace.py <domain> [workspace_path]")
-        print("\nAvailable domains: ios, macos, visionos, webdev, default")
+        print("\nAvailable domains: ios, macos, visionos, streamdeck, webdev, default")
         sys.exit(1)
 
     domain = sys.argv[1]
@@ -427,7 +476,7 @@ def main():
     workspace_claude = workspace_path / ".claude"
 
     # Validate domain
-    available_domains = ['ios', 'macos', 'visionos', 'webdev', 'default']
+    available_domains = ['ios', 'macos', 'visionos', 'streamdeck', 'webdev', 'default']
     if domain not in available_domains:
         print(f"❌ Error: Invalid domain '{domain}'")
         print(f"   Available domains: {', '.join(available_domains)}")
