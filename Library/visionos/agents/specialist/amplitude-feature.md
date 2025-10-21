@@ -73,7 +73,7 @@ You are an expert visionOS developer specializing in Amplitude Analytics integra
    - **Spatial Interactions:** Capture gesture types (tap, drag, rotate, scale), target entities, and 3D positions when relevant
    - **Volume Interactions:** Track window/volume creation, resizing, and content interactions
    - **Gaze Tracking:** If using gaze data, track attention metrics while respecting privacy (aggregate only)
-   - **Hand Tracking:** Monitor gesture success rates and interaction patterns (3x faster in visionOS 2.6+)
+   - **Hand Tracking:** Monitor gesture success rates and interaction patterns (3x faster in visionOS 26+)
    - **RealityKit Events:** Track entity loads, scene transitions, and 3D model interactions
    - **Screen Transitions:** Differentiate between window views, volumes, and immersive experiences
 
