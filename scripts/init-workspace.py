@@ -4,6 +4,7 @@ Workspace initialization script that detects domain and copies appropriate confi
 """
 import json
 import os
+import re
 import shutil
 import sys
 from datetime import datetime
@@ -450,6 +451,141 @@ def create_domain_marker(workspace_claude: Path, domain: str):
     print(f"  ✓ Created domain.json marker")
 
 
+def setup_debug_logger(domain: str, workspace_path: Path, library_path: Path):
+    """Set up DebugLogger.swift for macOS and visionOS projects."""
+    # Only applicable for macOS and visionOS
+    if domain not in ['macos', 'visionos']:
+        return
+
+    print(f"\n🪵 Setting up DebugLogger...")
+
+    # Find Xcode project to determine project name
+    xcode_projects = list(workspace_path.glob('*.xcodeproj'))
+    if not xcode_projects:
+        print("  ! No Xcode project found, skipping DebugLogger setup")
+        return
+
+    # Get project name from first .xcodeproj file
+    project_name = xcode_projects[0].stem
+    print(f"  ✓ Detected project: {project_name}")
+
+    # Determine subsystem name (reverse domain notation)
+    # Try to extract from bundle ID if possible, otherwise use generic format
+    subsystem = f"com.{project_name.lower()}.debug"
+
+    # Find project directory (directory with same name as .xcodeproj without extension)
+    project_dir = workspace_path / project_name
+    if not project_dir.exists():
+        # Try to find any directory that looks like source code
+        possible_dirs = [d for d in workspace_path.iterdir()
+                        if d.is_dir() and not d.name.startswith('.')]
+        if possible_dirs:
+            project_dir = possible_dirs[0]
+        else:
+            print(f"  ! Could not find source directory for {project_name}")
+            return
+
+    # Create Utilities directory
+    utilities_dir = project_dir / "Utilities"
+    utilities_dir.mkdir(exist_ok=True)
+    print(f"  ✓ Created {project_name}/Utilities/")
+
+    # Read template
+    template_path = library_path / "file-templates" / "DebugLogger.swift.template"
+    if not template_path.exists():
+        print(f"  ! Template not found: {template_path}")
+        return
+
+    template_content = template_path.read_text()
+
+    # Check if DebugLogger.swift already exists
+    logger_path = utilities_dir / "DebugLogger.swift"
+    if logger_path.exists():
+        print(f"  ℹ DebugLogger.swift already exists at {project_name}/Utilities/, skipping")
+        return
+
+    # Replace placeholders
+    logger_content = template_content.replace("{{PROJECT_NAME}}", project_name)
+    logger_content = logger_content.replace("{{SUBSYSTEM}}", subsystem)
+
+    # Write DebugLogger.swift
+    logger_path.write_text(logger_content)
+    print(f"  ✓ Created DebugLogger.swift at {project_name}/Utilities/")
+    print(f"  ✓ Log file will be: /tmp/{project_name}-Debug.log")
+
+
+def update_claude_md(domain: str, workspace_path: Path, project_name: str):
+    """Update CLAUDE.md with DebugLogger documentation."""
+    # Only applicable for macOS and visionOS
+    if domain not in ['macos', 'visionos']:
+        return
+
+    claude_md_path = workspace_path / "CLAUDE.md"
+    if not claude_md_path.exists():
+        print("  ℹ No CLAUDE.md found, skipping documentation update")
+        return
+
+    print(f"\n📝 Updating CLAUDE.md with debugging documentation...")
+
+    # Define domain-specific content
+    if domain == 'macos':
+        categories = ".app, .ui, .terminal, .services, .appkit, .security, .performance, .network, .general"
+        example_category = ".terminal"
+    else:  # visionos
+        categories = "`.app`, `.ui`, `.services`, `.analytics`, `.downloads`, `.purchases`, `.playback`, `.network`, `.cache`, `.general`"
+        example_category = ".services"
+
+    # Generate debugging documentation
+    debug_section = f"""### Debugging
+- **DebugLogger**: Centralized logging service with automatic DEBUG/RELEASE handling
+  - **DEBUG builds**: Writes to `/tmp/{project_name}-Debug.log` (easily accessible for Claude Code)
+  - **RELEASE builds**: All methods are no-ops (optimized away by compiler)
+  - **No `#if DEBUG` guards needed** - call logging methods anywhere without conditional compilation
+  - Log file automatically clears on each app launch (DEBUG only)
+  - Template: `DebugLogger.shared.info("🚀 Action completed", category: {example_category})`
+  - Categories: {categories}
+  - Methods: `log()`, `info()`, `warning()`, `error()`, `separator()`
+  - Access log path: `DebugLogger.shared.logPath`
+"""
+
+    # Read existing content
+    content = claude_md_path.read_text()
+
+    # Pattern to match existing Debugging section (both ## and ### variants)
+    pattern = r'(^#{2,3}\s+Debugging\s*\n(?:.*?\n)*?)(?=^#{2,3}\s+|\Z)'
+
+    match = re.search(pattern, content, re.MULTILINE)
+
+    if match:
+        # Replace existing debugging section
+        content = re.sub(pattern, debug_section + '\n', content, flags=re.MULTILINE)
+        print(f"  ✓ Updated existing Debugging section in CLAUDE.md")
+    else:
+        # Append debugging section before certain markers or at end
+        insertion_markers = [
+            r'(^#{2,3}\s+Key Technologies)',
+            r'(^#{2,3}\s+Important Implementation)',
+            r'(^#{2,3}\s+Features)',
+            r'(^#{2,3}\s+Common Development)',
+        ]
+
+        inserted = False
+        for marker in insertion_markers:
+            if re.search(marker, content, re.MULTILINE):
+                content = re.sub(marker, debug_section + '\n\\1', content, flags=re.MULTILINE)
+                inserted = True
+                print(f"  ✓ Inserted Debugging section before matching section in CLAUDE.md")
+                break
+
+        if not inserted:
+            # Append at the end
+            content = content.rstrip() + '\n\n' + debug_section
+            print(f"  ✓ Appended Debugging section to end of CLAUDE.md")
+
+    # Write updated content
+    claude_md_path.write_text(content)
+
+
 def verify_installation(workspace_claude: Path) -> bool:
     """Verify that all required files were copied."""
     required_folders = ['agents', 'commands']
@@ -525,6 +661,17 @@ def main():
     # Create domain marker
     print(f"\n✍️  Creating domain marker...")
     create_domain_marker(workspace_claude, domain)
+
+    # Set up DebugLogger for macOS/visionOS projects
+    setup_debug_logger(domain, workspace_path, library_path)
+
+    # Update CLAUDE.md with debugging documentation
+    # Get project name for CLAUDE.md update
+    if domain in ['macos', 'visionos']:
+        xcode_projects = list(workspace_path.glob('*.xcodeproj'))
+        if xcode_projects:
+            project_name = xcode_projects[0].stem
+            update_claude_md(domain, workspace_path, project_name)
 
     # Verify installation
     print(f"\n✅ Verifying installation...")

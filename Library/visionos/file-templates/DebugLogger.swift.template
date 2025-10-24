@@ -1,0 +1,180 @@
+//
+//  DebugLogger.swift
+//  {{PROJECT_NAME}}
+//
+//  Centralized debug logging service
+//  - In DEBUG builds: Writes logs to /tmp/{{PROJECT_NAME}}-Debug.log
+//  - In RELEASE builds: No-op stubs (optimized away by compiler)
+//  - No need for #if DEBUG guards at call sites!
+//
+
+import Foundation
+import OSLog
+
+/// Log categories for filtering and organization
+enum LogCategory: String {
+    case app = "App"
+    case ui = "UI"
+    case services = "Services"
+    case analytics = "Analytics"
+    case downloads = "Downloads"
+    case purchases = "Purchases"
+    case playback = "Playback"
+    case network = "Network"
+    case cache = "Cache"
+    case general = "General"
+}
+
+#if DEBUG
+
+// MARK: - DEBUG Build Implementation
+
+/// Full-featured debug logger for DEBUG builds
+@MainActor
+class DebugLogger {
+
+    // MARK: - Singleton
+
+    static let shared = DebugLogger()
+
+    private init() {
+        clearLogFile()
+    }
+
+    // MARK: - Configuration
+
+    /// Log file location (easily accessible for Claude Code)
+    private let logFilePath = "/tmp/{{PROJECT_NAME}}-Debug.log"
+
+    /// File handle for writing logs
+    private var fileHandle: FileHandle?
+
+    /// OSLog instance for system logging integration
+    private let osLog = Logger(subsystem: "{{SUBSYSTEM}}", category: "DebugLogger")
+
+    // MARK: - Log File Management
+
+    /// Clears the log file on app launch
+    private func clearLogFile() {
+        let fileManager = FileManager.default
+
+        // Remove existing log file if it exists
+        if fileManager.fileExists(atPath: logFilePath) {
+            try? fileManager.removeItem(atPath: logFilePath)
+        }
+
+        // Create new empty log file
+        fileManager.createFile(atPath: logFilePath, contents: nil)
+
+        // Open file handle for appending
+        if let handle = FileHandle(forWritingAtPath: logFilePath) {
+            fileHandle = handle
+        }
+
+        // Write header
+        writeToFile("=== {{PROJECT_NAME}} Debug Log ===")
+        writeToFile("Started: \(Date().formatted(.iso8601))")
+        writeToFile("Log file: \(logFilePath)")
+        writeToFile("=" + String(repeating: "=", count: 50))
+        writeToFile("")
+    }
+
+    /// Writes a line to the log file
+    private func writeToFile(_ message: String) {
+        guard let data = (message + "\n").data(using: .utf8),
+              let handle = fileHandle else { return }
+
+        try? handle.write(contentsOf: data)
+    }
+
+    // MARK: - Public Logging Methods
+
+    /// Log a general message with optional category
+    @inline(__always)
+    func log(_ message: String, category: LogCategory = .general) {
+        let timestamp = Date().formatted(.iso8601)
+        let formattedMessage = "[\(timestamp)] [\(category.rawValue)] \(message)"
+
+        writeToFile(formattedMessage)
+        osLog.debug("\(formattedMessage)")
+    }
+
+    /// Log an error message
+    @inline(__always)
+    func error(_ message: String, category: LogCategory = .general) {
+        let timestamp = Date().formatted(.iso8601)
+        let formattedMessage = "[\(timestamp)] [ERROR] [\(category.rawValue)] \(message)"
+
+        writeToFile(formattedMessage)
+        osLog.error("\(formattedMessage)")
+    }
+
+    /// Log a warning message
+    @inline(__always)
+    func warning(_ message: String, category: LogCategory = .general) {
+        let timestamp = Date().formatted(.iso8601)
+        let formattedMessage = "[\(timestamp)] [WARNING] [\(category.rawValue)] \(message)"
+
+        writeToFile(formattedMessage)
+        osLog.warning("\(formattedMessage)")
+    }
+
+    /// Log an info message
+    @inline(__always)
+    func info(_ message: String, category: LogCategory = .general) {
+        let timestamp = Date().formatted(.iso8601)
+        let formattedMessage = "[\(timestamp)] [INFO] [\(category.rawValue)] \(message)"
+
+        writeToFile(formattedMessage)
+        osLog.info("\(formattedMessage)")
+    }
+
+    /// Log a separator for visual organization
+    @inline(__always)
+    func separator() {
+        writeToFile(String(repeating: "-", count: 80))
+    }
+
+    /// Get the log file path for external access
+    var logPath: String {
+        logFilePath
+    }
+
+    // MARK: - Cleanup
+
+    deinit {
+        try? fileHandle?.close()
+    }
+}
+
+#else
+
+// MARK: - RELEASE Build Stub
+
+/// No-op stub for RELEASE builds (all methods compile to nothing)
+@MainActor
+class DebugLogger {
+
+    static let shared = DebugLogger()
+
+    private init() {}
+
+    @inline(__always)
+    func log(_ message: String, category: LogCategory = .general) {}
+
+    @inline(__always)
+    func error(_ message: String, category: LogCategory = .general) {}
+
+    @inline(__always)
+    func warning(_ message: String, category: LogCategory = .general) {}
+
+    @inline(__always)
+    func info(_ message: String, category: LogCategory = .general) {}
+
+    @inline(__always)
+    func separator() {}
+
+    var logPath: String { "" }
+}
+
+#endif
