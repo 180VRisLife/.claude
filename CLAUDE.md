@@ -241,6 +241,14 @@ Used by plan commands for consistent documentation:
 python3 ~/.claude/scripts/init-workspace.py <domain>
 ```
 
+## Git Commit Policy
+
+**CRITICAL:** Claude NEVER creates commits autonomously. Only commit when:
+1. User runs `/git` command explicitly, OR
+2. User provides explicit commit instruction (e.g., "commit these changes with message X")
+
+Do NOT commit after completing tasks unless explicitly instructed. The user controls when commits happen.
+
 ## Development Notes
 
 - **Most changes don't need CLAUDE.md updates** - Use feature documentation instead
