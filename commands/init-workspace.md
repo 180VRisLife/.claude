@@ -20,14 +20,24 @@ Set up the workspace with domain-specific configuration.
 - Choose **webdev** if: Next.js config or React-based web application with modern tooling
 - Choose **default** if: General programming language project or unclear domain
 
-**After determining the domain, execute:**
+**After determining the domain, execute these steps:**
 
+1. **Run the initialization script:**
 ```bash
 python3 ~/.claude/scripts/init-workspace.py <domain>
 ```
-
 Replace `<domain>` with: `ios`, `macos`, `visionos`, `webdev`, or `default`
+
+2. **Enhance the local CLAUDE.md with file size guidelines:**
+After the script completes successfully, use the Task tool to launch an agent that will add domain-specific file size guidelines to the project's CLAUDE.md file. The agent should:
+- Read `~/.claude/library/<domain>/claude-md-includes/file-size-guidelines.md` for the content to add
+- Read the newly created `.claude/CLAUDE.md` or `./CLAUDE.md` file
+- Find an appropriate location (near the end, before or after development notes)
+- Insert the file size guidelines content from the reference file
+- Use non-deterministic placement that fits the existing structure
+- Keep the content as-is from the reference file (no modifications)
 
 **Inform the user of:**
 1. Which domain was selected and why (1-2 sentence justification if auto-detected)
 2. Confirmation that initialization succeeded
+3. Confirmation that file size guidelines were added to CLAUDE.md
