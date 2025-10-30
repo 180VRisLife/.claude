@@ -249,6 +249,25 @@ python3 ~/.claude/scripts/init-workspace.py <domain>
 
 Do NOT commit after completing tasks unless explicitly instructed. The user controls when commits happen.
 
+## File Size Guidelines
+
+### CLAUDE.md Files
+- **Global** (~/.claude/CLAUDE.md): 150-300 lines (~2,000-4,000 tokens)
+- **Local** (./.claude/CLAUDE.md or ./CLAUDE.md): 200-400 lines (~3,000-5,000 tokens)
+- **Maximum**: 500 lines before splitting into guides/
+- **Auto-loaded**: All CLAUDE.md files load into context at startup; keep concise
+
+### Documentation Files
+- **Planning documents** (requirements, shared, parallel): 100-300 lines each
+- **Feature guides**: 50-150 lines per feature
+- **Reference guides**: 200-400 lines (prompting, parallel execution)
+
+### Token Budget (1M context)
+- CLAUDE.md files: ~10K tokens (1% - global + local + imports)
+- Planning documents: ~15K tokens (1.5%)
+- Code files (active work): ~100K tokens (10%)
+- Remaining: ~775K tokens (77.5% for deep work)
+
 ## Development Notes
 
 - **Most changes don't need CLAUDE.md updates** - Use feature documentation instead

@@ -170,6 +170,27 @@ VALIDATION: After each file creation, verify that someone could do a side-by-sid
 
 **After creating the domain:** Test it by running `/init-workspace` in a project of that type to verify domain detection and file copying works correctly.
 
+## File Size Best Practices
+
+### CLAUDE.md Files
+- **Global** (~/.claude/CLAUDE.md): 150-300 lines (~2,000-4,000 tokens)
+- **Local** (./.claude/CLAUDE.md or ./CLAUDE.md): 200-400 lines (~3,000-5,000 tokens)
+- **Maximum**: 500 lines (split into guides/ if exceeded)
+
+### Documentation Files
+- **Planning docs** (requirements, shared, parallel): 100-300 lines
+- **Feature guides**: 50-150 lines
+- **Reference guides**: 200-400 lines
+
+### Code Files (Domain-Specific)
+- **iOS/macOS/visionOS (Swift)**: 150-250 lines average
+  - Views: 100-200 lines; extract subviews beyond 300 lines
+  - ViewModels/Managers: 200-300 lines; split beyond 500 lines
+- **Web (React/Next.js)**: 100-200 lines average
+  - Components: 100-200 lines; extract sub-components beyond 300 lines
+  - Pages: 150-250 lines; extract sections beyond 400 lines
+- **Stream Deck plugins**: 50-150 lines per action/component
+
 ## Trigger Keywords
 
 ### Thinking Keywords (Domain-Agnostic)
