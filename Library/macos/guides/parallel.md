@@ -39,6 +39,7 @@ Tasks with dependencies MUST run after their prerequisites complete.
 
 ### Agent Limitations
 - **Context capacity**: Agents have limited context windows - don't overload them
+- **Token budget**: Each agent consumes tokens from 1M context; balance quantity vs. quality
 - **Instruction processing**: Too many instructions reduce agent effectiveness
 - **Knowledge gaps**: Agents don't inherit your context - provide necessary information
 
@@ -95,7 +96,7 @@ Always use a single `function_calls` block for parallel execution:
 ### Parallelization Thresholds
 - **Minimum**: Only parallelize when 2+ independent tasks exist
 - **Optimal**: Groups of 3-5 independent tasks per batch
-- **Maximum**: Avoid more than 7-8 concurrent agents (diminishing returns)
+- **Maximum**: Avoid more than 7-8 concurrent agents (diminishing returns, token overhead)
 
 ## Common Patterns
 
