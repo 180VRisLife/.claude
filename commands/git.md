@@ -4,11 +4,33 @@ I have just finished one or more changes. It's time to commit changes and potent
 
 Analyze git diffs, running any additional `git` commands necessary to understand the scope of change.
 
+### Debugging Code Check
+
+**ALWAYS check for debugging code in diffs:**
+
+Look for these patterns across all changed files:
+- **Console/print statements:** console.log, console.debug, print(), NSLog, println, debugPrint
+- **Debug flags:** DEBUG = true, isDebug, isDevelopment
+- **Breakpoint markers:** // DEBUG, // TEMP, // REMOVE
+- **Verbose logging:** Excessive logging that's only useful during development
+- **Test data:** Hardcoded test values, mock data generators
+
+**If ANY debugging code is found:**
+1. List each instance with file path and line number
+2. Show a snippet of the debugging code
+3. Ask: "I found debugging code in the changes. Should I remove it before committing, or do you want to commit it?"
+4. **If user wants to remove:** Create a cleanup commit first, then proceed with main commit
+5. **If user wants to keep:** Note it in commit context and continue
+
+**Common responses:**
+- "Remove it" → Clean up debugging code, stage, commit cleanup separately
+- "Keep it" / "Commit it" → Proceed with debugging code included
+- "Remove [specific ones]" → Selective cleanup of mentioned instances
+
 ### Commit Readiness Check
 
-Before proceeding, assess if changes are production-ready. Look for:
+After the debugging check, assess if other changes are production-ready. Look for:
 
-- **Debugging code:** Extensive console.log, print, debug statements
 - **TODO/FIXME comments:** Incomplete implementations
 - **Commented-out code:** Large blocks that should be removed
 - **Temporary files:** Test files, scratch files, debug outputs
