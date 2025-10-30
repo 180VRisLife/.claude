@@ -23,6 +23,51 @@ Before proceeding, assess if changes are production-ready. Look for:
 
 **Check for unnecessary files:** Identify empty test files or temporary files that shouldn't be committed. Add them to the cleanup reminder list if found but user wants to proceed.
 
+### Amend vs New Commit Decision
+
+Before creating a new commit, check if changes should amend the last commit instead:
+
+**Run these checks:**
+```bash
+# Check last commit authorship
+git log -1 --format='%an %ae'
+
+# Check if branch has been pushed
+git status
+
+# Check last commit message and timestamp
+git log -1 --format='%h %s (%cr)'
+```
+
+**Amend if ALL conditions are true:**
+1. ✅ Last commit author matches current git user (don't amend others' commits)
+2. ✅ Branch shows "Your branch is ahead" or equivalent (not pushed to remote)
+3. ✅ Last commit is recent (within last hour) AND addresses same feature/fix
+4. ✅ Changes are directly related to last commit's scope
+
+**Examples when to amend:**
+- Fixing typos in code just committed
+- Adding forgotten files to a feature just committed
+- Addressing linting/formatting issues from pre-commit hooks
+- Small refinements to logic in recent commit
+
+**Examples when NOT to amend:**
+- Last commit was hours/days ago
+- Changes address different feature or bug
+- Commit has been pushed (force push required)
+- Author is different (collaborative work)
+- Changes are substantial enough to warrant separate history entry
+
+**If amending:**
+```bash
+git add [files]
+git commit --amend --no-edit  # Keep same message
+# OR
+git commit --amend -m "updated message"  # Update message
+```
+
+**If unsure:** Ask user "These changes seem related to your last commit '[message]' from [time ago]. Should I amend that commit or create a new one?"
+
 ## Phase 2: Decision & Strategy
 
 ### For Small Changes (Handle Directly)
