@@ -251,25 +251,44 @@ Do NOT commit after completing tasks unless explicitly instructed. The user cont
 
 ## File Size Guidelines
 
-### CLAUDE.md Files
-- **Global** (~/.claude/CLAUDE.md): 150-300 lines (~2,000-4,000 tokens)
-- **Local** (./.claude/CLAUDE.md or ./CLAUDE.md): 200-400 lines (~3,000-5,000 tokens)
-- **Maximum**: 500 lines before splitting into guides/
-- **Auto-loaded**: All CLAUDE.md files load into context at startup; keep concise
+### Philosophy
 
-### Documentation Files
-- **Planning documents** (requirements, shared, parallel): 100-300 lines each
-  - **Maximum**: 400 lines before splitting into separate focused documents
-- **Feature guides**: 50-150 lines per feature
-  - **Maximum**: 200 lines before splitting into multiple feature guides or refining content
-- **Reference guides**: 200-400 lines (prompting, parallel execution)
-  - **Maximum**: 500 lines before splitting into topic-specific guides or moving sections to feature docs
+Optimize for **logical coherence** and **developer experience** rather than arbitrary line counts:
+- **Logical coherence**: Does this file cover one complete concept?
+- **Human readability**: Can a developer scan this in 2-3 minutes?
+- **Load relevance**: Auto-loaded files (CLAUDE.md) must stay tight; on-demand files can be larger
+- **Search efficiency**: One searchable file often beats navigating multiple fragments
+
+### CLAUDE.md Files (Auto-loaded)
+
+These are always loaded into context, so keep them concise:
+- **Global** (~/.claude/CLAUDE.md): 150-400 lines (~8-16KB)
+- **Local** (./.claude/CLAUDE.md or ./CLAUDE.md): 200-500 lines (~12-20KB)
+- **Maximum**: 600 lines before splitting into guides/
+- **Optimal**: Under 50KB per file (official Anthropic guidance)
+
+### Documentation Files (On-demand)
+
+These load only when needed, so optimize for completeness over size:
+- **Planning documents** (requirements, shared, parallel): 200-600 lines each
+  - **Maximum**: 1,000 lines (split when content becomes logically distinct)
+  - Complex architectures need room for comprehensive documentation
+- **Feature guides**: 100-400 lines per feature
+  - **Maximum**: 600 lines (split when covering multiple unrelated features)
+  - Complete features often need comprehensive examples
+- **Reference guides**: 400-800 lines (prompting, parallel execution)
+  - **Maximum**: 1,200 lines (split into topic-specific guides)
+  - Reference material should be complete and searchable
 
 ### Token Budget (1M context)
-- CLAUDE.md files: ~10K tokens (1% - global + local + imports)
-- Planning documents: ~15K tokens (1.5%)
-- Code files (active work): ~100K tokens (10%)
-- Remaining: ~775K tokens (77.5% for deep work)
+
+With Sonnet 4.5's 1M token context window and context awareness:
+- CLAUDE.md files: ~10-20K tokens (1-2%)
+- All documentation: ~50-100K tokens (5-10%)
+- Active code work: ~100-500K tokens (10-50%)
+- Remaining: ~400K+ tokens (40%+) for deep work
+
+**Modern reality**: File size is less critical than logical organization and relevance. Claude tracks token budget automatically.
 
 ## Development Notes
 

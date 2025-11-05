@@ -172,15 +172,19 @@ VALIDATION: After each file creation, verify that someone could do a side-by-sid
 
 ## File Size Best Practices
 
-### CLAUDE.md Files
-- **Global** (~/.claude/CLAUDE.md): 150-300 lines (~2,000-4,000 tokens)
-- **Local** (./.claude/CLAUDE.md or ./CLAUDE.md): 200-400 lines (~3,000-5,000 tokens)
-- **Maximum**: 500 lines (split into guides/ if exceeded)
+Optimize for **logical coherence** and **developer experience** rather than arbitrary line counts. With Sonnet 4.5's 1M context window, focus on creating complete, searchable documentation.
 
-### Documentation Files
-- **Planning docs** (requirements, shared, parallel): 100-300 lines
-- **Feature guides**: 50-150 lines
-- **Reference guides**: 200-400 lines
+### CLAUDE.md Files (Auto-loaded)
+- **Global** (~/.claude/CLAUDE.md): 150-400 lines (~8-16KB)
+- **Local** (./.claude/CLAUDE.md or ./CLAUDE.md): 200-500 lines (~12-20KB)
+- **Maximum**: 600 lines (split into guides/ if exceeded)
+- Keep under 50KB per file (official Anthropic guidance)
+
+### Documentation Files (On-demand)
+- **Planning docs** (requirements, shared, parallel): 200-600 lines (max 1,000)
+- **Feature guides**: 100-400 lines (max 600)
+- **Reference guides**: 400-800 lines (max 1,200)
+- Split when content becomes logically distinct, not at arbitrary line counts
 
 ### Code Files (Domain-Specific)
 - **iOS/macOS/visionOS (Swift)**: 150-250 lines average
