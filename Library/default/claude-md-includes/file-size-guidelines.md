@@ -7,8 +7,8 @@
 - **Huge files** (2000+ lines): Anti-pattern; flag for refactoring
 
 **Recommended maximums before refactoring:**
-- General components/modules: 200-300 lines
-- Utilities/helpers: 100-200 lines
+- General components/modules: 200-300 lines; refactor beyond 400 lines
+- Utilities/helpers: 100-200 lines; split beyond 300 lines
 
 ### Token Budget Awareness
 Each file read consumes tokens from the 1M context window. Prefer targeted reads (Grep + offset/limit) for large files to preserve context capacity for actual implementation work.

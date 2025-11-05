@@ -4,7 +4,7 @@
 - **Views (SwiftUI/AppKit)**: 100-200 lines; extract subviews beyond 300 lines
 - **ViewModels/Managers**: 200-300 lines; split responsibilities beyond 500 lines
 - **Models**: 50-100 lines; use extensions for computed properties beyond 200 lines
-- **Utilities/Extensions**: 100-200 lines per file
+- **Utilities/Extensions**: 100-200 lines; split beyond 300 lines
 
 ### File Reading Strategy
 - **<200 lines**: Read entire file with Read tool
