@@ -259,8 +259,11 @@ Do NOT commit after completing tasks unless explicitly instructed. The user cont
 
 ### Documentation Files
 - **Planning documents** (requirements, shared, parallel): 100-300 lines each
+  - **Maximum**: 400 lines before splitting into separate focused documents
 - **Feature guides**: 50-150 lines per feature
+  - **Maximum**: 200 lines before splitting into multiple feature guides or refining content
 - **Reference guides**: 200-400 lines (prompting, parallel execution)
+  - **Maximum**: 500 lines before splitting into topic-specific guides or moving sections to feature docs
 
 ### Token Budget (1M context)
 - CLAUDE.md files: ~10K tokens (1% - global + local + imports)
