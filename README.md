@@ -187,13 +187,25 @@ Optimize for **logical coherence** and **developer experience** rather than arbi
 - Split when content becomes logically distinct, not at arbitrary line counts
 
 ### Code Files (Domain-Specific)
-- **iOS/macOS/visionOS (Swift)**: 150-250 lines average
-  - Views: 100-200 lines; extract subviews beyond 300 lines
-  - ViewModels/Managers: 200-300 lines; split beyond 500 lines
-- **Web (React/Next.js)**: 100-200 lines average
-  - Components: 100-200 lines; extract sub-components beyond 300 lines
-  - Pages: 150-250 lines; extract sections beyond 400 lines
-- **Stream Deck plugins**: 50-150 lines per action/component
+- **iOS/macOS/visionOS (Swift)**:
+  - Views: 200-400 lines; extract subviews beyond 600 lines
+  - ViewModels/Managers: 300-600 lines; split beyond 1,000 lines
+  - Models: 100-200 lines; use extensions beyond 400 lines
+  - Utilities: 200-400 lines; split beyond 600 lines
+- **Web (React/Next.js)**:
+  - Components: 200-400 lines; extract sub-components beyond 600 lines
+  - Pages: 250-400 lines; extract sections beyond 700 lines
+  - Hooks: 100-200 lines; extract logic beyond 400 lines
+  - Utilities: 200-400 lines; split beyond 600 lines
+- **Stream Deck plugins**:
+  - Actions: 100-200 lines; refactor beyond 400 lines
+  - UI components: 100-200 lines; extract beyond 300 lines
+  - Utilities: 200-300 lines; split beyond 500 lines
+- **Default (General)**:
+  - Components/modules: 300-500 lines; refactor beyond 800 lines
+  - Utilities/helpers: 200-400 lines; split beyond 600 lines
+
+**Key principle:** Prefer logical coherence over arbitrary limits. A cohesive 700-line module is better than three fragmented files.
 
 ## Trigger Keywords
 
