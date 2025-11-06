@@ -15,25 +15,38 @@ This command automatically detects your project type (visionos, web, etc.) and c
 ### Planning Commands (Domain-Specific)
 *Execute in this order when building a new feature:*
 *Clear Claude's memory and tag in .docs/plans/[FEATURENAME] directory each time you run these commands*
+
+**Full Workflow:**
 ```
-/plan-requirements
+/1-requirements
 ```
-Creates a requirements document with user flows, functional requirements, and UI/system specifications
+Creates a requirements document with user flows, functional requirements, and UI/system specifications (non-technical, user-focused)
 
 ```
-/plan-shared
+/2-architecture
 ```
-Documents architecture overview, relevant files, patterns, and Core Data/CloudKit schemas
+Documents architecture overview, relevant files, patterns, and database schemas (technical design)
 
 ```
-/plan-parallel
+/3-priority
 ```
-Creates parallelizable task breakdown with dependencies, agent assignments, and implementation phases
+Ruthlessly prioritizes features into 3 tiers: Tier 1 (build now), Tier 2 (stub/placeholder), Tier 3 (future). Includes hybrid project detection (new project vs feature addition).
 
 ```
-/execute-implement-plan
+/4-parallelization
 ```
-Orchestrates parallel agent execution based on plan dependencies, running batches simultaneously
+Creates parallelizable task breakdown with dependencies, agent assignments, and implementation phases. Includes smart detection to suggest sequential execution for simple projects (<5 Tier 1 tasks).
+
+```
+/5-execution
+```
+Orchestrates implementation with phase-by-phase review pauses. Re-runnable (tracks progress via execution-status.json), supports iterative feedback, and allows one-shot mode.
+
+**Simplified Workflow** (for simple features):
+```
+/1-requirements → /2-architecture → /3-priority → /5-execution
+```
+Skip `/4-parallelization` for features with fewer than 5 priority tasks
 
 ### Git Command (Domain-Agnostic)
 ```
@@ -154,9 +167,9 @@ Agent Requirements:
 File structure conventions:
 - agents/base/: code-finder.md, code-finder-advanced.md, implementor.md, library-docs-writer.md, root-cause-analyzer.md
 - agents/specialist/: [name1].md, [name2].md, [name3].md
-- commands/: plan-requirements.md, plan-shared.md, plan-parallel.md, execute-implement-plan.md
+- commands/: 1-requirements.md, 2-architecture.md, 3-priority.md, 4-parallelization.md, 5-execution.md
 - hooks/: custom-reminder.py, output-style-switcher.py, parallel.py
-- file-templates/: requirements.template.md, shared.template.md, parallel.template.md
+- file-templates/: requirements.template.md, architecture.template.md, priority.template.md, parallelization.template.md
 - output-styles/: main.md, planning.md, brainstorming.md, business-panel.md, deep-research.md
 
 Start by researching best practices for the specified domain's development, then systematically create each folder by:
@@ -179,12 +192,6 @@ Optimize for **logical coherence** and **developer experience** rather than arbi
 - **Local** (./.claude/CLAUDE.md or ./CLAUDE.md): 200-500 lines (~12-20KB)
 - **Maximum**: 600 lines (split into guides/ if exceeded)
 - Keep under 50KB per file (official Anthropic guidance)
-
-### Documentation Files (On-demand)
-- **Planning docs** (requirements, shared, parallel): 200-600 lines (max 1,000)
-- **Feature guides**: 100-400 lines (max 600)
-- **Reference guides**: 400-800 lines (max 1,200)
-- Split when content becomes logically distinct, not at arbitrary line counts
 
 ### Code Files (Domain-Specific)
 - **iOS/macOS/visionOS (Swift)**:
@@ -275,11 +282,12 @@ Specialist agents vary by domain and exist in `./.claude/agents/specialist/`. Fo
 - **prompting-guide.md** - Triggered by "improve prompt" keywords; provides best practices for effective development prompts
 
 ### File Templates (Domain-Specific)
-Formatting guides automatically referenced by /plan commands - not executed directly.
+Formatting guides automatically referenced by planning commands - not executed directly.
 *Note: Templates are workspace-local after running `/init-workspace` and exist in `./.claude/file-templates/`*
-- **requirements.template.md** - Template for requirements documents
-- **shared.template.md** - Template for shared architecture documentation
-- **parallel.template.md** - Template for parallel execution plans
+- **requirements.template.md** - Template for requirements documents (user-focused, non-technical)
+- **architecture.template.md** - Template for technical architecture documentation
+- **priority.template.md** - Template for 3-tier prioritization (Tier 1: build, Tier 2: stub, Tier 3: future)
+- **parallelization.template.md** - Template for parallel execution plans with task dependencies
 
 ### Global Hooks (Domain-Agnostic)
 These hooks remain in the global `~/.claude/hooks/` folder and work across all workspaces:
