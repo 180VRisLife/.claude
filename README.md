@@ -284,4 +284,4 @@ Formatting guides automatically referenced by /plan commands - not executed dire
 ### Global Hooks (Domain-Agnostic)
 These hooks remain in the global `~/.claude/hooks/` folder and work across all workspaces:
 - **git-hook.py** - Enhances prompt with git status/diffs when user types exactly `/git`
-- **_system/notifications/** - System notification hooks (sounds, Pushover integration)
+- **_system/notifications/** - System notification hooks (sounds)

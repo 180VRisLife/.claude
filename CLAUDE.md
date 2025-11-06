@@ -33,7 +33,7 @@ This is a comprehensive configuration system for Claude Code that enables domain
 │   └── git.md                      # Git commit orchestration
 ├── hooks/                           # Global hooks
 │   ├── git-hook.py                 # Git status injection
-│   └── _system/                    # System notifications
+│   └── _system/                    # Sound notifications
 ├── scripts/
 │   └── init-workspace.py           # Domain detection & setup
 └── settings.json                    # Global settings
@@ -173,7 +173,7 @@ Use the "New Feature Prompt" pattern from README.md (lines 88-112):
 
 ### Global Hooks (~/.claude/hooks/)
 - **git-hook.py**: Injects git status/diffs when user types `/git` (UserPromptSubmit)
-- **_system/notifications/**: Sound and Pushover notifications (Notification, Stop events)
+- **_system/notifications/**: Sound notifications (Notification, Stop events)
 
 ### Domain-Specific Hooks (./.claude/hooks/)
 Copied from library during `/init-workspace`:
@@ -217,7 +217,7 @@ Used by plan commands for consistent documentation:
 
 **Global settings** (~/.claude/settings.json):
 - Model: sonnet[1m] (1M context)
-- Hooks: git-hook, system notifications
+- Hooks: git-hook, sound notifications
 - alwaysThinkingEnabled: true
 
 **Domain settings** (./.claude/settings.local.json):
