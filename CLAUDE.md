@@ -34,11 +34,15 @@ Analyzes git changes and orchestrates commits intelligently:
 - **Large changes** (3+ files, multiple features): Multiple logical commits grouped by feature/type
 
 **Git Commit Policy - CRITICAL:**
-Claude NEVER creates commits autonomously. Only commit when:
-1. User runs `/git` command explicitly, OR
-2. User provides explicit commit instruction (e.g., "commit these changes with message X")
 
-Do NOT commit after completing tasks unless explicitly instructed. The user controls when commits happen.
+**ABSOLUTE RULE: Claude NEVER commits without the `/git` command.**
+
+- **ONLY** commit when user runs `/git` explicitly
+- **DO NOT** commit on verbal requests ("commit this", "make a commit", etc.)
+- **ALWAYS** respond: "Please run `/git` to orchestrate commits properly"
+- **NEVER** commit after completing tasks, even if user says "and commit it"
+
+The `/git` command analyzes changes and creates logical, well-structured commits. Bypassing it defeats the orchestration system.
 
 ### Git Worktrees
 
