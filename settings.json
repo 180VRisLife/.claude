@@ -18,10 +18,6 @@
           {
             "type": "command",
             "command": "bash /Users/chrisjamesbliss/.claude/hooks/_system/notifications/_system-notifications-attention-sound.sh"
-          },
-          {
-            "type": "command",
-            "command": "bash /Users/chrisjamesbliss/.claude/hooks/_system/notifications/_system-notifications-pushover.sh notification"
           }
         ]
       }
@@ -32,10 +28,6 @@
           {
             "type": "command",
             "command": "bash /Users/chrisjamesbliss/.claude/hooks/_system/notifications/_system-notifications-play-sound.sh"
-          },
-          {
-            "type": "command",
-            "command": "bash /Users/chrisjamesbliss/.claude/hooks/_system/notifications/_system-notifications-pushover.sh stop"
           }
         ]
       }
