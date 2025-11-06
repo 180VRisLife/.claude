@@ -91,17 +91,17 @@ Keywords in user prompts can trigger multiple layers simultaneously (e.g., "plan
 **Command:** `/git`
 
 **Strategy:**
-- **Small changes** (<3 files, single feature): Handle directly
-- **Large changes** (3+ files, multiple features): Delegate documentation to parallel agents using Task tool
+- **Small changes** (<3 files, single feature): Single commit
+- **Large changes** (3+ files, multiple features): Multiple logical commits grouped by feature/type
 
-**Process for large changes:**
-1. Analyze git diffs and identify independent documentation tasks
-2. Launch parallel documentation agents using single function_calls block
-3. Wait for all agents to complete
-4. Stage and commit changes in logical batches with conventional commit messages
+**Process:**
+1. Analyze git diffs for debugging code and commit readiness
+2. Check if changes should amend last commit or create new commit
+3. Stage and commit changes in logical batches with conventional commit messages
+4. Verify all changes are committed with `git status`
 
 **Key Files:**
-- commands/git.md - Complete orchestration workflow
+- commands/git.md - Complete commit workflow
 
 ### Parallel Development
 
