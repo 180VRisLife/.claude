@@ -60,27 +60,44 @@ Remove the worktree
 
 **Important:** Worktrees do NOT auto-delete after merging - you must manually remove them.
 
+## Agent-First Policy
+
+**CRITICAL: Default to agents for all non-trivial tasks.**
+
+**Use agents when:**
+- Multi-step tasks or analysis required
+- Code searches, pattern analysis, architecture understanding
+- Debugging, root cause analysis
+- Feature implementation
+- Anything requiring thinking about approach
+
+**Direct tools ONLY for:**
+- Reading a specific known file
+- One-off grep with exact pattern
+- Simple single-file edit
+
+**Suggest new agents:** If an appropriate agent doesn't exist for the task, proactively suggest creating one:
+- "An agent for database schema analysis doesn't exist - should we create @database-schema-analyzer?"
+- Provide the user with the "New Feature Prompt" from ~/.claude/README.md to create it
+
 ## Agent Types
 
-After running `/init-workspace`, agents become available in `./.claude/agents/`:
+After `/init-workspace`, agents available in `./.claude/agents/`:
 
-### Base Agents (Available in all domains)
+**Base Agents (universal):**
+- **@code-finder** - DEFAULT for code searches (Haiku, fast/cheap)
+- **@code-finder-advanced** - Deep investigation (Sonnet, thorough)
+- **@root-cause-analyzer** - Bug diagnosis (investigation only)
+- **@implementor** - Executes tasks from plans
+- **@library-docs-writer** - Fetches/compresses library docs
 
-- **@code-finder** - Quick file/function location using Haiku model (fast, cheaper)
-- **@code-finder-advanced** - Deep cross-file analysis using Sonnet model (thorough, comprehensive)
-- **@implementor** - Executes implementation tasks from parallel plans with strict adherence
-- **@library-docs-writer** - Fetches and compresses external library documentation into reference files
-- **@root-cause-analyzer** - Systematic bug diagnosis through investigation
-
-### Specialist Agents (Domain-specific)
-
-Specialist agents vary by domain and are automatically selected by Claude based on task context:
+**Specialist Agents (domain-specific):**
 - **default**: backend-feature, frontend-feature, fullstack-feature
-- **iOS/macOS/visionOS**: Domain-specific feature agents for Apple platforms
-- **webdev**: React/Next.js feature agents
-- **streamdeck**: Plugin development feature agents
+- **iOS/macOS/visionOS**: ui-swiftui, networking-data, architecture, etc.
+- **webdev**: react-component, api-endpoint, fullstack-feature
+- **streamdeck**: action-feature, integration-feature, ui-feature
 
-See `./.claude/agents/specialist/` after running `/init-workspace` for your domain's specialists.
+See `./.claude/agents/specialist/` for your domain's complete roster.
 
 ## Output Styles
 
