@@ -5,8 +5,8 @@
 - /src/path: very brief description
 - /more/paths: very brief description
 
-## Relevant Core Data Entities / CloudKit Schemas
-- Relevant entity/record type
+## Relevant Database Entities / Schemas
+- Relevant entity/table/collection
 
 ## Relevant Patterns
 **Pattern name**: 1 sentence, information dense description, link to example file if possible

@@ -1,4 +1,4 @@
-Create a `.docs/plans/[feature-name]/parallelization.md` document breaking down implementation into parallel tasks using `$CLAUDE_HOME/file-templates/parallelization.template.md`.
+Create a `.docs/plans/[feature-name]/parallelization.md` document breaking down web implementation into parallel tasks using `$CLAUDE_HOME/file-templates/parallelization.template.md`.
 
 Please provide the path to the planning directory (e.g., `.docs/plans/feature-name/`):
 
@@ -23,7 +23,7 @@ If user agrees, exit and tell them to run `/5-execution`.
 Continue with parallel planning. If tasks have heavy dependencies or touch same files extensively, warn: "Many dependencies limit parallelization. Expect some sequential bottlenecks."
 
 ### 3. Additional Research (if needed)
-If planning documents lack details, read relevant codebase files. Quality is critical - mistakes cause implementation failures.
+If planning documents lack details, read relevant files. Quality is critical - mistakes cause implementation failures.
 
 ### 4. Create Parallel Plan
 Break work into phases and tasks. Each task:
@@ -44,10 +44,11 @@ Agent: agent-name
 **Instructions**
 
 Files to Create
-- /path/to/new/file
+- /path/to/new/component.tsx
+- /path/to/new/api/route.ts
 
 Files to modify
-- /path/to/existing/file
+- /path/to/existing/file.ts
 
 [Concise implementation instructions]
 ```
@@ -61,7 +62,7 @@ Agent: agent-name
 Tier 2 stub - use strategy from priority.md:
 [Copy stub strategy]
 
-[Minimal implementation instructions]
+[Minimal implementation instructions for placeholder component, mock data, etc.]
 ```
 
 ### 5. Plan Structure
@@ -71,11 +72,11 @@ Top of document includes:
 - Documentation paths
 
 Organize phases:
-- Phase 1: Foundation/core setup
-- Phase 2+: Feature implementations (parallel)
-- Final: Integration, type validation
+- Phase 1: Foundation/core setup (API routes, data models, hooks)
+- Phase 2+: Feature implementations (Components, UI - parallel)
+- Final: Integration, type validation, build check
 
-Skip individual testing EXCEPT final typecheck.
+Skip individual testing EXCEPT final typecheck and build.
 
 Upon completion: "Parallelization plan complete. Run `/5-execution` to begin."
 

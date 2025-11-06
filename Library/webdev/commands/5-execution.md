@@ -1,4 +1,4 @@
-Execute an implementation plan with support for resuming, iterative feedback, and phase-by-phase review.
+Execute a web implementation plan with support for resuming, iterative feedback, and phase-by-phase review.
 
 Please provide the path to the planning directory (e.g., `.docs/plans/feature-name/`):
 
@@ -45,7 +45,7 @@ Create new status file:
 Make todo for each task in plan:
 - Note dependencies
 - Mark status from execution-status.json
-- Skip individual testing EXCEPT final typecheck
+- Skip individual testing EXCEPT final typecheck and build
 
 ### 5. Execute Phases
 
@@ -61,7 +61,7 @@ Make todo for each task in plan:
   - Typecheck requirement before returning
 
 **Agent Orchestration:**
-Ensure compatible contracts (e.g., API endpoints, types). Coordinate to prevent conflicts.
+Ensure compatible contracts (e.g., API endpoints, component props, hook interfaces). Coordinate to prevent conflicts.
 
 **5b. Verify Completion**
 - Run typecheck on modified files
@@ -84,7 +84,7 @@ If task fails:
 ✅ Phase X complete
 
 Tasks: Task X.1, Task X.2
-Files: /path/to/file, /path/to/other
+Files: /path/to/component.tsx, /path/to/api/route.ts
 
 📋 Review changes. Type 'continue' for Phase Y, or provide feedback.
 ```
@@ -98,7 +98,7 @@ Files: /path/to/file, /path/to/other
 ### 6. Final Validation
 After all phases:
 1. Mark all tasks completed in status file
-2. Run full typecheck
+2. Run full typecheck and build check
 3. Output:
 ```
 ✅ All phases complete!
@@ -106,7 +106,7 @@ After all phases:
 Summary: X tasks, Y phases, Z files created, W modified
 
 Next steps:
-1. Run tests: [suggest command]
+1. Run dev server and test feature
 2. Review changes
 3. Commit: /git
 ```

@@ -1,4 +1,4 @@
-Execute an implementation plan with support for resuming, iterative feedback, and phase-by-phase review.
+Execute a macOS implementation plan with support for resuming, iterative feedback, and phase-by-phase review.
 
 Please provide the path to the planning directory (e.g., `.docs/plans/feature-name/`):
 
@@ -9,7 +9,7 @@ Read in order:
 1. `parallelization.md` OR `priority.md` (if parallelization skipped)
 2. `architecture.md`
 3. `requirements.md`
-4. Relevant files mentioned at top of plan
+4. Relevant Swift files mentioned at top of plan
 
 ### 2. Check Execution Status
 Look for `.docs/plans/[feature-name]/execution-status.json`.
@@ -20,7 +20,7 @@ Present summary:
 Previous execution:
 ✅ Completed: Phase 1 (Tasks: 1.1, 1.2, 1.3)
 🚧 In-progress: Phase 2 (Task: 2.1)
-❌ Failed: Task 2.2 (typecheck errors)
+❌ Failed: Task 2.2 (build errors)
 ⏸️ Pending: Phase 3, Phase 4
 ```
 Ask: "Continue from Phase 2? Or start fresh?"
@@ -45,7 +45,7 @@ Create new status file:
 Make todo for each task in plan:
 - Note dependencies
 - Mark status from execution-status.json
-- Skip individual testing EXCEPT final typecheck
+- Skip individual testing EXCEPT final build check
 
 ### 5. Execute Phases
 
@@ -57,14 +57,14 @@ Make todo for each task in plan:
 - Delegate to specialist agents with:
   - Links to planning docs
   - Task instructions
-  - File paths and documentation
-  - Typecheck requirement before returning
+  - Swift file paths and documentation
+  - Build validation requirement before returning
 
 **Agent Orchestration:**
-Ensure compatible contracts (e.g., API endpoints, types). Coordinate to prevent conflicts.
+Ensure compatible contracts (e.g., Model/ViewModel interfaces, SwiftUI bindings). Coordinate to prevent conflicts.
 
 **5b. Verify Completion**
-- Run typecheck on modified files
+- Run build check on modified files
 - Update execution-status.json:
 ```json
 "phases": {
@@ -84,7 +84,7 @@ If task fails:
 ✅ Phase X complete
 
 Tasks: Task X.1, Task X.2
-Files: /path/to/file, /path/to/other
+Files: /path/to/ViewController.swift, /path/to/ViewModel.swift
 
 📋 Review changes. Type 'continue' for Phase Y, or provide feedback.
 ```
@@ -98,7 +98,7 @@ Files: /path/to/file, /path/to/other
 ### 6. Final Validation
 After all phases:
 1. Mark all tasks completed in status file
-2. Run full typecheck
+2. Run full build check
 3. Output:
 ```
 ✅ All phases complete!
@@ -106,7 +106,7 @@ After all phases:
 Summary: X tasks, Y phases, Z files created, W modified
 
 Next steps:
-1. Run tests: [suggest command]
+1. Run app and test feature
 2. Review changes
 3. Commit: /git
 ```
@@ -115,7 +115,7 @@ Next steps:
 
 **DO:**
 - Update status file after every phase
-- Run typechecks before/after phases
+- Run build checks before/after phases
 - Parallelize independent tasks (single function call)
 - Coordinate agent contracts
 - Enable easy resume
@@ -139,4 +139,4 @@ If marked "(STUB)":
 "Stop here, I need to test" → Save status, exit
 ```
 
-You orchestrate, agents implement. Coordinate work, ensure quality via typechecks and review.
+You orchestrate, agents implement. Coordinate work, ensure quality via build checks and review.

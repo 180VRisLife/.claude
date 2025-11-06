@@ -12,7 +12,7 @@
 ### Phase 1
 
 #### Task 1.1: [relevant title] - Depends on [none]
-Agent: action
+Agent: ui-developer
 
 **READ THESE BEFORE TASK**
 - /src/path

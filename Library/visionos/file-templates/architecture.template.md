@@ -5,8 +5,8 @@
 - /src/path: very brief description
 - /more/paths: very brief description
 
-## Relevant Manifest Entries / Action Classes
-- Relevant action UUID or class name
+## Relevant Database Entities / Schemas
+- Relevant entity/table/collection
 
 ## Relevant Patterns
 **Pattern name**: 1 sentence, information dense description, link to example file if possible
