@@ -4,28 +4,44 @@ I have just finished one or more changes. It's time to commit changes.
 
 Analyze git diffs, running any additional `git` commands necessary to understand the scope of change.
 
-### Debugging Code Check
+### ⛔️ CRITICAL: Debugging Code Check
 
-**ALWAYS check for debugging code in diffs:**
+**ABSOLUTE RULE: DEBUG LOGGING MUST NEVER BE COMMITTED**
 
-Look for these patterns across all changed files:
-- **Console/print statements:** console.log, console.debug, print(), NSLog, println, debugPrint
-- **Debug flags:** DEBUG = true, isDebug, isDevelopment
-- **Breakpoint markers:** // DEBUG, // TEMP, // REMOVE
+**ONLY exceptions:**
+- ✅ Debug UI features (settings panels, diagnostic screens explicitly for users)
+- ✅ Release diagnostics (production logging infrastructure like DebugLogger)
+
+**Everything else is FORBIDDEN:**
+
+**MANDATORY scan for these patterns across ALL changed files:**
+- **Console/print statements:** console.log, console.debug, console.warn, print(), NSLog, println, debugPrint, os_log (DEBUG only)
+- **Debug flags:** DEBUG = true, isDebug = true, isDevelopment = true
+- **Breakpoint markers:** // DEBUG, // TEMP, // REMOVE, // FIXME (debugging context)
 - **Verbose logging:** Excessive logging that's only useful during development
-- **Test data:** Hardcoded test values, mock data generators
+- **Test data:** Hardcoded test values, mock data generators, fake API responses
+- **Commented debugging code:** Blocks of commented-out debugging statements
 
 **If ANY debugging code is found:**
-1. List each instance with file path and line number
-2. Show a snippet of the debugging code
-3. Ask: "I found debugging code in the changes. Should I remove it before committing, or do you want to commit it?"
-4. **If user wants to remove:** Create a cleanup commit first, then proceed with main commit
-5. **If user wants to keep:** Note it in commit context and continue
 
-**Common responses:**
-- "Remove it" → Clean up debugging code, stage, commit cleanup separately
-- "Keep it" / "Commit it" → Proceed with debugging code included
-- "Remove [specific ones]" → Selective cleanup of mentioned instances
+This is a **HARD STOP**. You MUST:
+
+1. **List each instance** with file path and line number
+2. **Show a snippet** of the debugging code
+3. **STOP and declare:** "⛔️ I found debugging code in the changes. This CANNOT be committed unless it's part of a debug UI or release diagnostics."
+4. **Ask explicitly:** "Is this part of a debug UI feature or release diagnostics infrastructure? If not, I need to remove it before committing."
+
+**If user confirms it's NOT an exception:**
+- **Default action:** Remove the debugging code immediately
+- Create a cleanup commit first: `git add [files] && git commit -m "chore: remove debug logging"`
+- Then proceed with the main commit
+
+**If user confirms it IS an exception (debug UI or release diagnostics):**
+- Verify it's properly gated or conditionally compiled for release builds
+- Add a note in the commit message: "Includes debug UI/diagnostics feature"
+- Proceed with commit
+
+**NO other responses are acceptable.** Debugging code does not belong in version control unless explicitly designed for end-users or production diagnostics.
 
 ### Commit Readiness Check
 

@@ -44,6 +44,14 @@ Analyzes git changes and orchestrates commits intelligently:
 
 The `/git` command analyzes changes and creates logical, well-structured commits. Bypassing it defeats the orchestration system.
 
+### Debug Logging Policy
+
+**⛔️ ABSOLUTE RULE: DEBUG LOGGING MUST NEVER BE COMMITTED**
+
+**ONLY exceptions:** Debug UI features or release diagnostics infrastructure (properly gated for production).
+
+The `/git` command enforces this automatically.
+
 ### Git Worktrees
 
 Git worktrees enable multiple Claude instances to work on different features simultaneously:
