@@ -80,8 +80,7 @@ git log -1 --format='%h %s (%cr)'
 **Amend if ALL conditions are true:**
 1. ✅ Last commit author matches current git user (don't amend others' commits)
 2. ✅ Branch shows "Your branch is ahead" or equivalent (not pushed to remote)
-3. ✅ Last commit is recent (within last hour) AND addresses same feature/fix
-4. ✅ Changes are directly related to last commit's scope
+3. ✅ Changes are directly related to last commit's scope
 
 **Examples when to amend:**
 - Fixing typos in code just committed
@@ -90,7 +89,6 @@ git log -1 --format='%h %s (%cr)'
 - Small refinements to logic in recent commit
 
 **Examples when NOT to amend:**
-- Last commit was hours/days ago
 - Changes address different feature or bug
 - Commit has been pushed (force push required)
 - Author is different (collaborative work)
