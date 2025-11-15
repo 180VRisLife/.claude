@@ -54,23 +54,23 @@ The `/git` command enforces this automatically.
 
 ### Git Worktrees
 
-Git worktrees enable multiple Claude instances to work on different features simultaneously:
+**Git worktrees enable isolated parallel development for non-trivial work.**
 
-```bash
-# Create worktree for new feature
-Create a worktree and implement [feature]
+**Why use worktrees:**
+- **Isolation** - Changes don't affect main codebase
+- **Parallel sessions** - Run multiple Claude instances simultaneously
+- **Easy abandonment** - Delete worktree if approach doesn't work
+- **Clean history** - Each feature gets its own branch and merge
 
-# List active worktrees
-git worktree list
+**Workflow:**
+- Create: `git worktree add ../feature-name feature-name`
+- Work in isolation on feature branch
+- When done: `/git` handles commits → merge → cleanup automatically
 
-# After testing and committing in worktree
-Merge back to main
-
-# Clean up (REQUIRED - worktrees persist after merge)
-Remove the worktree
-```
-
-**Important:** Worktrees do NOT auto-delete after merging - you must manually remove them.
+**Key points:**
+- **Use `/worktree`** - Check status, find conflicts, cleanup suggestions
+- **Auto-cleanup** - `/git` removes worktree after successful merge
+- **Always cleanup** - Worktrees persist on disk after merge
 
 ## Agent-First Policy
 

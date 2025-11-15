@@ -58,45 +58,36 @@ Analyzes git changes and orchestrates commits - Determines if changes are small 
 
 **Use worktrees to run multiple Claude instances on different features simultaneously.**
 
-**Complete Workflow:**
+**Primary Workflow:**
 
 1. Create worktree and implement feature:
 ```
 Create a worktree and implement [feature description]
 ```
-Claude will auto-name the worktree directory and branch based on your feature description.
+Claude auto-names the worktree directory and branch based on your feature description.
 
 2. Test the feature in the worktree directory
 
-3. Commit changes:
+3. Commit, merge, and cleanup:
 ```
 /git
 ```
+Automatically handles commits, merges back to base branch, and removes the worktree.
 
-4. Merge back to parent branch:
+**Managing Multiple Worktrees:**
 ```
-Merge back to main
+/worktree
 ```
-
-5. Clean up worktree (REQUIRED - worktrees persist on disk after merge):
-```
-Remove the worktree
-```
-
-**Useful Commands:**
-```bash
-# List all active worktrees
-git worktree list
-
-# Manually remove a worktree
-git worktree remove ../worktree-directory-name
-```
+- Check status of all worktrees (merge readiness, conflicts, stale branches)
+- Manage multiple parallel worktrees
+- Clean up orphaned or abandoned worktrees
+- Resolve conflicts before merging
 
 **Key Points:**
-- Each worktree is a separate directory on disk with its own branch checked out
-- Worktrees enable multiple Claude instances to work on different features without file conflicts
-- Worktrees do NOT auto-delete after merging - you must manually remove them
-- Main workspace remains untouched while Claude works in the worktree
+- Each worktree is a separate directory on disk with its own branch
+- Enables multiple Claude instances on different features without conflicts
+- Main workspace remains untouched while working in worktree
+- `/git` handles the full workflow (commit → merge → cleanup)
 
 ### New Feature Prompt (Domain-Aware)
 ```
