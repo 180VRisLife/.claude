@@ -129,6 +129,155 @@ git commit -m "feat(feature-b): add related feature"
 1. Stage and commit changes in logical batches
 2. List all commits created with their messages
 3. Run `git status` to verify all changes are committed
+4. **If in worktree:** Proceed to Phase 4 (Worktree Merge & Cleanup)
+5. **If NOT in worktree:** Skip to Cleanup Reminders section
+
+## Phase 4: Worktree Merge & Cleanup (Worktrees Only)
+
+**This phase only runs when you are in a git worktree.**
+
+### Step 1: Detect Worktree Context
+
+```bash
+# Check if we're in a worktree
+git rev-parse --git-dir
+# If output contains "worktrees", we're in a worktree
+```
+
+**If NOT in worktree:** Skip this entire phase.
+
+### Step 2: Commit Summary
+
+Display summary of what was just committed:
+```
+✅ Created <count> commit(s) in worktree <worktree-name>:
+
+1. <commit-hash> - <commit-message>
+2. <commit-hash> - <commit-message>
+...
+
+Branch: <current-branch>
+```
+
+### Step 3: Detect Base Branch
+
+Find the branch this worktree was created from:
+```bash
+# Try common base branches in order
+for branch in main master develop; do
+  git show-ref --verify --quiet refs/heads/$branch && base_branch=$branch && break
+done
+```
+
+### Step 4: Check Merge Status
+
+Before asking user, check if merge will be clean:
+```bash
+# Check for merge conflicts
+git fetch origin  # Ensure up to date
+
+# Test merge (don't actually merge yet)
+git merge-tree $(git merge-base $base_branch HEAD) $base_branch HEAD
+```
+
+**If conflicts detected:**
+```
+⚠️  Warning: Merging to <base-branch> will cause conflicts in:
+- path/to/file1.js
+- path/to/file2.py
+
+You'll need to resolve these conflicts before merging.
+```
+
+**If clean merge:**
+```
+✅ Can merge cleanly to <base-branch>
+```
+
+### Step 5: Ask User for Confirmation
+
+**Present clear choice:**
+```
+Ready to merge back to <base-branch> and cleanup this worktree?
+
+Your commits:
+- <commit-message-1>
+- <commit-message-2>
+
+Actions if you proceed:
+1. Switch to <base-branch>
+2. Merge <current-branch> (no-ff merge)
+3. Remove worktree <worktree-name>
+4. Clean up session tracking
+
+Do you want to proceed? (yes/no/show-conflicts)
+```
+
+**User responses:**
+- **yes** → Proceed to Step 6
+- **no** → Skip to Cleanup Reminders (leave worktree intact)
+- **show-conflicts** → Display detailed conflict preview, then ask again
+
+### Step 6: Execute Merge & Cleanup
+
+**Only if user confirmed "yes":**
+
+```bash
+# Save current worktree path and branch
+worktree_path=$(git rev-parse --show-toplevel)
+worktree_branch=$(git rev-parse --abbrev-ref HEAD)
+
+# Switch to base branch (in main repo)
+cd <main-repo-path>
+git checkout $base_branch
+
+# Merge the worktree branch
+git merge $worktree_branch --no-ff -m "Merge feature: <brief-description>"
+
+# Verify merge succeeded
+if [ $? -eq 0 ]; then
+  echo "✅ Merge successful"
+
+  # Remove the worktree
+  git worktree remove $worktree_path
+
+  # Clean up session tracking file
+  # (Hook will handle this automatically)
+
+  echo "✅ Worktree cleaned up"
+else
+  echo "❌ Merge failed - worktree preserved"
+  cd $worktree_path  # Return to worktree
+fi
+```
+
+**If merge has conflicts:**
+1. Show conflict files
+2. Offer to abort merge: `git merge --abort`
+3. Suggest manual resolution or abandon worktree
+4. **Do NOT** remove worktree if merge failed
+
+**On success:**
+```
+🎉 Successfully merged and cleaned up!
+
+Merged commits:
+- <commit-message-1>
+- <commit-message-2>
+
+Worktree <worktree-name> has been removed.
+You are now on branch <base-branch>.
+```
+
+**On failure:**
+```
+❌ Merge encountered conflicts. Worktree preserved for manual resolution.
+
+You can:
+1. Resolve conflicts in the worktree
+2. Run /git again after resolving
+3. Abandon the worktree with /worktree
+```
 
 ### Cleanup Reminders
 
@@ -160,3 +309,5 @@ This ensures technical debt is tracked and doesn't accumulate.
 - **Always check for debugging code** before committing
 - **Assess commit readiness** to avoid committing incomplete work
 - **Consider amending** recent commits when appropriate
+- **Worktree workflow:** If in worktree, offer to merge and cleanup after commits are created
+- **Clean merge only:** Don't remove worktree if merge has conflicts - preserve for resolution
