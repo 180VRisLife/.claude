@@ -60,13 +60,13 @@ Analyzes git changes and orchestrates commits - Determines if changes are small 
 
 **Primary Workflow:**
 
-1. Create worktree and implement feature:
+1. Create worktree for isolated development:
 ```
-Create a worktree and implement [feature description]
+/wt [feature description]
 ```
-Claude auto-names the worktree directory and branch based on your feature description.
+Auto-generates directory and branch name (e.g., `/wt user authentication` → `../user-authentication`)
 
-2. Test the feature in the worktree directory
+2. Implement and test the feature in the worktree directory
 
 3. Commit, merge, and cleanup:
 ```
@@ -76,7 +76,7 @@ Automatically handles commits, merges back to base branch, and removes the workt
 
 **Managing Multiple Worktrees:**
 ```
-/worktree
+/wt-mgmt
 ```
 - Check status of all worktrees (merge readiness, conflicts, stale branches)
 - Manage multiple parallel worktrees

@@ -63,12 +63,12 @@ The `/git` command enforces this automatically.
 - **Clean history** - Each feature gets its own branch and merge
 
 **Workflow:**
-- Create: `git worktree add ../feature-name feature-name`
+- Create: `/wt feature-name` - Auto-creates worktree with normalized name
 - Work in isolation on feature branch
 - When done: `/git` handles commits → merge → cleanup automatically
 
 **Key points:**
-- **Use `/worktree`** - Check status, find conflicts, cleanup suggestions
+- **Use `/wt-mgmt`** - Check status, find conflicts, cleanup suggestions
 - **Auto-cleanup** - `/git` removes worktree after successful merge
 - **Always cleanup** - Worktrees persist on disk after merge
 

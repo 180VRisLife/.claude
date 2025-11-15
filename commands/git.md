@@ -276,7 +276,7 @@ You are now on branch <base-branch>.
 You can:
 1. Resolve conflicts in the worktree
 2. Run /git again after resolving
-3. Abandon the worktree with /worktree
+3. Delete the worktree via /wt-mgmt or `git worktree remove <path>`
 ```
 
 ### Cleanup Reminders
