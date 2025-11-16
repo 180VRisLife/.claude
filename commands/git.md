@@ -219,7 +219,8 @@ If you proceed, I will:
   1. Switch to <base-branch>
   2. Merge <current-branch> (--no-ff merge)
   3. Remove this worktree
-  4. Clean up session tracking
+  4. Delete the branch (local and remote if pushed)
+  5. Clean up session tracking
 
 Merge status: [✅ Clean merge | ⚠️  Has conflicts]
 
@@ -257,6 +258,16 @@ if [ $? -eq 0 ]; then
   # Remove the worktree
   git worktree remove $worktree_path
 
+  # Delete the local branch (merged branches should be cleaned up)
+  git branch -d $worktree_branch
+  echo "✅ Local branch deleted"
+
+  # Check if branch exists on remote and delete it
+  if git show-ref --verify --quiet refs/remotes/origin/$worktree_branch; then
+    git push origin --delete $worktree_branch
+    echo "✅ Remote branch deleted"
+  fi
+
   # Clean up session tracking file
   # (Hook will handle this automatically)
 
@@ -281,7 +292,9 @@ Merged commits:
 - <commit-message-1>
 - <commit-message-2>
 
-Worktree <worktree-name> has been removed.
+✅ Worktree <worktree-name> has been removed
+✅ Branch <branch-name> has been deleted (local and remote)
+
 You are now on branch <base-branch>.
 ```
 
@@ -338,4 +351,5 @@ This ensures technical debt is tracked and doesn't accumulate.
 - **Worktree workflow:** ALWAYS ask user before merging/cleanup - commits are saved, merge is optional
 - **User controls merge timing:** User may want to make more commits before merging
 - **Clean merge only:** Don't remove worktree if merge has conflicts - preserve for resolution
+- **Branch cleanup:** After successful merge, delete both local and remote branches (industry standard)
 - **Default to no:** If user response is unclear, preserve the worktree
