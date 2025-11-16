@@ -30,11 +30,18 @@ if [[ "$git_dir" == *"/worktrees/"* ]]; then
   echo ""
 fi
 
-# Get current repo root
+# Get current repo root (whether in main repo or worktree)
 repo_root=$(git rev-parse --show-toplevel)
 
-# Get parent directory (where worktree will be created)
-parent_dir=$(dirname "$repo_root")
+# If we're in a worktree, get the main repo root
+if [[ "$git_dir" == *"/worktrees/"* ]]; then
+  # Extract main repo path from git dir
+  main_repo_git=$(echo "$git_dir" | sed 's|/.git/worktrees/.*|/.git|')
+  repo_root=$(dirname "$main_repo_git")
+fi
+
+# Worktree directory within repo
+worktree_dir="$repo_root/.worktrees"
 
 # Check if worktree already exists with this name
 git worktree list | grep -q "$feature_name"
@@ -52,7 +59,7 @@ Please choose a different name or use /wt-mgmt to manage existing worktrees.
 
 **If directory already exists but not a worktree:**
 ```
-⚠️  Directory '$parent_dir/$feature_name' already exists but is not a git worktree.
+⚠️  Directory '$worktree_dir/$feature_name' already exists but is not a git worktree.
 
 Do you want to:
 1. Choose a different name
@@ -77,13 +84,38 @@ if [ -z "$base_branch" ]; then
 fi
 ```
 
-## Phase 4: Create Worktree
+## Phase 4: Ensure .gitignore Configuration
+
+Before creating the worktree, ensure `.worktrees/` is properly ignored:
+
+```bash
+# Check if .gitignore exists in repo root
+gitignore_file="$repo_root/.gitignore"
+
+if [ ! -f "$gitignore_file" ]; then
+  # Create .gitignore if it doesn't exist
+  echo ".worktrees/" > "$gitignore_file"
+  echo "✅ Created .gitignore with .worktrees/ entry"
+elif ! grep -q "^\.worktrees/$" "$gitignore_file" && ! grep -q "^\.worktrees$" "$gitignore_file"; then
+  # Add .worktrees/ to existing .gitignore
+  echo "" >> "$gitignore_file"
+  echo ".worktrees/" >> "$gitignore_file"
+  echo "✅ Added .worktrees/ to .gitignore"
+else
+  echo "ℹ️  .worktrees/ already in .gitignore"
+fi
+```
+
+## Phase 5: Create Worktree
 
 Create the worktree with the normalized feature name:
 
 ```bash
-# Create worktree in parent directory
-git worktree add "../$feature_name" -b "$feature_name"
+# Create .worktrees directory if it doesn't exist
+mkdir -p "$worktree_dir"
+
+# Create worktree in .worktrees subdirectory
+git worktree add "$worktree_dir/$feature_name" -b "$feature_name"
 
 # Verify creation succeeded
 if [ $? -eq 0 ]; then
@@ -94,19 +126,19 @@ else
 fi
 ```
 
-## Phase 5: Switch to Worktree Directory
+## Phase 6: Switch to Worktree Directory
 
 Change to the newly created worktree:
 
 ```bash
-cd "../$feature_name"
+cd "$worktree_dir/$feature_name"
 pwd  # Confirm location
 ```
 
-## Phase 6: Confirm and Begin Implementation
+## Phase 7: Confirm and Begin Implementation
 
 ```
-🌳 Worktree created: $parent_dir/$feature_name
+🌳 Worktree created: $worktree_dir/$feature_name
 Branch: $feature_name (based on $base_branch)
 
 Starting implementation...

@@ -64,7 +64,7 @@ Analyzes git changes and orchestrates commits - Determines if changes are small 
 ```
 /wt [feature description]
 ```
-Auto-generates directory and branch name (e.g., `/wt user authentication` → `../user-authentication`)
+Auto-generates directory and branch name (e.g., `/wt user authentication` → `.worktrees/user-authentication/`)
 
 2. Implement and test the feature in the worktree directory
 
@@ -72,7 +72,7 @@ Auto-generates directory and branch name (e.g., `/wt user authentication` → `.
 ```
 /git
 ```
-Automatically handles commits, merges back to base branch, and removes the worktree.
+Automatically handles commits, merges back to base branch, removes the worktree, and deletes the branch (local + remote).
 
 **Managing Multiple Worktrees:**
 ```
@@ -84,10 +84,11 @@ Automatically handles commits, merges back to base branch, and removes the workt
 - Resolve conflicts before merging
 
 **Key Points:**
-- Each worktree is a separate directory on disk with its own branch
+- Each worktree is created in `.worktrees/` subdirectory within your repo
+- Prevents worktrees from different projects mixing together in your workspace
 - Enables multiple Claude instances on different features without conflicts
 - Main workspace remains untouched while working in worktree
-- `/git` handles the full workflow (commit → merge → cleanup)
+- `/git` handles the full workflow (commit → merge → cleanup → branch deletion)
 
 ### New Feature Prompt (Domain-Aware)
 ```

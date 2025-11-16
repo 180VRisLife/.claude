@@ -61,18 +61,21 @@ The `/git` command enforces this automatically.
 - **Parallel sessions** - Run multiple Claude instances simultaneously
 - **Easy abandonment** - Delete worktree if approach doesn't work
 - **Clean history** - Each feature gets its own branch and merge
+- **No mixing** - Each project's worktrees stay in its own `.worktrees/` subdirectory
 
 **Workflow:**
-- Create: `/wt feature-name` - Auto-creates worktree with normalized name
+- Create: `/wt feature-name` - Auto-creates worktree in `.worktrees/feature-name/`
 - Work in isolation on feature branch
 - When done: `/git` creates commits, then asks if you want to merge/cleanup
 
 **Key points:**
+- **Location** - Worktrees are created in `.worktrees/` subdirectory within each repo
+- **Organization** - Prevents worktrees from different projects mixing together
 - **User-controlled merge** - `/git` asks for confirmation before merging/cleanup
 - **Continue working** - Decline merge to make more commits in the worktree
 - **Use `/wt-mgmt`** - Check status, find conflicts, cleanup suggestions
-- **Cleanup on merge** - `/git` removes worktree after successful merge (if you confirm)
-- **Persistent worktrees** - Worktrees stay on disk until you merge or manually remove them
+- **Cleanup on merge** - `/git` removes worktree AND deletes branch (local + remote) after successful merge
+- **Persistent worktrees** - Worktrees stay in `.worktrees/` until you merge or manually remove them
 
 ## Agent-First Policy
 
@@ -167,4 +170,4 @@ With Sonnet 4.5's 1M token context window and context awareness:
 - **Preserve flat folder structure** - All files directly in top-level folders within domains
 - **Template first** - Always read default template before creating domain-specific versions
 - **Structure consistency** - New domains/features must match default structure exactly
-- **Worktree cleanup** - Always remove worktrees after merging (they persist on disk)
+- **Worktree cleanup** - `/git` removes worktrees AND deletes branches (local + remote) after merging
