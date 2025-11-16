@@ -129,12 +129,14 @@ git commit -m "feat(feature-b): add related feature"
 1. Stage and commit changes in logical batches
 2. List all commits created with their messages
 3. Run `git status` to verify all changes are committed
-4. **If in worktree:** Proceed to Phase 4 (Worktree Merge & Cleanup)
+4. **If in worktree:** Check if in worktree and proceed to Phase 4
 5. **If NOT in worktree:** Skip to Cleanup Reminders section
 
 ## Phase 4: Worktree Merge & Cleanup (Worktrees Only)
 
-**This phase only runs when you are in a git worktree.**
+**⚠️ CRITICAL: This phase ONLY runs when you are in a git worktree AND user explicitly confirms.**
+
+**This phase is ALWAYS opt-in. NEVER auto-merge or auto-cleanup.**
 
 ### Step 1: Detect Worktree Context
 
@@ -144,19 +146,22 @@ git rev-parse --git-dir
 # If output contains "worktrees", we're in a worktree
 ```
 
-**If NOT in worktree:** Skip this entire phase.
+**If NOT in worktree:** Skip this entire phase and go to Cleanup Reminders.
 
 ### Step 2: Commit Summary
 
 Display summary of what was just committed:
 ```
-✅ Created <count> commit(s) in worktree <worktree-name>:
+✅ All commits complete!
+
+Created <count> commit(s) in worktree <worktree-name>:
 
 1. <commit-hash> - <commit-message>
 2. <commit-hash> - <commit-message>
 ...
 
-Branch: <current-branch>
+Current branch: <current-branch>
+Working directory: Clean ✓
 ```
 
 ### Step 3: Detect Base Branch
@@ -169,9 +174,9 @@ for branch in main master develop; do
 done
 ```
 
-### Step 4: Check Merge Status
+### Step 4: Pre-Merge Analysis
 
-Before asking user, check if merge will be clean:
+Before asking user, analyze the merge status:
 ```bash
 # Check for merge conflicts
 git fetch origin  # Ensure up to date
@@ -194,29 +199,40 @@ You'll need to resolve these conflicts before merging.
 ✅ Can merge cleanly to <base-branch>
 ```
 
-### Step 5: Ask User for Confirmation
+### Step 5: **MANDATORY** User Confirmation
 
-**Present clear choice:**
+**🛑 STOP HERE - DO NOT PROCEED WITHOUT USER CONFIRMATION 🛑**
+
+**Present clear choice to user:**
+
 ```
-Ready to merge back to <base-branch> and cleanup this worktree?
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Commit workflow complete!
+
+Would you like to merge and cleanup this worktree now?
 
 Your commits:
-- <commit-message-1>
-- <commit-message-2>
+  • <commit-message-1>
+  • <commit-message-2>
 
-Actions if you proceed:
-1. Switch to <base-branch>
-2. Merge <current-branch> (no-ff merge)
-3. Remove worktree <worktree-name>
-4. Clean up session tracking
+If you proceed, I will:
+  1. Switch to <base-branch>
+  2. Merge <current-branch> (--no-ff merge)
+  3. Remove this worktree
+  4. Clean up session tracking
 
-Do you want to proceed? (yes/no/show-conflicts)
+Merge status: [✅ Clean merge | ⚠️  Has conflicts]
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
 
+**Then WAIT for user response. Do NOT proceed until user explicitly answers.**
+
 **User responses:**
-- **yes** → Proceed to Step 6
-- **no** → Skip to Cleanup Reminders (leave worktree intact)
-- **show-conflicts** → Display detailed conflict preview, then ask again
+- **yes** / **proceed** / **merge** → Proceed to Step 6
+- **no** / **not yet** / **later** → Skip to Cleanup Reminders (preserve worktree)
+- **conflicts** / **show conflicts** → Display detailed conflict preview, then ask again
+- **Any other response** → Assume "no" and skip to Cleanup Reminders
 
 ### Step 6: Execute Merge & Cleanup
 
@@ -281,6 +297,16 @@ You can:
 
 ### Cleanup Reminders
 
+**If user declined merge/cleanup (worktree context):**
+```
+✅ Commits saved in worktree!
+
+You can continue working in this worktree, or merge later via:
+  • Run /git again when ready to merge
+  • Use /wt-mgmt to check worktree status
+  • Manually: git checkout main && git merge <branch> && git worktree remove <path>
+```
+
 **If any issues were flagged but user chose to proceed:**
 
 Display a clear reminder section after commits are complete:
@@ -309,5 +335,7 @@ This ensures technical debt is tracked and doesn't accumulate.
 - **Always check for debugging code** before committing
 - **Assess commit readiness** to avoid committing incomplete work
 - **Consider amending** recent commits when appropriate
-- **Worktree workflow:** If in worktree, offer to merge and cleanup after commits are created
+- **Worktree workflow:** ALWAYS ask user before merging/cleanup - commits are saved, merge is optional
+- **User controls merge timing:** User may want to make more commits before merging
 - **Clean merge only:** Don't remove worktree if merge has conflicts - preserve for resolution
+- **Default to no:** If user response is unclear, preserve the worktree

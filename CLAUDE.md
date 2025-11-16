@@ -65,12 +65,14 @@ The `/git` command enforces this automatically.
 **Workflow:**
 - Create: `/wt feature-name` - Auto-creates worktree with normalized name
 - Work in isolation on feature branch
-- When done: `/git` handles commits → merge → cleanup automatically
+- When done: `/git` creates commits, then asks if you want to merge/cleanup
 
 **Key points:**
+- **User-controlled merge** - `/git` asks for confirmation before merging/cleanup
+- **Continue working** - Decline merge to make more commits in the worktree
 - **Use `/wt-mgmt`** - Check status, find conflicts, cleanup suggestions
-- **Auto-cleanup** - `/git` removes worktree after successful merge
-- **Always cleanup** - Worktrees persist on disk after merge
+- **Cleanup on merge** - `/git` removes worktree after successful merge (if you confirm)
+- **Persistent worktrees** - Worktrees stay on disk until you merge or manually remove them
 
 ## Agent-First Policy
 
