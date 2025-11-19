@@ -7,6 +7,7 @@ import os
 import re
 import shutil
 import sys
+import subprocess
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, Optional, Tuple
@@ -451,6 +452,224 @@ def create_domain_marker(workspace_claude: Path, domain: str):
     print(f"  ✓ Created domain.json marker")
 
 
+def check_dependencies() -> Dict[str, bool]:
+    """Check for optional Python dependencies."""
+    dependencies = {
+        'pbxproj': False,
+        'PIL': False  # Pillow
+    }
+
+    try:
+        import pbxproj
+        dependencies['pbxproj'] = True
+    except ImportError:
+        pass
+
+    try:
+        from PIL import Image
+        dependencies['PIL'] = True
+    except ImportError:
+        pass
+
+    return dependencies
+
+
+def ensure_worktree_infrastructure(workspace_path: Path):
+    """Set up worktree infrastructure for all domains."""
+    print(f"\n📂 Setting up worktree infrastructure...")
+
+    worktrees_dir = workspace_path / ".worktrees"
+    gitignore_path = workspace_path / ".gitignore"
+
+    # Create .worktrees directory
+    worktrees_dir.mkdir(exist_ok=True)
+    print(f"  ✓ Created .worktrees/ directory")
+
+    # Ensure .worktrees/ is in .gitignore
+    if not gitignore_path.exists():
+        gitignore_path.write_text(".worktrees/\n")
+        print(f"  ✓ Created .gitignore with .worktrees/ entry")
+    else:
+        content = gitignore_path.read_text()
+        # Check for .worktrees with or without trailing slash
+        if ".worktrees" not in content:
+            with gitignore_path.open('a') as f:
+                f.write("\n.worktrees/\n")
+            print(f"  ✓ Added .worktrees/ to .gitignore")
+        else:
+            print(f"  ℹ  .worktrees/ already in .gitignore")
+
+
+def configure_debug_release_build_settings(workspace_path: Path, domain: str, dependencies: Dict[str, bool]):
+    """Configure separate Debug/Release build settings for Xcode projects."""
+    if domain not in ['ios', 'macos', 'visionos']:
+        return
+
+    if not dependencies.get('pbxproj'):
+        print(f"  ℹ  Skipping build settings configuration (pbxproj not installed)")
+        return
+
+    print(f"\n⚙️  Configuring Debug/Release build settings...")
+
+    # Find Xcode project
+    xcode_projects = list(workspace_path.glob('*.xcodeproj'))
+    if not xcode_projects:
+        print(f"  ℹ  No Xcode project found, skipping build settings configuration")
+        return
+
+    project_path = xcode_projects[0] / 'project.pbxproj'
+    project_name = xcode_projects[0].stem
+
+    try:
+        from pbxproj import XcodeProject
+
+        project = XcodeProject.load(str(project_path))
+
+        # Get current bundle ID from Release configuration (or create generic one)
+        current_bundle_id = None
+        try:
+            # Try to find existing bundle ID
+            for config in project.objects.get_configurations_on_targets():
+                if config.name == 'Release':
+                    settings = config.buildSettings
+                    if 'PRODUCT_BUNDLE_IDENTIFIER' in settings:
+                        current_bundle_id = settings['PRODUCT_BUNDLE_IDENTIFIER']
+                        break
+        except:
+            pass
+
+        if not current_bundle_id:
+            # Generate generic bundle ID
+            current_bundle_id = f"com.{project_name.lower().replace(' ', '')}"
+            print(f"  ℹ  No existing bundle ID found, using: {current_bundle_id}")
+
+        # Configure Debug settings
+        project.add_flags({
+            'PRODUCT_BUNDLE_IDENTIFIER': f'{current_bundle_id}.debug',
+            'PRODUCT_NAME': f'{project_name}-Debug',
+            'ASSETCATALOG_COMPILER_APPICON_NAME': 'AppIcon-Debug'
+        }, configuration='Debug')
+
+        # Configure Release settings
+        project.add_flags({
+            'PRODUCT_BUNDLE_IDENTIFIER': current_bundle_id,
+            'PRODUCT_NAME': project_name,
+            'ASSETCATALOG_COMPILER_APPICON_NAME': 'AppIcon'
+        }, configuration='Release')
+
+        # Save changes
+        project.save()
+
+        print(f"  ✓ Configured Debug bundle ID: {current_bundle_id}.debug")
+        print(f"  ✓ Configured Release bundle ID: {current_bundle_id}")
+        print(f"  ✓ Configured product names: {project_name}-Debug / {project_name}")
+        print(f"  ✓ Configured app icons: AppIcon-Debug / AppIcon")
+
+    except ImportError:
+        print(f"  ! pbxproj import failed (should not happen)")
+    except Exception as e:
+        print(f"  ! Error configuring build settings: {e}")
+        print(f"  ! You may need to configure bundle IDs manually in Xcode")
+
+
+def setup_debug_icons(workspace_path: Path, domain: str, dependencies: Dict[str, bool]):
+    """Set up debug app icons using the generate-debug-icon.py script."""
+    if domain not in ['ios', 'macos', 'visionos']:
+        return
+
+    if not dependencies.get('PIL'):
+        print(f"  ℹ  Skipping debug icon generation (Pillow not installed)")
+        return
+
+    print(f"\n🎨 Setting up debug icons...")
+
+    # Find Assets.xcassets
+    assets_dirs = list(workspace_path.glob('**/Assets.xcassets'))
+    if not assets_dirs:
+        print(f"  ℹ  No Assets.xcassets found, skipping icon generation")
+        return
+
+    assets_path = assets_dirs[0]
+    print(f"  ✓ Found assets at: {assets_path.relative_to(workspace_path)}")
+
+    # Copy the generate-debug-icon.py script to project's .claude/scripts/
+    project_claude_scripts = workspace_path / ".claude" / "scripts"
+    project_claude_scripts.mkdir(parents=True, exist_ok=True)
+
+    global_script = Path.home() / ".claude" / "scripts" / "generate-debug-icon.py"
+    project_script = project_claude_scripts / "generate-debug-icon.py"
+
+    shutil.copy2(global_script, project_script)
+    project_script.chmod(0o755)
+    print(f"  ✓ Copied generate-debug-icon.py to .claude/scripts/")
+
+    # Run the script to generate icons
+    try:
+        result = subprocess.run(
+            [sys.executable, str(project_script), str(assets_path)],
+            capture_output=True,
+            text=True,
+            cwd=workspace_path
+        )
+
+        if result.returncode == 0:
+            # Print script output (indented)
+            for line in result.stdout.split('\n'):
+                if line.strip():
+                    print(f"  {line}")
+        else:
+            print(f"  ! Icon generation failed: {result.stderr}")
+            print(f"  ! You can run manually: python3 .claude/scripts/generate-debug-icon.py {assets_path}")
+
+    except Exception as e:
+        print(f"  ! Error running icon generation script: {e}")
+        print(f"  ! You can run manually: python3 .claude/scripts/generate-debug-icon.py {assets_path}")
+
+
+def create_debug_overlay_template(workspace_path: Path, domain: str, library_path: Path, project_name: str, utilities_dir: Path):
+    """Create DebugOverlay.swift template for the project."""
+    if domain not in ['ios', 'macos', 'visionos']:
+        return
+
+    template_path = library_path / "file-templates" / "DebugOverlay.swift.template"
+    if not template_path.exists():
+        print(f"  ! DebugOverlay template not found: {template_path}")
+        return
+
+    overlay_path = utilities_dir / "DebugOverlay.swift"
+    if overlay_path.exists():
+        print(f"  ℹ  DebugOverlay.swift already exists, skipping")
+        return
+
+    template_content = template_path.read_text()
+    overlay_content = template_content.replace("{{PROJECT_NAME}}", project_name)
+
+    overlay_path.write_text(overlay_content)
+    print(f"  ✓ Created DebugOverlay.swift")
+
+
+def setup_git_info_helper(workspace_path: Path, domain: str, library_path: Path, project_name: str, utilities_dir: Path):
+    """Create GitInfo.swift helper for git state detection."""
+    if domain not in ['ios', 'macos', 'visionos']:
+        return
+
+    template_path = library_path / "file-templates" / "GitInfo.swift.template"
+    if not template_path.exists():
+        print(f"  ! GitInfo template not found: {template_path}")
+        return
+
+    gitinfo_path = utilities_dir / "GitInfo.swift"
+    if gitinfo_path.exists():
+        print(f"  ℹ  GitInfo.swift already exists, skipping")
+        return
+
+    template_content = template_path.read_text()
+    gitinfo_content = template_content.replace("{{PROJECT_NAME}}", project_name)
+
+    gitinfo_path.write_text(gitinfo_content)
+    print(f"  ✓ Created GitInfo.swift")
+
+
 def setup_debug_logger(domain: str, workspace_path: Path, library_path: Path):
     """Set up DebugLogger.swift for macOS and visionOS projects."""
     # Only applicable for macOS and visionOS
@@ -501,17 +720,272 @@ def setup_debug_logger(domain: str, workspace_path: Path, library_path: Path):
     # Check if DebugLogger.swift already exists
     logger_path = utilities_dir / "DebugLogger.swift"
     if logger_path.exists():
-        print(f"  ℹ DebugLogger.swift already exists at {project_name}/Utilities/, skipping")
+        print(f"  ℹ  DebugLogger.swift already exists at {project_name}/Utilities/, skipping")
+    else:
+        # Replace placeholders
+        logger_content = template_content.replace("{{PROJECT_NAME}}", project_name)
+        logger_content = logger_content.replace("{{SUBSYSTEM}}", subsystem)
+
+        # Write DebugLogger.swift
+        logger_path.write_text(logger_content)
+        print(f"  ✓ Created DebugLogger.swift at {project_name}/Utilities/")
+        print(f"  ✓ Log file will be: /tmp/{project_name}-Debug.log")
+
+    # Also create DebugOverlay and GitInfo templates
+    create_debug_overlay_template(workspace_path, domain, library_path, project_name, utilities_dir)
+    setup_git_info_helper(workspace_path, domain, library_path, project_name, utilities_dir)
+
+
+def setup_streamdeck_debug(workspace_path: Path, library_path: Path):
+    """Set up debug infrastructure for Stream Deck plugins."""
+    print(f"\n🎮 Setting up Stream Deck debug infrastructure...")
+
+    # Find package.json to determine plugin name
+    package_json = workspace_path / "package.json"
+    if not package_json.exists():
+        print(f"  ℹ  No package.json found, skipping Stream Deck setup")
         return
 
-    # Replace placeholders
-    logger_content = template_content.replace("{{PROJECT_NAME}}", project_name)
-    logger_content = logger_content.replace("{{SUBSYSTEM}}", subsystem)
+    # Read package.json to get plugin name
+    import json
+    try:
+        with open(package_json, 'r') as f:
+            pkg_data = json.load(f)
+            plugin_name = pkg_data.get('name', 'StreamDeckPlugin')
+    except:
+        plugin_name = 'StreamDeckPlugin'
 
-    # Write DebugLogger.swift
-    logger_path.write_text(logger_content)
-    print(f"  ✓ Created DebugLogger.swift at {project_name}/Utilities/")
-    print(f"  ✓ Log file will be: /tmp/{project_name}-Debug.log")
+    print(f"  ✓ Detected plugin: {plugin_name}")
+
+    # Find src directory
+    src_dir = workspace_path / "src"
+    if not src_dir.exists():
+        src_dir = workspace_path
+        print(f"  ℹ  No src/ directory, using project root")
+
+    # Create utils directory
+    utils_dir = src_dir / "utils"
+    utils_dir.mkdir(exist_ok=True)
+    print(f"  ✓ Created utils/ directory")
+
+    # Copy DebugLogger.ts template
+    debug_logger_template = library_path / "file-templates" / "DebugLogger.ts.template"
+    if debug_logger_template.exists():
+        debug_logger_path = utils_dir / "DebugLogger.ts"
+        if not debug_logger_path.exists():
+            content = debug_logger_template.read_text()
+            content = content.replace("{{PLUGIN_NAME}}", plugin_name)
+            debug_logger_path.write_text(content)
+            print(f"  ✓ Created DebugLogger.ts")
+        else:
+            print(f"  ℹ  DebugLogger.ts already exists")
+
+    # Copy gitInfo.ts template
+    gitinfo_template = library_path / "file-templates" / "gitInfo.ts.template"
+    if gitinfo_template.exists():
+        gitinfo_path = utils_dir / "gitInfo.ts"
+        if not gitinfo_path.exists():
+            content = gitinfo_template.read_text()
+            content = content.replace("{{PLUGIN_NAME}}", plugin_name)
+            gitinfo_path.write_text(content)
+            print(f"  ✓ Created gitInfo.ts")
+        else:
+            print(f"  ℹ  gitInfo.ts already exists")
+
+    # Copy manifest templates to .claude/file-templates for reference
+    claude_templates = workspace_path / ".claude" / "file-templates"
+    claude_templates.mkdir(parents=True, exist_ok=True)
+
+    for manifest_name in ["manifest.dev.json.template", "manifest.prod.json.template"]:
+        manifest_template = library_path / "file-templates" / manifest_name
+        if manifest_template.exists():
+            dest = claude_templates / manifest_name
+            if not dest.exists():
+                shutil.copy2(manifest_template, dest)
+                print(f"  ✓ Copied {manifest_name} to .claude/file-templates/")
+
+
+def setup_webdev_debug(workspace_path: Path, library_path: Path, dependencies: Dict[str, bool]):
+    """Set up debug infrastructure for webdev (React/Next.js) projects."""
+    print(f"\n⚛️  Setting up webdev debug infrastructure...")
+
+    # Find package.json to determine project name
+    package_json = workspace_path / "package.json"
+    if not package_json.exists():
+        print(f"  ℹ  No package.json found, skipping webdev setup")
+        return
+
+    # Read package.json to get project name
+    import json
+    try:
+        with open(package_json, 'r') as f:
+            pkg_data = json.load(f)
+            project_name = pkg_data.get('name', 'webapp')
+    except:
+        project_name = 'webapp'
+
+    print(f"  ✓ Detected project: {project_name}")
+
+    # Determine directory structure (Next.js App Router vs Pages Router)
+    has_app_dir = (workspace_path / "app").exists()
+    has_src = (workspace_path / "src").exists()
+
+    if has_src:
+        base_dir = workspace_path / "src"
+        components_dir = base_dir / "components"
+        hooks_dir = base_dir / "hooks"
+        lib_dir = base_dir / "lib"
+    else:
+        base_dir = workspace_path
+        components_dir = base_dir / "components"
+        hooks_dir = base_dir / "hooks"
+        lib_dir = base_dir / "lib"
+
+    # Create directories
+    components_dir.mkdir(parents=True, exist_ok=True)
+    hooks_dir.mkdir(parents=True, exist_ok=True)
+    lib_dir.mkdir(parents=True, exist_ok=True)
+    print(f"  ✓ Created component/hook/lib directories")
+
+    # Copy DebugOverlay.tsx template
+    overlay_template = library_path / "file-templates" / "DebugOverlay.tsx.template"
+    if overlay_template.exists():
+        overlay_path = components_dir / "DebugOverlay.tsx"
+        if not overlay_path.exists():
+            content = overlay_template.read_text()
+            content = content.replace("{{PROJECT_NAME}}", project_name)
+            overlay_path.write_text(content)
+            print(f"  ✓ Created DebugOverlay.tsx")
+        else:
+            print(f"  ℹ  DebugOverlay.tsx already exists")
+
+    # Copy useGitInfo.ts template
+    gitinfo_hook_template = library_path / "file-templates" / "useGitInfo.ts.template"
+    if gitinfo_hook_template.exists():
+        gitinfo_path = hooks_dir / "useGitInfo.ts"
+        if not gitinfo_path.exists():
+            content = gitinfo_hook_template.read_text()
+            content = content.replace("{{PROJECT_NAME}}", project_name)
+            gitinfo_path.write_text(content)
+            print(f"  ✓ Created useGitInfo.ts")
+        else:
+            print(f"  ℹ  useGitInfo.ts already exists")
+
+    # Copy logger.ts template
+    logger_template = library_path / "file-templates" / "logger.ts.template"
+    if logger_template.exists():
+        logger_path = lib_dir / "logger.ts"
+        if not logger_path.exists():
+            content = logger_template.read_text()
+            content = content.replace("{{PROJECT_NAME}}", project_name)
+            logger_path.write_text(content)
+            print(f"  ✓ Created logger.ts")
+        else:
+            print(f"  ℹ  logger.ts already exists")
+
+    # Copy .env templates
+    for env_file in [".env.development.template", ".env.production.template"]:
+        env_template = library_path / "file-templates" / env_file
+        if env_template.exists():
+            dest = workspace_path / env_file
+            if not dest.exists():
+                shutil.copy2(env_template, dest)
+                print(f"  ✓ Copied {env_file}")
+
+    # Copy scripts to .claude/scripts
+    claude_scripts = workspace_path / ".claude" / "scripts"
+    claude_scripts.mkdir(parents=True, exist_ok=True)
+
+    # Copy inject-git-info.js script
+    inject_script = library_path / "scripts" / "inject-git-info.js"
+    if inject_script.exists():
+        dest = claude_scripts / "inject-git-info.js"
+        shutil.copy2(inject_script, dest)
+        dest.chmod(0o755)
+        print(f"  ✓ Copied inject-git-info.js to .claude/scripts/")
+
+    # Copy and run generate-debug-favicon.py script if Pillow is available
+    if dependencies.get('PIL'):
+        favicon_script_src = library_path / "scripts" / "generate-debug-favicon.py"
+        if favicon_script_src.exists():
+            favicon_script = claude_scripts / "generate-debug-favicon.py"
+            shutil.copy2(favicon_script_src, favicon_script)
+            favicon_script.chmod(0o755)
+            print(f"  ✓ Copied generate-debug-favicon.py to .claude/scripts/")
+
+            # Try to generate debug favicon
+            public_dir = workspace_path / "public"
+            if public_dir.exists():
+                try:
+                    result = subprocess.run(
+                        [sys.executable, str(favicon_script), str(public_dir)],
+                        capture_output=True,
+                        text=True,
+                        cwd=workspace_path
+                    )
+                    if result.returncode == 0:
+                        for line in result.stdout.split('\n'):
+                            if line.strip():
+                                print(f"  {line}")
+                except Exception as e:
+                    print(f"  ℹ  Could not generate debug favicon: {e}")
+
+
+def setup_default_debug(workspace_path: Path, library_path: Path):
+    """Set up debug infrastructure for default/general projects (Python)."""
+    print(f"\n🛠️  Setting up default debug infrastructure...")
+
+    # Determine project name
+    project_name = workspace_path.name
+    print(f"  ✓ Project: {project_name}")
+
+    # Create utils directory
+    utils_dir = workspace_path / "utils"
+    utils_dir.mkdir(exist_ok=True)
+    print(f"  ✓ Created utils/ directory")
+
+    # Copy Python git info helper
+    git_info_template = library_path / "file-templates" / "git_info.py.template"
+    if git_info_template.exists():
+        dest = utils_dir / "git_info.py"
+        if not dest.exists():
+            content = git_info_template.read_text()
+            content = content.replace("{{PROJECT_NAME}}", project_name)
+            dest.write_text(content)
+            print(f"  ✓ Created git_info.py")
+        else:
+            print(f"  ℹ  git_info.py already exists")
+
+    # Copy Python debug logger
+    logger_template = library_path / "file-templates" / "debug_logger.py.template"
+    if logger_template.exists():
+        dest = utils_dir / "debug_logger.py"
+        if not dest.exists():
+            content = logger_template.read_text()
+            content = content.replace("{{PROJECT_NAME}}", project_name)
+            dest.write_text(content)
+            print(f"  ✓ Created debug_logger.py")
+        else:
+            print(f"  ℹ  debug_logger.py already exists")
+
+    # Copy .env templates
+    for env_file in [".env.development.template", ".env.production.template"]:
+        env_template = library_path / "file-templates" / env_file
+        if env_template.exists():
+            dest = workspace_path / env_file
+            if not dest.exists():
+                shutil.copy2(env_template, dest)
+                print(f"  ✓ Copied {env_file}")
+
+    # Copy debug-patterns.md guide to .claude/guides if it doesn't exist
+    patterns_guide = library_path / "guides" / "debug-patterns.md"
+    if patterns_guide.exists():
+        claude_guides = workspace_path / ".claude" / "guides"
+        claude_guides.mkdir(parents=True, exist_ok=True)
+        dest = claude_guides / "debug-patterns.md"
+        if not dest.exists():
+            shutil.copy2(patterns_guide, dest)
+            print(f"  ✓ Copied debug-patterns.md to .claude/guides/")
 
 
 def update_claude_md(domain: str, workspace_path: Path, project_name: str):
@@ -621,6 +1095,22 @@ def main():
     print(f"\n🔍 Initializing workspace: {workspace_path}")
     print(f"📦 Selected domain: {domain}")
 
+    # Check for optional dependencies
+    deps = check_dependencies()
+    if domain in ['ios', 'macos', 'visionos']:
+        print(f"\n🔍 Checking optional dependencies...")
+        if not deps['pbxproj']:
+            print(f"  ⚠️  pbxproj not installed - Xcode build settings automation will be skipped")
+            print(f"     Install with: pip install pbxproj")
+        else:
+            print(f"  ✓ pbxproj installed - Xcode build settings will be configured")
+
+        if not deps['PIL']:
+            print(f"  ⚠️  Pillow not installed - Debug icon generation will be skipped")
+            print(f"     Install with: pip install Pillow")
+        else:
+            print(f"  ✓ Pillow installed - Debug icons will be generated")
+
     # Check existing initialization
     existing_domain = get_existing_domain(workspace_path)
     if existing_domain:
@@ -662,8 +1152,29 @@ def main():
     print(f"\n✍️  Creating domain marker...")
     create_domain_marker(workspace_claude, domain)
 
-    # Set up DebugLogger for macOS/visionOS projects
+    # Set up worktree infrastructure (all domains)
+    ensure_worktree_infrastructure(workspace_path)
+
+    # Configure Debug/Release build settings for Apple platforms
+    configure_debug_release_build_settings(workspace_path, domain, deps)
+
+    # Generate debug app icons for Apple platforms
+    setup_debug_icons(workspace_path, domain, deps)
+
+    # Set up DebugLogger, DebugOverlay, and GitInfo for macOS/visionOS projects
     setup_debug_logger(domain, workspace_path, library_path)
+
+    # Set up Stream Deck debug infrastructure
+    if domain == 'streamdeck':
+        setup_streamdeck_debug(workspace_path, library_path)
+
+    # Set up webdev debug infrastructure
+    if domain == 'webdev':
+        setup_webdev_debug(workspace_path, library_path, deps)
+
+    # Set up default debug infrastructure
+    if domain == 'default':
+        setup_default_debug(workspace_path, library_path)
 
     # Update CLAUDE.md with debugging documentation
     # Get project name for CLAUDE.md update
