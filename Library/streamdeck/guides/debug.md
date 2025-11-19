@@ -1,4 +1,73 @@
-# Debugging Workflow for Streamdeck Development
+# Debugging Workflow for Stream Deck Development
+
+## Debug Infrastructure
+
+`/init-workspace` automatically sets up:
+- **DebugLogger.ts** - Enhanced logging wrapper around Stream Deck's built-in logger
+- **gitInfo.ts** - Git state detection displaying `[branch@hash]` format
+- **Manifest variants** - `manifest.dev.json` and `manifest.prod.json` templates
+- **Debug icon script** - `.claude/scripts/generate-debug-icons.py` for action icons
+
+### Development vs Production Builds
+
+**Development Build:**
+- Plugin Name: "PluginName (DEV)"
+- Version: "1.0.0-dev"
+- Node.js Debug: "enabled" (enables Node.js inspector at `http://localhost:23654/`)
+- Enhanced logging to file + Stream Deck logger
+
+**Production Build:**
+- Plugin Name: "PluginName"
+- Version: "1.0.0"
+- Node.js Debug: disabled
+- Minimal logging (warnings/errors only)
+
+### Git Info Display Formats
+
+- Normal branch: `[main@a1b2c3d]`
+- Detached HEAD: `[@a1b2c3d]`
+- Dirty state (uncommitted changes): `[main@a1b2c3d*]`
+- In worktree: `[feature-branch@a1b2c3d]`
+
+### Using DebugLogger
+
+```typescript
+import { logger, LogCategory } from "./DebugLogger";
+
+// Log to different categories
+logger.log("Action button pressed", LogCategory.Action);
+logger.info("Settings saved successfully", LogCategory.Settings);
+logger.warning("API rate limit approaching", LogCategory.Network);
+logger.error("Failed to connect to service", LogCategory.Network);
+logger.separator(); // Visual separator in logs
+```
+
+Development logs are written to:
+- Stream Deck logger (visible in console when running `streamdeck dev`)
+- Debug log file (accessible in plugin data directory)
+
+### Showing Git Info in Property Inspector
+
+```typescript
+import { GitInfo } from "./gitInfo";
+
+// Add to Property Inspector footer
+const gitInfoElement = document.createElement("div");
+gitInfoElement.className = "git-info";
+gitInfoElement.textContent = GitInfo.displayString;
+document.body.appendChild(gitInfoElement);
+```
+
+### Updating Debug Icons
+
+After changing plugin action icons, regenerate debug variants:
+```bash
+python3 .claude/scripts/generate-debug-icons.py ./com.example.plugin.sdPlugin
+```
+
+This adds a red diagonal slash + "DEV" badge to all action icons, creating `-dev` variants.
+
+## Debugging Workflow
 
 1. **Understand the codebase** - Read relevant files/entities/assets to understand the codebase, and look up documentation for frameworks and libraries.
    - For simple searches: Use direct tools (Read/Grep/Glob)

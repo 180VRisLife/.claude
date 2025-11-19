@@ -1,4 +1,92 @@
-# Debugging Workflow for Default Development
+# Debugging Workflow for General Development
+
+## Debug Infrastructure
+
+`/init-workspace` automatically sets up Python debug utilities:
+- **Git info helper** - `git_info.py` for git state detection
+- **Debug logger** - `debug_logger.py` with logging module
+- **.env templates** - Development and production environment files
+- **Debug patterns guide** - Language-specific debug mode detection patterns
+
+### Available Templates
+
+#### Git Info Helper
+- `git_info.py` - Python version producing `[branch@hash]` format
+
+#### Debug Logger
+- `debug_logger.py` - Python with logging module, supports categories, DEBUG/RELEASE modes, and file output in debug mode
+
+### Git Info Display Formats
+
+- Normal branch: `[main@a1b2c3d]`
+- Detached HEAD: `[@a1b2c3d]`
+- Dirty state (uncommitted changes): `[main@a1b2c3d*]`
+- Not a git repo: `[unknown]`
+
+### Using Git Info (Python)
+
+```python
+from git_info import get_git_info, get_git_components
+
+# Simple string
+git_info = get_git_info()
+print(git_info)  # [main@a1b2c3d]
+
+# Individual components
+components = get_git_components()
+print(f"Branch: {components['branch']}")
+print(f"Hash: {components['hash']}")
+print(f"Dirty: {components['is_dirty']}")
+```
+
+### Using Debug Logger (Python)
+
+```python
+import os
+from debug_logger import logger
+
+# Enable debug mode
+os.environ['DEBUG'] = '1'
+
+# Log with categories
+logger.log("Application started", 'app')
+logger.info("Loading configuration", 'app')
+logger.warning("API rate limit approaching", 'network')
+logger.error("Failed to connect", 'network')
+logger.separator()
+```
+
+
+### Environment Variables
+
+Use `.env.development` and `.env.production` templates:
+
+```bash
+# .env.development
+DEBUG=1
+ENVIRONMENT=development
+LOG_LEVEL=debug
+
+# .env.production
+DEBUG=0
+ENVIRONMENT=production
+LOG_LEVEL=info
+```
+
+### Debug Mode Detection
+
+Python debug mode detection:
+```python
+import os
+
+IS_DEBUG = os.getenv('DEBUG', '0') == '1'
+# or
+IS_DEBUG = os.getenv('ENVIRONMENT', '').lower() == 'development'
+```
+
+See `debug-patterns.md` for additional language-specific patterns (TypeScript, Go, Ruby, PHP, etc.) and framework-specific patterns for Flask, Django, Express, Rails, Laravel, and more.
+
+## Debugging Workflow
 
 1. **Understand the codebase** - Read relevant files/entities/assets to understand the codebase, and look up documentation for frameworks and libraries.
    - For simple searches: Use direct tools (Read/Grep/Glob)
