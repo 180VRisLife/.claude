@@ -58,19 +58,37 @@ The `/git` command enforces this automatically.
 
 **Why use worktrees:**
 - **Isolation** - Changes don't affect main codebase
-- **Parallel sessions** - Run multiple Claude instances simultaneously
+- **Parallel sessions** - Run multiple Claude sessions simultaneously in different worktrees
 - **Easy abandonment** - Delete worktree if approach doesn't work
 - **Clean history** - Each feature gets its own branch and merge
 - **No mixing** - Each project's worktrees stay in its own `.worktrees/` subdirectory
 
 **Workflow:**
-- Create: `/wt feature-name` - Auto-creates worktree in `.worktrees/feature-name/`
-- Work in isolation on feature branch
-- When done: `/git` creates commits, then asks if you want to merge/cleanup
+
+1. **Create** - In any session: `/wt feature-name`
+   - Creates worktree in `.worktrees/feature-name/`
+   - Creates branch `feature-name`
+   - Saves original prompt to `PROMPT.md`
+   - Provides navigation instructions
+   - **Stops** - does not begin implementation
+
+2. **Navigate** - You manually:
+   - `cd .worktrees/feature-name`
+   - Start new Claude session: `claude`
+
+3. **Work** - In new session:
+   - Reference `PROMPT.md` for original context
+   - Plan and implement as normal
+   - Run `/git` to commit (auto-deletes PROMPT.md)
+
+4. **Merge** - `/git` asks if you want to merge back and cleanup
+   - Confirm to merge, delete worktree, and delete branches (local + remote)
+   - Decline to keep working and make more commits
 
 **Key points:**
 - **Location** - Worktrees are created in `.worktrees/` subdirectory within each repo
 - **Organization** - Prevents worktrees from different projects mixing together
+- **Context preservation** - PROMPT.md captures original task, auto-deleted by `/git`
 - **User-controlled merge** - `/git` asks for confirmation before merging/cleanup
 - **Continue working** - Decline merge to make more commits in the worktree
 - **Use `/wt-mgmt`** - Check status, find conflicts, cleanup suggestions
