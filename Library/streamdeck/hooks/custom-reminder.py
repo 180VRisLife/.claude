@@ -7,7 +7,43 @@ import re
 import sys
 from pathlib import Path
 
-# Load the shared parallel execution guide from local workspace
+# Load guides from local workspace
+def load_debug_guide(cwd):
+    """Load debug guide from workspace .claude folder"""
+    guide_path = Path(cwd) / ".claude" / "guides" / "debug.md"
+    try:
+        with open(guide_path, 'r') as f:
+            return f.read()
+    except Exception:
+        return DEBUG_PROMPT_FALLBACK
+
+def load_investigation_guide(cwd):
+    """Load investigation guide from workspace .claude folder"""
+    guide_path = Path(cwd) / ".claude" / "guides" / "investigation.md"
+    try:
+        with open(guide_path, 'r') as f:
+            return f.read()
+    except Exception:
+        return INVESTIGATION_PROMPT_FALLBACK
+
+def load_implementation_guide(cwd):
+    """Load implementation guide from workspace .claude folder"""
+    guide_path = Path(cwd) / ".claude" / "guides" / "implementation.md"
+    try:
+        with open(guide_path, 'r') as f:
+            return f.read()
+    except Exception:
+        return IMPLEMENTATION_PROMPT_FALLBACK
+
+def load_planning_guide(cwd):
+    """Load planning guide from workspace .claude folder"""
+    guide_path = Path(cwd) / ".claude" / "guides" / "planning.md"
+    try:
+        with open(guide_path, 'r') as f:
+            return f.read()
+    except Exception:
+        return IMPLEMENTATION_PROMPT_FALLBACK
+
 def load_parallel_guide(cwd):
     """Load parallel guide from workspace .claude folder"""
     guide_path = Path(cwd) / ".claude" / "guides" / "parallel.md"
@@ -33,12 +69,12 @@ INVESTIGATION_PATTERNS = [
     r'\b(data.*flow|architecture|system.*design)\b'
 ]
 
-# Prompt improvement trigger patterns
-PROMPT_IMPROVEMENT_PATTERNS = [
-    r'\b(improv|enhanc).*\b(prompt|prompting)\b',
-    r'\b(prompt|prompting).*\b(improv|enhanc)\b',
-    r'\b(better|optimize|refine).*\b(prompt|prompting)\b',
-    r'\b(prompt|prompting).*\b(better|optimize|refine)\b'
+# Implementation trigger patterns
+IMPLEMENTATION_PATTERNS = [
+    r'\b(implement|build|create|develop|code|write|add).*\b(feature|function|component|service|module|class|action)\b',
+    r'\b(make|build|create|develop)\s+(this|it|the)\b',
+    r'\b(let\'s|can you|please)\s+(implement|build|create|develop|code|write)\b',
+    r'\bstart (implementing|building|coding|developing)\b'
 ]
 
 # Planning trigger patterns
@@ -57,11 +93,8 @@ PARALLEL_PATTERNS = [
     r'\bconcurrent execution\b'
 ]
 
-DEBUG_PROMPT = """
-<system-reminder>The user has mentioned a key word or phrase that triggers this reminder for debugging.
-
-<debugging-workflow>
-1. **Understand the codebase** - Read relevant files/entities/assets to understand the codebase, and look up documentation for frameworks and libraries.
+# Fallback prompts (used when guide files are not available)
+DEBUG_PROMPT_FALLBACK = """1. **Understand the codebase** - Read relevant files/entities/assets to understand the codebase, and look up documentation for frameworks and libraries.
    - For simple searches: Use direct tools (Read/Grep/Glob)
    - For quick code location: Use @code-finder agent
    - For complex bugs: Deploy PARALLEL @code-finder-advanced agents (in SINGLE function_calls block)
@@ -120,17 +153,9 @@ Example 3: "Plugin works locally but fails after distribution"
 → Deploy 3 parallel @root-cause-analyzer agents on different hypothesis categories:
   - Agent 1: File paths and resource bundling
   - Agent 2: Manifest validation and Stream Deck version compatibility
-  - Agent 3: Code signing and distribution packaging
-</debugging-workflow>
+  - Agent 3: Code signing and distribution packaging"""
 
-</system-reminder>
-"""
-
-INVESTIGATION_PROMPT = """
-<system-reminder>The user has mentioned a key word or phrase that triggers this reminder for investigation.
-
-<investigation-workflow>
-1. **Assess scope**: Read provided files directly. Use code-finder or code-finder-advanced for unknown/large codebases, direct tools (Read/Grep/Glob) for simple searches.
+INVESTIGATION_PROMPT_FALLBACK = """1. **Assess scope**: Read provided files directly. Use code-finder or code-finder-advanced for unknown/large codebases, direct tools (Read/Grep/Glob) for simple searches.
 
 2. **Use code-finder or code-finder-advanced when**: Complex investigations, no clear starting point, discovering patterns across many files, unclear functionality location.
 
@@ -144,27 +169,168 @@ Example: "How does authentication integrate with each of our services, and how c
 Example: "Investigate and make plan out database sync" → Use parallel code-finder tasks
 Example: "Where is user validation implemented?" → Use code-finder task
 Example: "Do we have a formatDate function" → Use grep/bash/etc tools directly
-</investigation-workflow>
 
 This workflow ensures efficient investigation based on task complexity.
 """
 
-PROMPT_IMPROVEMENT_PROMPT = """
-<system-reminder>The user has mentioned improving or enhancing prompts/prompting for Stream Deck plugin development.
+IMPLEMENTATION_PROMPT = """
+<system-reminder>The user has mentioned implementing or building a Stream Deck plugin feature/action.
 
-CRITICAL: You MUST first read ~/.claude/guides/streamdeck/streamdeck-prompting-guide.md for comprehensive guidance on writing effective prompts. If you haven't read this guide yet in this conversation, read it immediately before proceeding with any prompt-related suggestions.
+<streamdeck-implementation-best-practices>
+Before implementing Stream Deck plugin features, ensure you follow these critical practices:
 
-Only after reading and understanding this guide should you provide prompt improvement recommendations.
+1. **Understand Existing Patterns**
+   - Search for similar implementations in the codebase first
+   - Follow established Stream Deck plugin architecture patterns
+   - Maintain consistency with existing action implementations
+   - Reuse existing utilities, API helpers, and communication patterns
 
-If the user is not looking to improve a prompt, or you have already read the guide, ignore this reminder.
-</system-reminder>
+2. **Stream Deck Security**
+   - Validate and sanitize ALL user inputs from Property Inspector
+   - Never expose API keys or tokens in client-side code
+   - Store sensitive data securely (encrypted storage, secure APIs)
+   - Implement proper authentication for external services
+   - Use HTTPS for all external API calls
+   - Validate messages between plugin and Property Inspector
+
+3. **Error Handling & Edge Cases**
+   - Handle all error conditions gracefully (API failures, network issues)
+   - Provide meaningful feedback to users via alerts or visual states
+   - Consider edge cases (no internet, API down, invalid settings)
+   - Add defensive checks for missing or invalid settings
+   - Implement proper error logging for debugging
+   - Handle Stream Deck disconnection/reconnection gracefully
+
+4. **Stream Deck Testing Strategy**
+   - Test actions with different Stream Deck models (regular, XL, Mini, +)
+   - Test Property Inspector UI in Stream Deck software
+   - Test error conditions and edge cases
+   - Verify state persistence across plugin restarts
+   - Test multi-action scenarios and context switching
+   - Ensure proper cleanup when actions are removed
+
+5. **Code Quality**
+   - Write clean, readable, self-documenting code
+   - Use meaningful variable and function names
+   - Keep functions focused and single-purpose
+   - Follow Stream Deck SDK best practices
+   - Organize code logically (separate PI code from plugin code)
+   - Use TypeScript types properly if using TypeScript
+
+6. **Performance Considerations**
+   - Avoid blocking the main thread with heavy operations
+   - Implement efficient polling or webhooks for updates
+   - Cache data appropriately to reduce API calls
+   - Optimize image updates (only when necessary)
+   - Consider battery impact on Stream Deck Mobile
+   - Implement debouncing for user input handling
+
+7. **Stream Deck UX Best Practices**
+   - Provide clear visual feedback for action states
+   - Use appropriate icons and images (144x144px for keys)
+   - Implement proper title handling and display
+   - Show loading states during operations
+   - Provide helpful error messages to users
+   - Support both light and dark themes if applicable
+
+8. **Documentation**
+   - Document public APIs and utility functions
+   - Explain complex logic or non-obvious behaviors
+   - Update manifest.json properly for new actions
+   - Include clear instructions for Property Inspector settings
+   - Provide README with setup and configuration instructions
+
+9. **Stream Deck-Specific Considerations**
+   - Follow manifest.json structure requirements
+   - Implement proper event handlers (keyDown, keyUp, willAppear, etc.)
+   - Handle context properly for multi-action instances
+   - Test with Stream Deck software updates
+   - Consider backwards compatibility with older Stream Deck software
+   - Implement proper state management for action instances
+   - Handle settings migration if changing settings structure
+   - Support both macOS and Windows platforms
+
+Remember: Stream Deck plugin implementation is not just about making it work—it's about creating a reliable, performant, and delightful user experience that integrates seamlessly with the Stream Deck ecosystem.
+</streamdeck-implementation-best-practices>
 """
 
-PLANNING_PROMPT = """
-<system-reminder>The user has mentioned creating or making a plan for Stream Deck plugin development. Here's some advice for making plans:
+IMPLEMENTATION_PROMPT_FALLBACK = """Before implementing Stream Deck plugin features, ensure you follow these critical practices:
 
-<planning-workflow>
-**Effective Implementation Planning Guide**
+1. **Understand Existing Patterns**
+   - Search for similar implementations in the codebase first
+   - Follow established Stream Deck plugin architecture patterns
+   - Maintain consistency with existing action implementations
+   - Reuse existing utilities, API helpers, and communication patterns
+
+2. **Stream Deck Security**
+   - Validate and sanitize ALL user inputs from Property Inspector
+   - Never expose API keys or tokens in client-side code
+   - Store sensitive data securely (encrypted storage, secure APIs)
+   - Implement proper authentication for external services
+   - Use HTTPS for all external API calls
+   - Validate messages between plugin and Property Inspector
+
+3. **Error Handling & Edge Cases**
+   - Handle all error conditions gracefully (API failures, network issues)
+   - Provide meaningful feedback to users via alerts or visual states
+   - Consider edge cases (no internet, API down, invalid settings)
+   - Add defensive checks for missing or invalid settings
+   - Implement proper error logging for debugging
+   - Handle Stream Deck disconnection/reconnection gracefully
+
+4. **Stream Deck Testing Strategy**
+   - Test actions with different Stream Deck models (regular, XL, Mini, +)
+   - Test Property Inspector UI in Stream Deck software
+   - Test error conditions and edge cases
+   - Verify state persistence across plugin restarts
+   - Test multi-action scenarios and context switching
+   - Ensure proper cleanup when actions are removed
+
+5. **Code Quality**
+   - Write clean, readable, self-documenting code
+   - Use meaningful variable and function names
+   - Keep functions focused and single-purpose
+   - Follow Stream Deck SDK best practices
+   - Organize code logically (separate PI code from plugin code)
+   - Use TypeScript types properly if using TypeScript
+
+6. **Performance Considerations**
+   - Avoid blocking the main thread with heavy operations
+   - Implement efficient polling or webhooks for updates
+   - Cache data appropriately to reduce API calls
+   - Optimize image updates (only when necessary)
+   - Consider battery impact on Stream Deck Mobile
+   - Implement debouncing for user input handling
+
+7. **Stream Deck UX Best Practices**
+   - Provide clear visual feedback for action states
+   - Use appropriate icons and images (144x144px for keys)
+   - Implement proper title handling and display
+   - Show loading states during operations
+   - Provide helpful error messages to users
+   - Support both light and dark themes if applicable
+
+8. **Documentation**
+   - Document public APIs and utility functions
+   - Explain complex logic or non-obvious behaviors
+   - Update manifest.json properly for new actions
+   - Include clear instructions for Property Inspector settings
+   - Provide README with setup and configuration instructions
+
+9. **Stream Deck-Specific Considerations**
+   - Follow manifest.json structure requirements
+   - Implement proper event handlers (keyDown, keyUp, willAppear, etc.)
+   - Handle context properly for multi-action instances
+   - Test with Stream Deck software updates
+   - Consider backwards compatibility with older Stream Deck software
+   - Implement proper state management for action instances
+   - Handle settings migration if changing settings structure
+   - Support both macOS and Windows platforms
+
+Remember: Stream Deck plugin implementation is not just about making it work—it's about creating a reliable, performant, and delightful user experience that integrates seamlessly with the Stream Deck ecosystem.
+"""
+
+PLANNING_PROMPT_FALLBACK = """**Effective Implementation Planning Guide**
 
 Before creating any plan, conduct thorough investigation—NOTHING can be left to assumptions. Specificity is critical for successful implementation.
 
@@ -213,7 +379,56 @@ A well-structured plan should include:
 - Dependencies between components must be explicitly mapped
 - Edge cases and constraints must be identified through code analysis
 
-Remember: A plan fails when it makes assumptions about behavior. Investigate thoroughly, reference specifically, plan comprehensively.
+Remember: A plan fails when it makes assumptions about behavior. Investigate thoroughly, reference specifically, plan comprehensively."""
+
+# Prompt generator functions
+def get_debug_prompt(cwd):
+    """Generate debug prompt with loaded guide content"""
+    debug_guide_content = load_debug_guide(cwd)
+    return f"""
+<system-reminder>The user has mentioned a key word or phrase that triggers this reminder for streamdeck debugging.
+
+<debugging-workflow>
+{debug_guide_content}
+</debugging-workflow>
+
+</system-reminder>
+"""
+
+def get_investigation_prompt(cwd):
+    """Generate investigation prompt with loaded guide content"""
+    investigation_guide_content = load_investigation_guide(cwd)
+    return f"""
+<system-reminder>The user has mentioned a key word or phrase that triggers this reminder for streamdeck investigation.
+
+<investigation-workflow>
+{investigation_guide_content}
+</investigation-workflow>
+
+</system-reminder>
+"""
+
+def get_implementation_prompt(cwd):
+    """Generate implementation prompt with loaded guide content"""
+    implementation_guide_content = load_implementation_guide(cwd)
+    return f"""
+<system-reminder>The user has mentioned implementing or building a streamdeck feature/component.
+
+<streamdeck-implementation-best-practices>
+{implementation_guide_content}
+</streamdeck-implementation-best-practices>
+
+</system-reminder>
+"""
+
+def get_planning_prompt(cwd):
+    """Generate planning prompt with loaded guide content"""
+    planning_guide_content = load_planning_guide(cwd)
+    return f"""
+<system-reminder>The user has mentioned creating or making a plan for streamdeck development. Here's some advice for making plans:
+
+<planning-workflow>
+{planning_guide_content}
 </planning-workflow>
 
 </system-reminder>
@@ -253,19 +468,19 @@ triggered = []
 
 # Check for debugging triggers
 if check_patterns(prompt, DEBUG_PATTERNS):
-    triggered.append(("DEBUG", DEBUG_PROMPT))
+    triggered.append(("DEBUG", get_debug_prompt(cwd)))
 
 # Check for investigation triggers
 if check_patterns(prompt, INVESTIGATION_PATTERNS):
-    triggered.append(("INVESTIGATION", INVESTIGATION_PROMPT))
+    triggered.append(("INVESTIGATION", get_investigation_prompt(cwd)))
 
-# Check for prompt improvement triggers
-if check_patterns(prompt, PROMPT_IMPROVEMENT_PATTERNS):
-    triggered.append(("PROMPT IMPROVEMENT", PROMPT_IMPROVEMENT_PROMPT))
+# Check for implementation triggers
+if check_patterns(prompt, IMPLEMENTATION_PATTERNS):
+    triggered.append(("IMPLEMENTATION", get_implementation_prompt(cwd)))
 
 # Check for planning triggers
 if check_patterns(prompt, PLANNING_PATTERNS):
-    triggered.append(("PLANNING", PLANNING_PROMPT))
+    triggered.append(("PLANNING", get_planning_prompt(cwd)))
 
 # Check for parallelization triggers
 if check_patterns(prompt, PARALLEL_PATTERNS):
