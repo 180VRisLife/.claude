@@ -474,30 +474,71 @@ def check_dependencies() -> Dict[str, bool]:
     return dependencies
 
 
+def setup_gitignore(workspace_path: Path, library_path: Path, domain: str):
+    """Set up comprehensive .gitignore from domain template."""
+    print(f"\n📝 Setting up .gitignore...")
+
+    gitignore_path = workspace_path / ".gitignore"
+    template_path = library_path / "file-templates" / ".gitignore.template"
+
+    # Check if template exists
+    if not template_path.exists():
+        print(f"  ⚠️  No .gitignore template found for {domain} domain")
+        # Fallback: ensure .worktrees/ is ignored
+        if not gitignore_path.exists():
+            gitignore_path.write_text(".worktrees/\n")
+            print(f"  ✓ Created minimal .gitignore with .worktrees/ entry")
+        else:
+            content = gitignore_path.read_text()
+            if ".worktrees" not in content:
+                with gitignore_path.open('a') as f:
+                    f.write("\n.worktrees/\n")
+                print(f"  ✓ Added .worktrees/ to existing .gitignore")
+        return
+
+    # Read template
+    template_content = template_path.read_text()
+    template_lines = set(line.strip() for line in template_content.splitlines() if line.strip() and not line.strip().startswith('#'))
+
+    if not gitignore_path.exists():
+        # No existing .gitignore, use template directly
+        gitignore_path.write_text(template_content)
+        print(f"  ✓ Created .gitignore from {domain} template")
+    else:
+        # Merge with existing .gitignore
+        existing_content = gitignore_path.read_text()
+        existing_lines = [line.rstrip() for line in existing_content.splitlines()]
+        existing_patterns = set(line.strip() for line in existing_lines if line.strip() and not line.strip().startswith('#'))
+
+        # Find patterns that are in template but not in existing
+        new_patterns = template_lines - existing_patterns
+
+        if new_patterns:
+            # Append new patterns to existing file
+            with gitignore_path.open('a') as f:
+                f.write("\n\n# Added by /init-workspace\n")
+                for line in template_content.splitlines():
+                    stripped = line.strip()
+                    if stripped and not stripped.startswith('#'):
+                        if stripped in new_patterns:
+                            f.write(line + "\n")
+                    elif stripped.startswith('#') and any(p in template_content[template_content.index(line):template_content.index(line)+200] for p in new_patterns):
+                        # Include comment headers for new sections
+                        f.write(line + "\n")
+            print(f"  ✓ Merged {len(new_patterns)} new pattern(s) into existing .gitignore")
+        else:
+            print(f"  ℹ  .gitignore already comprehensive (no new patterns added)")
+
+
 def ensure_worktree_infrastructure(workspace_path: Path):
     """Set up worktree infrastructure for all domains."""
     print(f"\n📂 Setting up worktree infrastructure...")
 
     worktrees_dir = workspace_path / ".worktrees"
-    gitignore_path = workspace_path / ".gitignore"
 
     # Create .worktrees directory
     worktrees_dir.mkdir(exist_ok=True)
     print(f"  ✓ Created .worktrees/ directory")
-
-    # Ensure .worktrees/ is in .gitignore
-    if not gitignore_path.exists():
-        gitignore_path.write_text(".worktrees/\n")
-        print(f"  ✓ Created .gitignore with .worktrees/ entry")
-    else:
-        content = gitignore_path.read_text()
-        # Check for .worktrees with or without trailing slash
-        if ".worktrees" not in content:
-            with gitignore_path.open('a') as f:
-                f.write("\n.worktrees/\n")
-            print(f"  ✓ Added .worktrees/ to .gitignore")
-        else:
-            print(f"  ℹ  .worktrees/ already in .gitignore")
 
 
 def configure_debug_release_build_settings(workspace_path: Path, domain: str, dependencies: Dict[str, bool]):
@@ -977,16 +1018,6 @@ def setup_default_debug(workspace_path: Path, library_path: Path):
                 shutil.copy2(env_template, dest)
                 print(f"  ✓ Copied {env_file}")
 
-    # Copy debug-patterns.md guide to .claude/guides if it doesn't exist
-    patterns_guide = library_path / "guides" / "debug-patterns.md"
-    if patterns_guide.exists():
-        claude_guides = workspace_path / ".claude" / "guides"
-        claude_guides.mkdir(parents=True, exist_ok=True)
-        dest = claude_guides / "debug-patterns.md"
-        if not dest.exists():
-            shutil.copy2(patterns_guide, dest)
-            print(f"  ✓ Copied debug-patterns.md to .claude/guides/")
-
 
 def update_claude_md(domain: str, workspace_path: Path, project_name: str):
     """Update CLAUDE.md with DebugLogger documentation."""
@@ -1151,6 +1182,9 @@ def main():
     # Create domain marker
     print(f"\n✍️  Creating domain marker...")
     create_domain_marker(workspace_claude, domain)
+
+    # Set up comprehensive .gitignore from domain template
+    setup_gitignore(workspace_path, library_path, domain)
 
     # Set up worktree infrastructure (all domains)
     ensure_worktree_infrastructure(workspace_path)

@@ -39,5 +39,10 @@ After the script completes successfully, use the Task tool to launch an agent th
 
 **Inform the user of:**
 1. Which domain was selected and why (1-2 sentence justification if auto-detected)
-2. Confirmation that initialization succeeded
-3. Confirmation that file size guidelines were added to CLAUDE.md
+2. Confirmation that initialization succeeded, including:
+   - Number of agents, commands, file templates, guides, hooks, and output styles installed
+   - Comprehensive `.gitignore` setup (domain-specific patterns merged with existing entries)
+   - Worktree infrastructure setup (`.worktrees/` directory)
+   - **For default domain:** Python debug infrastructure created (`utils/git_info.py`, `utils/debug_logger.py`, environment templates)
+   - **For other domains:** Any domain-specific infrastructure that was set up
+3. Confirmation that file size guidelines were added to CLAUDE.md (and where they were placed)
