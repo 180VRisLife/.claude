@@ -22,7 +22,7 @@ Automatically detects your project type (visionOS, iOS, macOS, webdev, streamdec
 **What it does:**
 - Analyzes project files to detect domain (imports, dependencies, config files)
 - Creates `.claude/` directory in project workspace
-- Copies domain-specific agents, commands, hooks, templates, and output styles
+- Copies domain-specific agents, commands, hooks, guides, and templates
 - Merges settings and creates domain marker file
 
 ### Git Commit Orchestration
@@ -134,15 +134,28 @@ After `/init-workspace`, agents available in `./.claude/agents/`:
 
 See `./.claude/agents/specialist/` for your domain's complete roster.
 
-## Output Styles
+## Workflow Orchestration
 
-Keywords in user prompts trigger different response formats:
+The **Workflow Orchestrator** hook intelligently injects contextual workflow guides based on your prompts, providing specialized guidance that stacks together for comprehensive assistance.
+
+**How it works:**
+- **Main.md is ALWAYS active** - Professional development mode is the foundation for every interaction
+- **Keyword-triggered guides** - Additional specialized guides stack on top based on your prompt
+- **No settings changes** - Pure content injection approach (no output style switching)
+
+**Available workflow modes:**
 
 - **brainstorm** → Socratic questioning with emojis, collaborative discovery mindset
-- **business panel** → Multi-perspective strategic analysis from 9 business thought leaders
 - **deep research** → Evidence-based systematic investigation with parallel research streams
 - **plan out / planning** → Research-only mode with no implementation, creates strategic documentation
-- **implement / build / code** → Main development mode for implementation (default)
+- **implement / build / code** → Best practices for feature implementation (stacks with main)
+- **debug** → Debugging workflow and error investigation (stacks with main)
+- **investigate / research** → Code investigation and pattern analysis (stacks with main)
+
+**Guide stacking example:**
+- "debug this planning" → Loads: main + debug + planning
+- "implement user auth" → Loads: main + implementation
+- "deep research the architecture" → Loads: main + deep-research + investigation
 
 ## Extended Thinking
 

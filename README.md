@@ -129,7 +129,7 @@ CRITICAL INSTRUCTIONS:
 
 Steps:
 1. Create a new domain folder in library: ~/.claude/library/[domain]/
-2. Create subfolders: agents, commands, file-templates, guides, hooks, output-styles
+2. Create subfolders: agents, commands, file-templates, guides, hooks
 3. For EACH file you create:
    a. FIRST read the corresponding library/default/ file to use as your EXACT template
    b. Analyze what needs changing:
@@ -160,9 +160,9 @@ File structure conventions:
 - agents/base/: code-finder.md, code-finder-advanced.md, implementor.md, library-docs-writer.md, root-cause-analyzer.md
 - agents/specialist/: [name1].md, [name2].md, [name3].md
 - commands/: 1-requirements.md, 2-architecture.md, 3-priority.md, 4-parallelization.md, 5-execution.md
-- hooks/: custom-reminder.py, output-style-switcher.py, parallel.py
+- hooks/: workflow-orchestrator.py, parallel.py
 - file-templates/: requirements.template.md, architecture.template.md, priority.template.md, parallelization.template.md
-- output-styles/: main.md, planning.md, brainstorming.md, business-panel.md, deep-research.md
+- guides/: main.md, planning.md, brainstorming.md, deep-research.md, debug.md, investigation.md, implementation.md, parallel.md
 
 Start by researching best practices for the specified domain's development, then systematically create each folder by:
 1. Reading the library/default/ equivalent
@@ -213,19 +213,23 @@ Optimize for **logical coherence** and **developer experience** rather than arbi
 - **megathink** → Allocates 10,000 tokens for complex refactoring and design (40% better architectural decisions)
 - **ultrathink** → Allocates maximum 31,999 tokens for tackling seemingly impossible tasks (solves team-stumping bugs)
 
-### Output Style Keywords (Domain-Specific)
+### Workflow Orchestrator Keywords (Domain-Specific)
+The Workflow Orchestrator hook automatically injects contextual guides based on these keywords. Multiple guides can stack together.
+
+**Always active:**
+- **main.md** → Professional development mode (automatically loaded on every prompt)
+
+**Keyword-triggered guides (stack with main):**
 - **brainstorm** → Socratic questioning with emojis, collaborative discovery mindset
-- **business panel** → Channels 9 business thought leaders for multi-perspective strategic analysis
 - **deep research** → Evidence-based systematic investigation with parallel research streams
 - **plan out/planning** → Research-only mode with no implementation, creates strategic documentation
-- **implement/build/code** → Main development mode for implementation with agent orchestration (default)
+- **implement/build/code** → Best practices for feature implementation
+- **debug** → Debugging workflow and error investigation
+- **investigate/research** → Code investigation and pattern analysis
 
-### Hook Trigger Keywords (Domain-Specific)
-- **debug** → Triggers debugging reminders
-- **investigate** → Triggers investigation reminders
-- **improve prompt** → Triggers prompting guide
-- **plan** → Triggers planning reminders
-- **parallel** → Triggers parallel execution reminders
+**Example stacking:**
+- "debug this planning" → Loads: main + debug + planning
+- "implement user auth" → Loads: main + implementation
 
 ## Reference Documentation
 
@@ -234,7 +238,7 @@ Optimize for **logical coherence** and **developer experience** rather than arbi
 This system uses a **Library-based architecture** where domain-specific configurations are stored in a central Library and deployed to individual workspaces:
 
 - **Global Config** (`~/.claude/`): Domain-agnostic commands (like `/git`), system hooks, and the Library
-- **library** (`~/.claude/library/`): Domain-specific templates for agents, commands, hooks, file-templates, guides, and output-styles
+- **library** (`~/.claude/library/`): Domain-specific templates for agents, commands, hooks, file-templates, and guides
 - **Workspace Config** (`./.claude/`): Per-project configuration initialized from the Library for a specific domain
 
 ### System Architecture
@@ -245,11 +249,10 @@ Commands, Output Styles, and Hooks operate independently. To trigger multiple be
 
 ### Domain-Specific Hook System
 After running `/init-workspace`, your project will have domain-specific hooks that automatically enhance Claude's behavior:
-- **custom-reminder.py** - Injects contextual reminders based on keywords (debug, investigate, parallel, etc.)
-- **output-style-switcher.py** - Automatically switches output styles based on keywords
+- **workflow-orchestrator.py** - Intelligently injects workflow guides based on keywords in your prompts (main.md is always active, others stack based on keywords: brainstorm, deep-research, planning, implementation, debug, investigation)
 - **parallel.py** - Loads the parallel execution guide after planning (PostToolUse hook)
 
-These hooks are workspace-local and automatically use the domain-appropriate guides and styles from your `.claude/` folder.
+These hooks are workspace-local and automatically use the domain-appropriate guides from your `.claude/guides/` folder.
 
 ### Agents (Domain-Specific, Auto-Selected by Claude)
 None of the agents are explicitly triggered. Claude automatically recognizes based on the nature of the request.
@@ -270,8 +273,18 @@ Specialist agents vary by domain and exist in `./.claude/agents/specialist/`. Fo
 
 ### Guides (Domain-Specific, Auto-Triggered)
 *Note: Guides are workspace-local after running `/init-workspace` and exist in `./.claude/guides/`*
+
+**Always loaded:**
+- **main.md** - Professional development mode with agent delegation, parallel execution, and code standards
+
+**Keyword-triggered:**
+- **brainstorming.md** - Collaborative discovery workflow (keyword: "brainstorm")
+- **deep-research.md** - Systematic investigation with evidence-based reasoning (keyword: "deep research")
+- **planning.md** - Research-driven planning methodology (keywords: "plan out", "planning")
+- **implementation.md** - Best practices before implementing features (keywords: "implement", "build", "code")
+- **debug.md** - Debugging workflow and error investigation (keywords: "debug", "bug", "error")
+- **investigation.md** - Code investigation and pattern analysis (keywords: "investigate", "research", "analyze")
 - **parallel.md** - Triggered after ExitPlanMode; explains task independence analysis, dependency management, and parallel execution strategies
-- **prompting-guide.md** - Triggered by "improve prompt" keywords; provides best practices for effective development prompts
 
 ### File Templates (Domain-Specific)
 Formatting guides automatically referenced by planning commands - not executed directly.
