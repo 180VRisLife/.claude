@@ -248,30 +248,49 @@ except json.JSONDecodeError as e:
 prompt = input_data.get("prompt", "")
 cwd = input_data.get("cwd", "")
 
+# Collect all matching reminders with their names
+triggered = []
+
 # Check for debugging triggers
 if check_patterns(prompt, DEBUG_PATTERNS):
-    print(DEBUG_PROMPT)
-    sys.exit(0)
+    triggered.append(("DEBUG", DEBUG_PROMPT))
 
 # Check for investigation triggers
 if check_patterns(prompt, INVESTIGATION_PATTERNS):
-    print(INVESTIGATION_PROMPT)
-    sys.exit(0)
+    triggered.append(("INVESTIGATION", INVESTIGATION_PROMPT))
 
 # Check for prompt improvement triggers
 if check_patterns(prompt, PROMPT_IMPROVEMENT_PATTERNS):
-    print(PROMPT_IMPROVEMENT_PROMPT)
-    sys.exit(0)
+    triggered.append(("PROMPT IMPROVEMENT", PROMPT_IMPROVEMENT_PROMPT))
 
 # Check for planning triggers
 if check_patterns(prompt, PLANNING_PATTERNS):
-    print(PLANNING_PROMPT)
-    sys.exit(0)
+    triggered.append(("PLANNING", PLANNING_PROMPT))
 
 # Check for parallelization triggers
 if check_patterns(prompt, PARALLEL_PATTERNS):
-    print(get_parallel_prompt(cwd))
-    sys.exit(0)
+    triggered.append(("PARALLELIZATION", get_parallel_prompt(cwd)))
 
-# No triggers matched, allow normal processing
+# Print each reminder with instruction for Claude to report
+if triggered:
+    output = []
+
+    # First, tell Claude to report what was triggered
+    trigger_names = [name for name, _ in triggered]
+    instruction = f"""<system-reminder>
+IMPORTANT: Immediately inform the user that the following reminder hooks were triggered:
+{', '.join(trigger_names)}
+
+Display this to the user in a clear, visible format before proceeding with their request.
+</system-reminder>
+"""
+    output.append(instruction)
+
+    # Then add the actual reminder content
+    for name, prompt_text in triggered:
+        output.append(prompt_text)
+
+    print("\n\n".join(output))
+
+# Allow normal processing
 sys.exit(0)
