@@ -9,7 +9,7 @@ Set up the workspace with domain-specific configuration.
 - **macos**: For macOS apps (Swift, Xcode, AppKit, SwiftUI for Mac)
 - **visionos**: For Apple Vision Pro/visionOS projects (Swift, Xcode, RealityKit, SwiftUI)
 - **webdev**: For React/Next.js web applications (modern web frameworks, TypeScript, Tailwind)
-- **default**: For general software development (Python, Node.js, Go, Rust, Java, etc.)
+- **default**: For general software development (strongly prefers Python; use Go, Node.js, Rust, Java, etc. only if more relevant)
 
 **If domain is provided:** Use it directly without analysis.
 

@@ -8,6 +8,8 @@
 - **.env templates** - Development and production environment files
 - **Debug patterns guide** - Language-specific debug mode detection patterns
 
+**Note:** Python is strongly preferred. Only use Python templates as a basis to create versions for other languages (Go, Node.js, Rust, Java, etc.) if those languages are more relevant to the project. When adding language-specific versions to `~/.claude/library/default/file-templates/`, only copy in the templates that are relevant to the current project—don't copy all language versions unless all are needed.
+
 ### Available Templates
 
 #### Git Info Helper
