@@ -296,6 +296,8 @@ Merged commits:
 ✅ Branch <branch-name> has been deleted (local and remote)
 
 You are now on branch <base-branch>.
+
+💡 If issues arise: Fix forward with new commits or create hotfix worktree via `/wt hotfix-name`
 ```
 
 **On failure:**
