@@ -37,3 +37,8 @@ settings.json
 
 # Debug output
 debug/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
