@@ -106,9 +106,9 @@ else
 fi
 ```
 
-## Phase 5: Create Worktree
+## Phase 5: Create Worktree and Save Context
 
-Create the worktree with the normalized feature name:
+Create the worktree with the normalized feature name and save the user's original prompt:
 
 ```bash
 # Create .worktrees directory if it doesn't exist
@@ -124,41 +124,69 @@ else
   echo "❌ Failed to create worktree"
   exit 1
 fi
+
+# Save user's original prompt to PROMPT.md in worktree root
+cat > "$worktree_dir/$feature_name/PROMPT.md" << 'EOF'
+# Original Task
+
+[Insert the user's original prompt that triggered /wt here - everything after `/wt`]
+
+---
+*This file captures the original context for this worktree.*
+*Reference it when planning/implementing in this workspace.*
+*It will be auto-deleted before commits.*
+EOF
+
+echo "✅ Saved original prompt to PROMPT.md"
 ```
 
-## Phase 6: Switch to Worktree Directory
+## Phase 6: Display Instructions to User (NO NAVIGATION)
 
-Change to the newly created worktree:
+**CRITICAL: Do NOT execute any navigation commands. Do NOT cd to the worktree. Do NOT change directories. ONLY display the information below to the user.**
 
-```bash
-cd "$worktree_dir/$feature_name"
-pwd  # Confirm location
-```
-
-## Phase 7: Confirm and Begin Implementation
+Display this message to the user:
 
 ```
-🌳 Worktree created: $worktree_dir/$feature_name
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✅ Worktree created: $worktree_dir/$feature_name
+
 Branch: $feature_name (based on $base_branch)
+Context: PROMPT.md saved with original task
 
-Starting implementation...
+To begin work, open a new terminal and run:
+
+  cd $worktree_dir/$feature_name
+  claude
+
+Then reference PROMPT.md for the original task context.
+The prompt file will be automatically deleted when you run /git.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
 
-Now immediately implement the feature described in the original `/wt` command. Work as you normally would - when done, let the user know they can review and run `/git` to merge back.
+**STOP HERE. DO NOT:**
+- ❌ Navigate to the worktree
+- ❌ Execute `cd` commands
+- ❌ Change working directory
+- ❌ Plan anything
+- ❌ Implement anything
+- ❌ Offer to do anything else
+
+**This session's ONLY job was infrastructure setup. It is now complete. The user will manually navigate to the worktree and start a fresh Claude session.**
 
 ## Key Features
 
 - **Auto-naming**: Converts your feature description to kebab-case automatically
+- **Context preservation**: Saves your original prompt to PROMPT.md
 - **Isolation**: Work independently without affecting main codebase
-- **Parallel development**: Run multiple Claude instances in different worktrees
-- **Automated cleanup**: `/git` handles merge and removal when you're done
+- **Parallel development**: Run multiple Claude sessions in different worktrees
+- **Manual control**: You decide when to navigate to worktree and start working
 
-## Integration with `/git`
+## Workflow Integration
 
-When you run `/git` from within this worktree, it will:
-1. Create all necessary commits
-2. Detect the base branch automatically
-3. Ask if you want to merge back and cleanup
-4. Handle the merge and worktree removal
+This creates a clean separation between setup and work:
 
-This creates a seamless workflow: `/wt` to create → work on feature → `/git` to merge and cleanup.
+1. **Setup** (current session): `/wt feature-name` creates infrastructure
+2. **Navigate** (you): `cd .worktrees/feature-name`
+3. **Work** (new session): Start `claude`, reference PROMPT.md, implement
+4. **Commit** (new session): Run `/git` to commit (auto-deletes PROMPT.md)
+5. **Merge** (new session): `/git` asks if you want to merge back and cleanup

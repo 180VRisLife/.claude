@@ -2,6 +2,20 @@ I have just finished one or more changes. It's time to commit changes.
 
 ## Phase 1: Analysis
 
+### Cleanup Temporary Files
+
+Before analyzing changes, clean up temporary files that should never be committed:
+
+```bash
+# Remove PROMPT.md if it exists (created by /wt command)
+if [ -f "PROMPT.md" ]; then
+  rm PROMPT.md
+  echo "🧹 Cleaned up PROMPT.md"
+fi
+```
+
+### Analyze Changes
+
 Analyze git diffs, running any additional `git` commands necessary to understand the scope of change.
 
 ### ⛔️ CRITICAL: Debugging Code Check
