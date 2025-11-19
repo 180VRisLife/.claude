@@ -7,7 +7,43 @@ import re
 import sys
 from pathlib import Path
 
-# Load the shared parallel execution guide from local workspace
+# Load guides from local workspace
+def load_debug_guide(cwd):
+    """Load debug guide from workspace .claude folder"""
+    guide_path = Path(cwd) / ".claude" / "guides" / "debug.md"
+    try:
+        with open(guide_path, 'r') as f:
+            return f.read()
+    except Exception:
+        return DEBUG_PROMPT_FALLBACK
+
+def load_investigation_guide(cwd):
+    """Load investigation guide from workspace .claude folder"""
+    guide_path = Path(cwd) / ".claude" / "guides" / "investigation.md"
+    try:
+        with open(guide_path, 'r') as f:
+            return f.read()
+    except Exception:
+        return INVESTIGATION_PROMPT_FALLBACK
+
+def load_implementation_guide(cwd):
+    """Load implementation guide from workspace .claude folder"""
+    guide_path = Path(cwd) / ".claude" / "guides" / "implementation.md"
+    try:
+        with open(guide_path, 'r') as f:
+            return f.read()
+    except Exception:
+        return IMPLEMENTATION_PROMPT_FALLBACK
+
+def load_planning_guide(cwd):
+    """Load planning guide from workspace .claude folder"""
+    guide_path = Path(cwd) / ".claude" / "guides" / "planning.md"
+    try:
+        with open(guide_path, 'r') as f:
+            return f.read()
+    except Exception:
+        return IMPLEMENTATION_PROMPT_FALLBACK
+
 def load_parallel_guide(cwd):
     """Load parallel guide from workspace .claude folder"""
     guide_path = Path(cwd) / ".claude" / "guides" / "parallel.md"
@@ -33,12 +69,12 @@ INVESTIGATION_PATTERNS = [
     r'\b(data.*flow|architecture|system.*design)\b'
 ]
 
-# Prompt improvement trigger patterns
-PROMPT_IMPROVEMENT_PATTERNS = [
-    r'\b(improv|enhanc).*\b(prompt|prompting)\b',
-    r'\b(prompt|prompting).*\b(improv|enhanc)\b',
-    r'\b(better|optimize|refine).*\b(prompt|prompting)\b',
-    r'\b(prompt|prompting).*\b(better|optimize|refine)\b'
+# Implementation trigger patterns
+IMPLEMENTATION_PATTERNS = [
+    r'\b(implement|build|create|develop|code|write|add).*\b(feature|function|component|service|module|class|view|entity)\b',
+    r'\b(make|build|create|develop)\s+(this|it|the)\b',
+    r'\b(let\'s|can you|please)\s+(implement|build|create|develop|code|write)\b',
+    r'\bstart (implementing|building|coding|developing)\b'
 ]
 
 # Planning trigger patterns
@@ -57,11 +93,8 @@ PARALLEL_PATTERNS = [
     r'\bconcurrent execution\b'
 ]
 
-DEBUG_PROMPT = """
-<system-reminder>The user has mentioned a key word or phrase that triggers this reminder for debugging.
-
-<debugging-workflow>
-1. **Understand the codebase** - Read relevant files/entities/assets to understand the codebase, and look up documentation for frameworks and libraries.
+# Fallback prompts (used when guide files are not available)
+DEBUG_PROMPT_FALLBACK = """1. **Understand the codebase** - Read relevant files/entities/assets to understand the codebase, and look up documentation for frameworks and libraries.
    - For simple searches: Use direct tools (Read/Grep/Glob)
    - For quick code location: Use @code-finder agent
    - For complex bugs: Deploy PARALLEL @code-finder-advanced agents (in SINGLE function_calls block)
@@ -120,17 +153,9 @@ Example 3: "Hand tracking gestures not recognized"
 → Deploy 3 parallel @root-cause-analyzer agents on different hypothesis categories:
   - Agent 1: HandTrackingProvider configuration and chirality
   - Agent 2: Gesture recognition thresholds and timing
-  - Agent 3: Coordinate space transforms and entity positioning
-</debugging-workflow>
+  - Agent 3: Coordinate space transforms and entity positioning"""
 
-</system-reminder>
-"""
-
-INVESTIGATION_PROMPT = """
-<system-reminder>The user has mentioned a key word or phrase that triggers this reminder for investigation.
-
-<investigation-workflow>
-1. **Assess scope**: Read provided files directly. Use code-finder or code-finder-advanced for unknown/large codebases, direct tools (Read/Grep/Glob) for simple searches.
+INVESTIGATION_PROMPT_FALLBACK = """1. **Assess scope**: Read provided files directly. Use code-finder or code-finder-advanced for unknown/large codebases, direct tools (Read/Grep/Glob) for simple searches.
 
 2. **Use code-finder or code-finder-advanced when**: Complex investigations, no clear starting point, discovering patterns across many files, unclear functionality location.
 
@@ -144,27 +169,156 @@ Example: "How does authentication integrate with each of our services, and how c
 Example: "Investigate and make plan out database sync" → Use parallel code-finder tasks
 Example: "Where is user validation implemented?" → Use code-finder task
 Example: "Do we have a formatDate function" → Use grep/bash/etc tools directly
-</investigation-workflow>
 
 This workflow ensures efficient investigation based on task complexity.
 """
 
-PROMPT_IMPROVEMENT_PROMPT = """
-<system-reminder>The user has mentioned improving or enhancing prompts/prompting for development.
+IMPLEMENTATION_PROMPT = """
+<system-reminder>The user has mentioned implementing or building a visionOS feature/component.
 
-CRITICAL: You MUST first read ~/.claude/guides/default/default-prompting-guide.md for comprehensive guidance on writing effective prompts. If you haven't read this guide yet in this conversation, read it immediately before proceeding with any prompt-related suggestions.
+<visionos-implementation-best-practices>
+Before implementing visionOS features, ensure you follow these critical practices:
 
-Only after reading and understanding this guide should you provide prompt improvement recommendations.
+1. **Understand Existing Patterns**
+   - Search for similar implementations in the codebase first
+   - Follow established spatial computing patterns and conventions
+   - Maintain consistency with existing SwiftUI/RealityKit code style
+   - Reuse existing entities, components, systems, and utilities
 
-If the user is not looking to improve a prompt, or you have already read the guide, ignore this reminder.
-</system-reminder>
+2. **visionOS-Specific Security**
+   - Validate and sanitize ALL user inputs
+   - Use Keychain for sensitive data storage
+   - Handle spatial permissions properly (WorldSensingProvider, HandTrackingProvider)
+   - Respect user privacy with proper spatial data handling
+   - Implement proper authentication for shared experiences
+   - Use parameterized queries for database operations
+
+3. **Error Handling & Edge Cases**
+   - Handle all error conditions gracefully with proper Swift error handling
+   - Provide meaningful user-facing error messages in spatial UI
+   - Consider edge cases (tracking loss, anchor drift, hand occlusion)
+   - Add defensive nil-checking and guard statements
+   - Implement proper logging for debugging (os_log, but remove debug logs before commit)
+
+4. **visionOS Testing Strategy**
+   - Write unit tests for ViewModels and business logic
+   - Test spatial interactions in visionOS Simulator
+   - Test on actual Vision Pro hardware (simulator has limitations)
+   - Test error conditions and spatial edge cases
+   - Verify hand tracking, eye tracking, and spatial anchor behavior
+
+5. **Code Quality**
+   - Write clean, readable, self-documenting Swift code
+   - Use meaningful variable and function names
+   - Keep functions/methods focused and single-purpose
+   - Follow Swift API design guidelines
+   - Avoid retain cycles (use weak/unowned references appropriately)
+   - Use @MainActor appropriately for UI updates
+
+6. **Performance Considerations**
+   - Avoid blocking the main thread (use async/await, Task)
+   - Optimize RealityKit rendering performance (entity count, materials, LOD)
+   - Implement efficient spatial queries and raycasting
+   - Profile with Instruments for performance bottlenecks
+   - Consider battery impact and thermal constraints
+
+7. **visionOS Accessibility**
+   - Add proper accessibility labels for spatial UI elements
+   - Support VoiceOver in immersive spaces
+   - Ensure spatial interactions work for users with varying abilities
+   - Provide alternatives to hand gestures where appropriate
+   - Maintain sufficient visual contrast in spatial UI
+
+8. **Documentation**
+   - Document public APIs with Swift doc comments (///)
+   - Explain complex spatial logic or RealityKit entity hierarchies
+   - Update relevant documentation if behavior changes
+   - Include usage examples for reusable spatial components
+
+9. **visionOS-Specific Considerations**
+   - Check visionOS version availability for new APIs (@available)
+   - Handle ImmersiveSpace lifecycle properly
+   - Manage spatial anchor persistence and updates
+   - Consider shared space vs. immersive space appropriately
+   - Test SharePlay integration if implementing collaborative features
+   - Handle coordinate space transforms correctly
+   - Optimize for different viewing distances and user comfort
+
+Remember: visionOS implementation is not just about making it work—it's about creating comfortable, performant, and delightful spatial computing experiences that respect platform conventions.
+</visionos-implementation-best-practices>
 """
 
-PLANNING_PROMPT = """
-<system-reminder>The user has mentioned creating or making a plan for development. Here's some advice for making plans:
+IMPLEMENTATION_PROMPT_FALLBACK = """Before implementing visionOS features, ensure you follow these critical practices:
 
-<planning-workflow>
-**Effective Implementation Planning Guide**
+1. **Understand Existing Patterns**
+   - Search for similar implementations in the codebase first
+   - Follow established spatial computing patterns and conventions
+   - Maintain consistency with existing SwiftUI/RealityKit code style
+   - Reuse existing entities, components, systems, and utilities
+
+2. **visionOS-Specific Security**
+   - Validate and sanitize ALL user inputs
+   - Use Keychain for sensitive data storage
+   - Handle spatial permissions properly (WorldSensingProvider, HandTrackingProvider)
+   - Respect user privacy with proper spatial data handling
+   - Implement proper authentication for shared experiences
+   - Use parameterized queries for database operations
+
+3. **Error Handling & Edge Cases**
+   - Handle all error conditions gracefully with proper Swift error handling
+   - Provide meaningful user-facing error messages in spatial UI
+   - Consider edge cases (tracking loss, anchor drift, hand occlusion)
+   - Add defensive nil-checking and guard statements
+   - Implement proper logging for debugging (os_log, but remove debug logs before commit)
+
+4. **visionOS Testing Strategy**
+   - Write unit tests for ViewModels and business logic
+   - Test spatial interactions in visionOS Simulator
+   - Test on actual Vision Pro hardware (simulator has limitations)
+   - Test error conditions and spatial edge cases
+   - Verify hand tracking, eye tracking, and spatial anchor behavior
+
+5. **Code Quality**
+   - Write clean, readable, self-documenting Swift code
+   - Use meaningful variable and function names
+   - Keep functions/methods focused and single-purpose
+   - Follow Swift API design guidelines
+   - Avoid retain cycles (use weak/unowned references appropriately)
+   - Use @MainActor appropriately for UI updates
+
+6. **Performance Considerations**
+   - Avoid blocking the main thread (use async/await, Task)
+   - Optimize RealityKit rendering performance (entity count, materials, LOD)
+   - Implement efficient spatial queries and raycasting
+   - Profile with Instruments for performance bottlenecks
+   - Consider battery impact and thermal constraints
+
+7. **visionOS Accessibility**
+   - Add proper accessibility labels for spatial UI elements
+   - Support VoiceOver in immersive spaces
+   - Ensure spatial interactions work for users with varying abilities
+   - Provide alternatives to hand gestures where appropriate
+   - Maintain sufficient visual contrast in spatial UI
+
+8. **Documentation**
+   - Document public APIs with Swift doc comments (///)
+   - Explain complex spatial logic or RealityKit entity hierarchies
+   - Update relevant documentation if behavior changes
+   - Include usage examples for reusable spatial components
+
+9. **visionOS-Specific Considerations**
+   - Check visionOS version availability for new APIs (@available)
+   - Handle ImmersiveSpace lifecycle properly
+   - Manage spatial anchor persistence and updates
+   - Consider shared space vs. immersive space appropriately
+   - Test SharePlay integration if implementing collaborative features
+   - Handle coordinate space transforms correctly
+   - Optimize for different viewing distances and user comfort
+
+Remember: visionOS implementation is not just about making it work—it's about creating comfortable, performant, and delightful spatial computing experiences that respect platform conventions.
+"""
+
+PLANNING_PROMPT_FALLBACK = """**Effective Implementation Planning Guide**
 
 Before creating any plan, conduct thorough investigation—NOTHING can be left to assumptions. Specificity is critical for successful implementation.
 
@@ -213,7 +367,56 @@ A well-structured plan should include:
 - Dependencies between components must be explicitly mapped
 - Edge cases and constraints must be identified through code analysis
 
-Remember: A plan fails when it makes assumptions about behavior. Investigate thoroughly, reference specifically, plan comprehensively.
+Remember: A plan fails when it makes assumptions about behavior. Investigate thoroughly, reference specifically, plan comprehensively."""
+
+# Prompt generator functions
+def get_debug_prompt(cwd):
+    """Generate debug prompt with loaded guide content"""
+    debug_guide_content = load_debug_guide(cwd)
+    return f"""
+<system-reminder>The user has mentioned a key word or phrase that triggers this reminder for visionos debugging.
+
+<debugging-workflow>
+{debug_guide_content}
+</debugging-workflow>
+
+</system-reminder>
+"""
+
+def get_investigation_prompt(cwd):
+    """Generate investigation prompt with loaded guide content"""
+    investigation_guide_content = load_investigation_guide(cwd)
+    return f"""
+<system-reminder>The user has mentioned a key word or phrase that triggers this reminder for visionos investigation.
+
+<investigation-workflow>
+{investigation_guide_content}
+</investigation-workflow>
+
+</system-reminder>
+"""
+
+def get_implementation_prompt(cwd):
+    """Generate implementation prompt with loaded guide content"""
+    implementation_guide_content = load_implementation_guide(cwd)
+    return f"""
+<system-reminder>The user has mentioned implementing or building a visionos feature/component.
+
+<visionos-implementation-best-practices>
+{implementation_guide_content}
+</visionos-implementation-best-practices>
+
+</system-reminder>
+"""
+
+def get_planning_prompt(cwd):
+    """Generate planning prompt with loaded guide content"""
+    planning_guide_content = load_planning_guide(cwd)
+    return f"""
+<system-reminder>The user has mentioned creating or making a plan for visionos development. Here's some advice for making plans:
+
+<planning-workflow>
+{planning_guide_content}
 </planning-workflow>
 
 </system-reminder>
@@ -253,19 +456,19 @@ triggered = []
 
 # Check for debugging triggers
 if check_patterns(prompt, DEBUG_PATTERNS):
-    triggered.append(("DEBUG", DEBUG_PROMPT))
+    triggered.append(("DEBUG", get_debug_prompt(cwd)))
 
 # Check for investigation triggers
 if check_patterns(prompt, INVESTIGATION_PATTERNS):
-    triggered.append(("INVESTIGATION", INVESTIGATION_PROMPT))
+    triggered.append(("INVESTIGATION", get_investigation_prompt(cwd)))
 
-# Check for prompt improvement triggers
-if check_patterns(prompt, PROMPT_IMPROVEMENT_PATTERNS):
-    triggered.append(("PROMPT IMPROVEMENT", PROMPT_IMPROVEMENT_PROMPT))
+# Check for implementation triggers
+if check_patterns(prompt, IMPLEMENTATION_PATTERNS):
+    triggered.append(("IMPLEMENTATION", get_implementation_prompt(cwd)))
 
 # Check for planning triggers
 if check_patterns(prompt, PLANNING_PATTERNS):
-    triggered.append(("PLANNING", PLANNING_PROMPT))
+    triggered.append(("PLANNING", get_planning_prompt(cwd)))
 
 # Check for parallelization triggers
 if check_patterns(prompt, PARALLEL_PATTERNS):

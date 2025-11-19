@@ -7,7 +7,43 @@ import re
 import sys
 from pathlib import Path
 
-# Load the shared parallel execution guide from local workspace
+# Load guides from local workspace
+def load_debug_guide(cwd):
+    """Load debug guide from workspace .claude folder"""
+    guide_path = Path(cwd) / ".claude" / "guides" / "debug.md"
+    try:
+        with open(guide_path, 'r') as f:
+            return f.read()
+    except Exception:
+        return DEBUG_PROMPT_FALLBACK
+
+def load_investigation_guide(cwd):
+    """Load investigation guide from workspace .claude folder"""
+    guide_path = Path(cwd) / ".claude" / "guides" / "investigation.md"
+    try:
+        with open(guide_path, 'r') as f:
+            return f.read()
+    except Exception:
+        return INVESTIGATION_PROMPT_FALLBACK
+
+def load_implementation_guide(cwd):
+    """Load implementation guide from workspace .claude folder"""
+    guide_path = Path(cwd) / ".claude" / "guides" / "implementation.md"
+    try:
+        with open(guide_path, 'r') as f:
+            return f.read()
+    except Exception:
+        return IMPLEMENTATION_PROMPT_FALLBACK
+
+def load_planning_guide(cwd):
+    """Load planning guide from workspace .claude folder"""
+    guide_path = Path(cwd) / ".claude" / "guides" / "planning.md"
+    try:
+        with open(guide_path, 'r') as f:
+            return f.read()
+    except Exception:
+        return PLANNING_PROMPT_FALLBACK
+
 def load_parallel_guide(cwd):
     """Load parallel guide from workspace .claude folder"""
     guide_path = Path(cwd) / ".claude" / "guides" / "parallel.md"
@@ -34,12 +70,12 @@ INVESTIGATION_PATTERNS = [
     r'\b(data.*flow|architecture|system.*design)\b'
 ]
 
-# Prompt improvement trigger patterns
-PROMPT_IMPROVEMENT_PATTERNS = [
-    r'\b(improv|enhanc).*\b(prompt|prompting)\b',
-    r'\b(prompt|prompting).*\b(improv|enhanc)\b',
-    r'\b(better|optimize|refine).*\b(prompt|prompting)\b',
-    r'\b(prompt|prompting).*\b(better|optimize|refine)\b'
+# Implementation trigger patterns
+IMPLEMENTATION_PATTERNS = [
+    r'\b(implement|build|create|develop|code|write|add).*\b(feature|function|component|service|module|class|view)\b',
+    r'\b(make|build|create|develop)\s+(this|it|the)\b',
+    r'\b(let\'s|can you|please)\s+(implement|build|create|develop|code|write)\b',
+    r'\bstart (implementing|building|coding|developing)\b'
 ]
 
 # Planning trigger patterns
@@ -58,11 +94,8 @@ PARALLEL_PATTERNS = [
     r'\bconcurrent execution\b'
 ]
 
-DEBUG_PROMPT = """
-<system-reminder>The user has mentioned a key word or phrase that triggers this reminder for iOS debugging.
-
-<debugging-workflow>
-1. **Understand the codebase** - Read relevant files/models/views/view controllers to understand the codebase, and look up documentation for iOS frameworks and libraries.
+# Fallback prompts (used when guide files are not available)
+DEBUG_PROMPT_FALLBACK = """1. **Understand the codebase** - Read relevant files/models/views/view controllers to understand the codebase, and look up documentation for iOS frameworks and libraries.
    - For simple searches: Use direct tools (Read/Grep/Glob)
    - For quick code location: Use @code-finder agent
    - For complex bugs: Deploy PARALLEL @code-finder-advanced agents (in SINGLE function_calls block)
@@ -121,17 +154,9 @@ Example 3: "UI freezing during network requests"
 → Deploy 3 parallel @root-cause-analyzer agents on different hypothesis categories:
   - Agent 1: Main thread blocking and async/await usage
   - Agent 2: Network request lifecycle and cancellation
-  - Agent 3: UI update batching and rendering performance
-</debugging-workflow>
+  - Agent 3: UI update batching and rendering performance"""
 
-</system-reminder>
-"""
-
-INVESTIGATION_PROMPT = """
-<system-reminder>The user has mentioned a key word or phrase that triggers this reminder for iOS investigation.
-
-<investigation-workflow>
-1. **Assess scope**: Read provided files directly. Use code-finder or code-finder-advanced for unknown/large codebases, direct tools (Read/Grep/Glob) for simple searches.
+INVESTIGATION_PROMPT_FALLBACK = """1. **Assess scope**: Read provided files directly. Use code-finder or code-finder-advanced for unknown/large codebases, direct tools (Read/Grep/Glob) for simple searches.
 
 2. **Use code-finder or code-finder-advanced when**: Complex investigations, no clear starting point, discovering patterns across many files, unclear functionality location.
 
@@ -145,27 +170,79 @@ Example: "How does authentication integrate with each of our services, and how c
 Example: "Investigate and make plan out Core Data sync" → Use parallel code-finder tasks
 Example: "Where is user validation implemented?" → Use code-finder task
 Example: "Do we have a formatDate function" → Use grep/bash/etc tools directly
-</investigation-workflow>
 
 This workflow ensures efficient iOS investigation based on task complexity.
 """
 
-PROMPT_IMPROVEMENT_PROMPT = """
-<system-reminder>The user has mentioned improving or enhancing prompts/prompting for iOS development.
+IMPLEMENTATION_PROMPT_FALLBACK = """Before implementing iOS features, ensure you follow these critical practices:
 
-CRITICAL: You MUST first read ~/.claude/guides/ios/ios-prompting-guide.md for comprehensive guidance on writing effective prompts for iOS development. If you haven't read this guide yet in this conversation, read it immediately before proceeding with any prompt-related suggestions.
+1. **Understand Existing Patterns**
+   - Search for similar implementations in the codebase first
+   - Follow established architectural patterns (MVVM, Coordinators, etc.)
+   - Maintain consistency with existing SwiftUI/UIKit code style
+   - Reuse existing view components, utilities, and services
 
-Only after reading and understanding this guide should you provide prompt improvement recommendations.
+2. **iOS-Specific Security**
+   - Validate and sanitize ALL user inputs
+   - Use Keychain for sensitive data storage (never UserDefaults)
+   - Implement proper App Transport Security (ATS) configurations
+   - Handle authentication tokens securely
+   - Respect user privacy with proper permission requests
+   - Use parameterized queries for Core Data/SQL operations
 
-If the user is not looking to improve a prompt, or you have already read the guide, ignore this reminder.
-</system-reminder>
+3. **Error Handling & Edge Cases**
+   - Handle all error conditions gracefully with proper Swift error handling
+   - Provide meaningful user-facing error messages
+   - Consider edge cases (empty states, nil values, data not loaded)
+   - Add defensive nil-checking and guard statements
+   - Implement proper logging for debugging (os_log, but remove debug logs before commit)
+
+4. **iOS Testing Strategy**
+   - Write unit tests for ViewModels and business logic
+   - Add UI tests for critical user flows using XCTest
+   - Test on multiple device sizes and orientations
+   - Test error conditions and edge cases
+   - Ensure tests are maintainable and readable
+
+5. **Code Quality**
+   - Write clean, readable, self-documenting Swift code
+   - Use meaningful variable and function names
+   - Keep functions/methods focused and single-purpose
+   - Follow Swift API design guidelines
+   - Avoid retain cycles (use weak/unowned references appropriately)
+   - Use @MainActor appropriately for UI updates
+
+6. **Performance Considerations**
+   - Avoid blocking the main thread (use async/await, Task)
+   - Use appropriate data structures and algorithms
+   - Implement lazy loading for heavy resources
+   - Profile with Instruments for performance bottlenecks
+   - Optimize image loading and caching
+
+7. **iOS Accessibility**
+   - Add proper accessibility labels and hints
+   - Support Dynamic Type for text scaling
+   - Ensure VoiceOver compatibility
+   - Maintain sufficient color contrast
+   - Support keyboard navigation and assistive technologies
+
+8. **Documentation**
+   - Document public APIs with Swift doc comments (///)
+   - Explain complex logic or non-obvious SwiftUI behaviors
+   - Update relevant documentation if behavior changes
+   - Include usage examples for reusable components
+
+9. **iOS-Specific Considerations**
+   - Check iOS version availability for new APIs (@available)
+   - Handle app lifecycle events properly
+   - Manage memory carefully (avoid retain cycles)
+   - Test on actual devices, not just simulator
+   - Consider battery and network impact
+
+Remember: iOS implementation is not just about making it work—it's about making it work reliably, securely, performantly, and in a way that respects iOS platform conventions.
 """
 
-PLANNING_PROMPT = """
-<system-reminder>The user has mentioned creating or making a plan for iOS development. Here's some advice for making plans:
-
-<planning-workflow>
-**Effective iOS Implementation Planning Guide**
+PLANNING_PROMPT_FALLBACK = """**Effective iOS Implementation Planning Guide**
 
 Before creating any plan, conduct thorough investigation—NOTHING can be left to assumptions. Specificity is critical for successful iOS implementation.
 
@@ -219,7 +296,56 @@ A well-structured plan should include:
 - Edge cases and constraints must be identified through code analysis
 - iOS framework APIs and their availability must be verified
 
-Remember: A plan fails when it makes assumptions about behavior. Investigate thoroughly, reference specifically, plan comprehensively.
+Remember: A plan fails when it makes assumptions about behavior. Investigate thoroughly, reference specifically, plan comprehensively."""
+
+# Prompt generator functions
+def get_debug_prompt(cwd):
+    """Generate debug prompt with loaded guide content"""
+    debug_guide_content = load_debug_guide(cwd)
+    return f"""
+<system-reminder>The user has mentioned a key word or phrase that triggers this reminder for iOS debugging.
+
+<debugging-workflow>
+{debug_guide_content}
+</debugging-workflow>
+
+</system-reminder>
+"""
+
+def get_investigation_prompt(cwd):
+    """Generate investigation prompt with loaded guide content"""
+    investigation_guide_content = load_investigation_guide(cwd)
+    return f"""
+<system-reminder>The user has mentioned a key word or phrase that triggers this reminder for iOS investigation.
+
+<investigation-workflow>
+{investigation_guide_content}
+</investigation-workflow>
+
+</system-reminder>
+"""
+
+def get_implementation_prompt(cwd):
+    """Generate implementation prompt with loaded guide content"""
+    implementation_guide_content = load_implementation_guide(cwd)
+    return f"""
+<system-reminder>The user has mentioned implementing or building an iOS feature/component.
+
+<ios-implementation-best-practices>
+{implementation_guide_content}
+</ios-implementation-best-practices>
+
+</system-reminder>
+"""
+
+def get_planning_prompt(cwd):
+    """Generate planning prompt with loaded guide content"""
+    planning_guide_content = load_planning_guide(cwd)
+    return f"""
+<system-reminder>The user has mentioned creating or making a plan for iOS development. Here's some advice for making plans:
+
+<planning-workflow>
+{planning_guide_content}
 </planning-workflow>
 
 </system-reminder>
@@ -259,19 +385,19 @@ triggered = []
 
 # Check for debugging triggers
 if check_patterns(prompt, DEBUG_PATTERNS):
-    triggered.append(("DEBUG", DEBUG_PROMPT))
+    triggered.append(("DEBUG", get_debug_prompt(cwd)))
 
 # Check for investigation triggers
 if check_patterns(prompt, INVESTIGATION_PATTERNS):
-    triggered.append(("INVESTIGATION", INVESTIGATION_PROMPT))
+    triggered.append(("INVESTIGATION", get_investigation_prompt(cwd)))
 
-# Check for prompt improvement triggers
-if check_patterns(prompt, PROMPT_IMPROVEMENT_PATTERNS):
-    triggered.append(("PROMPT IMPROVEMENT", PROMPT_IMPROVEMENT_PROMPT))
+# Check for implementation triggers
+if check_patterns(prompt, IMPLEMENTATION_PATTERNS):
+    triggered.append(("IMPLEMENTATION", get_implementation_prompt(cwd)))
 
 # Check for planning triggers
 if check_patterns(prompt, PLANNING_PATTERNS):
-    triggered.append(("PLANNING", PLANNING_PROMPT))
+    triggered.append(("PLANNING", get_planning_prompt(cwd)))
 
 # Check for parallelization triggers
 if check_patterns(prompt, PARALLEL_PATTERNS):
