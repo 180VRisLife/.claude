@@ -86,8 +86,6 @@ IS_DEBUG = os.getenv('DEBUG', '0') == '1'
 IS_DEBUG = os.getenv('ENVIRONMENT', '').lower() == 'development'
 ```
 
-See `debug-patterns.md` for additional language-specific patterns (TypeScript, Go, Ruby, PHP, etc.) and framework-specific patterns for Flask, Django, Express, Rails, Laravel, and more.
-
 ## Debugging Workflow
 
 1. **Understand the codebase** - Read relevant files/entities/assets to understand the codebase, and look up documentation for frameworks and libraries.
