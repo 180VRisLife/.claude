@@ -1,4 +1,42 @@
-# Debugging Workflow for Visionos Development
+# Debugging Workflow for visionOS Development
+
+## Debug Infrastructure
+
+`/init-workspace` automatically sets up:
+- **Separate Debug/Release builds** - Different bundle IDs, app icons, product names
+- **Debug app icons** - Generated with red diagonal slash and "DEBUG" text
+- **DebugLogger.swift** - File-based logging to `/tmp/{ProjectName}-Debug.log` (DEBUG only)
+- **DebugOverlay.swift** - Collapsible debug overlay with version/build/git info
+- **GitInfo.swift** - Git state detection displaying `[branch@hash]` format
+- **Icon generation script** - `.claude/scripts/generate-debug-icon.py` for updating icons
+
+### Build Configurations
+
+**Debug Build:**
+- Bundle ID: `com.company.app.debug`
+- Product Name: `AppName-Debug`
+- App Icon: `AppIcon-Debug` (with slash overlay)
+
+**Release Build:**
+- Bundle ID: `com.company.app`
+- Product Name: `AppName`
+- App Icon: `AppIcon`
+
+### Git Info Display Formats
+
+- Normal branch: `[main@a1b2c3d]`
+- Detached HEAD: `[@a1b2c3d]`
+- Dirty state (uncommitted changes): `[main@a1b2c3d*]`
+- In worktree: `[feature-branch@a1b2c3d]`
+
+### Updating Debug Icons
+
+After changing your app icon, regenerate debug icons:
+```bash
+python3 .claude/scripts/generate-debug-icon.py ./ProjectName/Assets.xcassets
+```
+
+## Debugging Workflow
 
 1. **Understand the codebase** - Read relevant files/entities/assets to understand the codebase, and look up documentation for frameworks and libraries.
    - For simple searches: Use direct tools (Read/Grep/Glob)

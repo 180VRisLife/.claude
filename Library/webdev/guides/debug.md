@@ -1,5 +1,125 @@
 # Debugging Workflow for Webdev Development
 
+## Debug Infrastructure
+
+`/init-workspace` automatically sets up:
+- **DebugOverlay.tsx** - React component showing version/build/git info
+- **useGitInfo.ts** - React hook for accessing git information
+- **logger.ts** - Structured logging utility with categories
+- **.env templates** - Development and production environment files
+- **inject-git-info.js** - Build-time git info injection script
+- **generate-debug-favicon.py** - Debug favicon generator
+
+### Development vs Production Builds
+
+**Development Build (`next dev`):**
+- `NODE_ENV=development`
+- Debug overlay visible (bottom-right corner)
+- Verbose logging to console
+- Git info displayed in UI
+- Debug favicon with red dot indicator
+
+**Production Build (`next build`):**
+- `NODE_ENV=production`
+- Debug overlay hidden
+- Minimal logging (warnings/errors only)
+- Standard favicon
+
+### Git Info Display Formats
+
+- Normal branch: `[main@a1b2c3d]`
+- Detached HEAD: `[@a1b2c3d]`
+- Unknown (not git repo): `[unknown]`
+
+### Using Debug Overlay
+
+Add to your root layout (`app/layout.tsx`):
+
+```tsx
+import { DebugOverlay } from '@/components/DebugOverlay';
+
+export default function RootLayout({ children }) {
+  return (
+    <html>
+      <body>
+        {children}
+        <DebugOverlay />
+      </body>
+    </html>
+  );
+}
+```
+
+### Using Git Info Hook
+
+```tsx
+import { useGitInfo } from '@/hooks/useGitInfo';
+
+function MyComponent() {
+  const gitInfo = useGitInfo();
+
+  if (!gitInfo) return null; // Production
+
+  return <div>Git: {gitInfo.displayString}</div>;
+}
+```
+
+### Using Logger
+
+```typescript
+import { logger } from '@/lib/logger';
+
+// Development only
+logger.debug('User action', 'ui', { action: 'click', target: 'button' });
+logger.info('API request started', 'api', { endpoint: '/users' });
+
+// All environments
+logger.warn('API rate limit approaching', 'network');
+logger.error('Failed to fetch data', 'api', error);
+```
+
+### Injecting Git Info
+
+Add to your `package.json` scripts:
+
+```json
+{
+  "scripts": {
+    "dev": "node .claude/scripts/inject-git-info.js .env.development.local && next dev",
+    "build": "node .claude/scripts/inject-git-info.js .env.production.local && next build"
+  }
+}
+```
+
+This automatically injects `NEXT_PUBLIC_GIT_BRANCH`, `NEXT_PUBLIC_GIT_HASH`, and `NEXT_PUBLIC_BUILD_TIME`.
+
+### Generating Debug Favicon
+
+```bash
+python3 .claude/scripts/generate-debug-favicon.py ./public --style dot
+```
+
+Styles: `dot` (red dot), `badge` (DEV badge), `slash` (diagonal slash)
+
+Update `app/layout.tsx` to use conditional favicon:
+
+```tsx
+const faviconPath = process.env.NODE_ENV === 'development'
+  ? '/favicon-dev.png'
+  : '/favicon.png';
+
+return (
+  <html>
+    <head>
+      <link rel="icon" href={faviconPath} />
+    </head>
+    {/* ... */}
+  </html>
+);
+```
+
+## Debugging Workflow
+
 1. **Understand the codebase** - Read relevant files/entities/assets to understand the codebase, and look up documentation for frameworks and libraries.
    - For simple searches: Use direct tools (Read/Grep/Glob)
    - For quick code location: Use @code-finder agent
