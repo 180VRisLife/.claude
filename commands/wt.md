@@ -84,34 +84,14 @@ if [ -z "$base_branch" ]; then
 fi
 ```
 
-## Phase 4: Ensure .gitignore Configuration
-
-Before creating the worktree, ensure `.worktrees/` is properly ignored:
-
-```bash
-# Check if .gitignore exists in repo root
-gitignore_file="$repo_root/.gitignore"
-
-if [ ! -f "$gitignore_file" ]; then
-  # Create .gitignore if it doesn't exist
-  echo ".worktrees/" > "$gitignore_file"
-  echo "✅ Created .gitignore with .worktrees/ entry"
-elif ! grep -q "^\.worktrees/$" "$gitignore_file" && ! grep -q "^\.worktrees$" "$gitignore_file"; then
-  # Add .worktrees/ to existing .gitignore
-  echo "" >> "$gitignore_file"
-  echo ".worktrees/" >> "$gitignore_file"
-  echo "✅ Added .worktrees/ to .gitignore"
-else
-  echo "ℹ️  .worktrees/ already in .gitignore"
-fi
-```
-
-## Phase 5: Create Worktree and Save Context
+## Phase 4: Create Worktree and Save Context
 
 Create the worktree with the normalized feature name and save the user's original prompt:
 
+**Note:** The `.worktrees/` directory and `.gitignore` configuration are set up by `/init-workspace`. If you haven't run `/init-workspace` yet, the directory will be created automatically here.
+
 ```bash
-# Create .worktrees directory if it doesn't exist
+# Create .worktrees directory if it doesn't exist (fallback)
 mkdir -p "$worktree_dir"
 
 # Create worktree in .worktrees subdirectory
@@ -140,7 +120,7 @@ EOF
 echo "✅ Saved original prompt to PROMPT.md"
 ```
 
-## Phase 6: Display Instructions to User (NO NAVIGATION)
+## Phase 5: Display Instructions to User (NO NAVIGATION)
 
 **CRITICAL: Do NOT execute any navigation commands. Do NOT cd to the worktree. Do NOT change directories. ONLY display the information below to the user.**
 
