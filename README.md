@@ -109,6 +109,11 @@ Steps:
    c. Replace ONLY the default-specific technical content with specialist-specific content
    d. Keep the same level of detail and documentation style
 4. Build comprehensive documentation that covers all aspects of implementing the specified feature while maintaining consistency with existing domain patterns
+5. Review guide files to determine if this specialist agent should be mentioned:
+   a. Read library/[domain]/guides/implementation.md - Consider adding to "Feature Development" section if this is a common feature type
+   b. Read library/[domain]/guides/parallel.md - Consider adding to examples if this agent is commonly used in parallel
+   c. Read library/[domain]/guides/main.md - Consider adding to "Domain specialists" if this is a primary specialist
+   d. Note: Only update guide files if the agent represents a significant, frequently-used feature type. Most specialists don't require guide updates.
 
 File structure:
 - Specialist agents: agents/specialist/[specialist-name].md (e.g., agents/specialist/backend-feature.md, agents/specialist/shareplay-feature.md)
@@ -257,6 +262,22 @@ These hooks are workspace-local and automatically use the domain-appropriate gui
 ### Agents (Domain-Specific, Auto-Selected by Claude)
 None of the agents are explicitly triggered. Claude automatically recognizes based on the nature of the request.
 *Note: Agents are workspace-local after running `/init-workspace` and exist in `./.claude/agents/` organized in `base/` and `specialist/` subdirectories*
+
+**How to Request Agents:**
+
+Claude automatically selects appropriate agents based on your request, but you can be explicit:
+
+**Implicit (Recommended)**:
+- "Find where authentication is implemented" → Claude selects @code-finder
+- "Build a new user profile feature" → Claude selects domain specialist
+- "Debug why the API is failing" → Claude selects @root-cause-analyzer
+
+**Explicit (When needed)**:
+- "Use @code-finder-advanced to investigate the data flow"
+- "Deploy @root-cause-analyzer to understand why this crashes"
+- "Have @implementor build the service layer task from the plan"
+
+Most users should rely on Claude's automatic agent selection. Explicit callouts are useful when you want to ensure a specific agent is used or when combining multiple agents in parallel.
 
 **Base Agents (Available in all domains):**
 Located in `./.claude/agents/base/`
