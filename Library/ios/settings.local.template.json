@@ -13,11 +13,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 .claude/hooks/custom-reminder.py"
-          },
-          {
-            "type": "command",
-            "command": "python3 .claude/hooks/output-style-switcher.py"
+            "command": "python3 .claude/hooks/workflow-orchestrator.py"
           }
         ]
       }

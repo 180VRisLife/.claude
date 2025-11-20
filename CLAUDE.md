@@ -4,18 +4,18 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-This is a comprehensive configuration system for Claude Code that enables domain-aware AI assistance across multiple development platforms. The system uses a **Library-based architecture** where domain-specific configurations (agents, commands, hooks, templates) are centrally maintained in `~/.claude/library/` and deployed to individual project workspaces via `/init-workspace`.
+This is a comprehensive configuration system for Claude Code that enables domain-aware AI assistance across multiple development platforms. The system uses a **Library-based architecture** where domain-specific configurations (agents, commands, hooks, templates) are centrally maintained in `~/.claude/library/` and deployed to individual project workspaces via `/0-workspace`.
 
 **How it works:**
 1. Global configuration lives in `~/.claude/` with domain templates in `library/`
-2. Run `/init-workspace` in a project to auto-detect domain and copy appropriate config to `./.claude/`
+2. Run `/0-workspace` in a project to auto-detect domain and copy appropriate config to `./.claude/`
 3. Domain-specific commands, agents, hooks, and styles become available in that workspace
 
 ## Core Commands
 
 ### Workspace Initialization
 
-**Command:** `/init-workspace` or `/init-workspace <domain>`
+**Command:** `/0-workspace` or `/0-workspace <domain>`
 
 Automatically detects your project type (visionOS, iOS, macOS, webdev, streamdeck, or default) and copies the appropriate domain configuration from the Library to your local `.claude/` folder.
 
@@ -117,7 +117,7 @@ The `/git` command enforces this automatically.
 
 ## Agent Types
 
-After `/init-workspace`, agents available in `./.claude/agents/`:
+After `/0-workspace`, agents available in `./.claude/agents/`:
 
 **Base Agents (universal):**
 - **@code-finder** - DEFAULT for code searches (Haiku, fast/cheap)
@@ -139,7 +139,7 @@ See `./.claude/agents/specialist/` for your domain's complete roster.
 The **Workflow Orchestrator** hook intelligently injects contextual workflow guides based on your prompts, providing specialized guidance that stacks together for comprehensive assistance.
 
 **How it works:**
-- **Main.md is ALWAYS active** - Professional development mode is the foundation for every interaction
+- **Foundation.md is ALWAYS active** - Professional development mode is the foundation for every interaction
 - **Keyword-triggered guides** - Additional specialized guides stack on top based on your prompt
 - **No settings changes** - Pure content injection approach (no output style switching)
 
@@ -148,14 +148,14 @@ The **Workflow Orchestrator** hook intelligently injects contextual workflow gui
 - **brainstorm** → Socratic questioning with emojis, collaborative discovery mindset
 - **deep research** → Evidence-based systematic investigation with parallel research streams
 - **plan out / planning** → Research-only mode with no implementation, creates strategic documentation
-- **implement / build / code** → Best practices for feature implementation (stacks with main)
-- **debug** → Debugging workflow and error investigation (stacks with main)
-- **investigate / research** → Code investigation and pattern analysis (stacks with main)
+- **implement / build / code** → Best practices for feature implementation (stacks with foundation)
+- **debug** → Debugging workflow and error investigation (stacks with foundation)
+- **investigate / research** → Code investigation and pattern analysis (stacks with foundation)
 
 **Guide stacking example:**
-- "debug this planning" → Loads: main + debug + planning
-- "implement user auth" → Loads: main + implementation
-- "deep research the architecture" → Loads: main + deep-research + investigation
+- "debug this planning" → Loads: foundation + debug + planning
+- "implement user auth" → Loads: foundation + implementation
+- "deep research the architecture" → Loads: foundation + deep-research + investigation
 
 ## Extended Thinking
 

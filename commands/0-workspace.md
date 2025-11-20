@@ -1,8 +1,8 @@
 Set up the workspace with domain-specific configuration.
 
 **Usage:**
-- `/init-workspace` - Auto-detect domain from codebase
-- `/init-workspace <domain>` - Use specified domain (ios, macos, visionos, webdev, or default)
+- `/0-workspace` - Auto-detect domain from codebase
+- `/0-workspace <domain>` - Use specified domain (ios, macos, visionos, webdev, or default)
 
 **Available domains:**
 - **ios**: For iOS apps (Swift, Xcode, UIKit, SwiftUI for iPhone/iPad)
