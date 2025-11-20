@@ -225,16 +225,26 @@ The Workflow Orchestrator hook automatically injects contextual guides based on 
 - **foundation.md** → Professional development mode (automatically loaded on every prompt)
 
 **Keyword-triggered guides (stack with foundation):**
-- **brainstorm** → Socratic questioning with emojis, collaborative discovery mindset
-- **deep research** → Evidence-based systematic investigation with parallel research streams
-- **plan out/planning** → Research-only mode with no implementation, creates strategic documentation
-- **implement/build/code** → Best practices for feature implementation
-- **debug** → Debugging workflow and error investigation
-- **investigate/research** → Code investigation and pattern analysis
 
-**Example stacking:**
-- "debug this planning" → Loads: main + debug + planning
-- "implement user auth" → Loads: main + implementation
+Each guide has a **primary keyword** and corresponding **slash command** for easy activation:
+
+| Primary Keyword | Slash Command | Guide Purpose |
+|----------------|---------------|---------------|
+| `brainstorm` | `/brainstorm` | Socratic questioning with emojis, collaborative discovery mindset |
+| `deep-research` | `/deep-research` | Evidence-based systematic investigation with parallel research streams |
+| `plan` | `/plan` | Research-only mode with no implementation, creates strategic documentation |
+| `implement` | `/implement` | Best practices for feature implementation (also: build, code, create) |
+| `debug` | `/debug` | Debugging workflow and error investigation |
+| `investigate` | `/investigate` | Code investigation and pattern analysis (also: research, analyze) |
+
+**Two ways to activate guides:**
+1. **Keywords in prompts** - Use primary keywords naturally in your message to auto-trigger guides (supports stacking)
+2. **Slash commands** - Explicitly activate a specific guide with `/keyword`
+
+**Example keyword stacking:**
+- "debug this planning" → Loads: foundation + debug + planning
+- "implement user auth" → Loads: foundation + implementation
+- "deep research the architecture" → Loads: foundation + deep-research + investigation
 
 ## Reference Documentation
 
