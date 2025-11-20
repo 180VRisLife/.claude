@@ -1,5 +1,25 @@
 # iOS Implementation Best Practices
 
+## Before You Begin: Agent Selection
+
+For complex implementations, consider using specialized agents:
+
+**Feature Development**:
+- @ui-swiftui - SwiftUI views, components, screens
+- @networking-data - Networking, data persistence, API integration
+- @architecture-coordinator - App architecture, coordinators, navigation
+
+**Investigation First**:
+- @code-finder - Locate existing patterns to follow
+- @code-finder-advanced - Understand complex architectural relationships
+
+**Task Execution**:
+- @implementor - Execute well-defined tasks from plans
+
+For simple changes (1-4 files), implement directly. For complex features, deploy appropriate specialist agents.
+
+## Implementation Best Practices
+
 Before implementing iOS features, ensure you follow these critical practices:
 
 1. **Understand Existing Patterns**

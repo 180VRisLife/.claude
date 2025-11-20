@@ -1,5 +1,25 @@
 # Implementation Best Practices for Default Development
 
+## Before You Begin: Agent Selection
+
+For complex implementations, consider using specialized agents:
+
+**Feature Development**:
+- @backend - API endpoints, services, data layers
+- @frontend - UI components, pages, styling
+- @fullstack - Full-stack features spanning frontend and backend
+
+**Investigation First**:
+- @code-finder - Locate existing patterns to follow
+- @code-finder-advanced - Understand complex architectural relationships
+
+**Task Execution**:
+- @implementor - Execute well-defined tasks from plans
+
+For simple changes (1-4 files), implement directly. For complex features, deploy appropriate specialist agents.
+
+## Implementation Best Practices
+
 Before implementing, ensure you follow these critical practices:
 
 1. **Understand Existing Patterns**

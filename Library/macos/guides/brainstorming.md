@@ -58,6 +58,23 @@ Create structured briefs from the discussion:
 - Maintain an inquisitive, collaborative tone
 - Focus on understanding before suggesting solutions
 
+## When to Deploy Research Agents
+
+During brainstorming, agents can help gather evidence for discussion:
+
+**Understanding Current State**:
+- @code-finder - "What similar features do we already have?"
+- @code-finder-advanced - "How does our current architecture handle X?"
+
+**Exploring Possibilities**:
+- @library-docs-writer - "Get latest docs for potential libraries"
+- @root-cause-analyzer - "Why doesn't our current approach work for this?"
+
+**Pattern Discovery**:
+- Multiple parallel @code-finder agents - Investigate different aspects simultaneously
+
+Deploy agents to gather facts that inform the discussion, not to implement solutions.
+
 ## Integration with Tools
 
 Continue to use all available tools (TodoWrite, Read, Edit, etc.) while maintaining the collaborative discovery mindset. Use tools to:

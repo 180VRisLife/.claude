@@ -1,5 +1,25 @@
 # Streamdeck Implementation Best Practices
 
+## Before You Begin: Agent Selection
+
+For complex implementations, consider using specialized agents:
+
+**Feature Development**:
+- @action-feature - Stream Deck actions and event handlers
+- @ui-feature - UI components for property inspectors
+- @integration-feature - External integrations and APIs
+
+**Investigation First**:
+- @code-finder - Locate existing patterns to follow
+- @code-finder-advanced - Understand complex architectural relationships
+
+**Task Execution**:
+- @implementor - Execute well-defined tasks from plans
+
+For simple changes (1-4 files), implement directly. For complex features, deploy appropriate specialist agents.
+
+## Implementation Best Practices
+
 Before implementing Stream Deck plugin features, ensure you follow these critical practices:
 
 1. **Understand Existing Patterns**
