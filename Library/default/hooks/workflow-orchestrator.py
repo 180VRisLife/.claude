@@ -2,7 +2,7 @@
 """
 Workflow Orchestrator Hook
 Intelligently injects workflow guides based on user prompts for enhanced context-aware assistance.
-- Always injects main.md (professional development mode) on every prompt
+- Always injects foundation.md (professional development mode) on every prompt
 - Conditionally injects additional guides based on trigger keywords
 - Supports stacking multiple guides for comprehensive guidance
 """
@@ -66,13 +66,13 @@ DEEP_RESEARCH_PATTERNS = [
 ]
 
 # Prompt generator functions
-def get_main_prompt(cwd):
-    """Generate main development mode prompt (always loaded)"""
-    content = load_guide(cwd, "main")
+def get_foundation_prompt(cwd):
+    """Generate foundation development mode prompt (always loaded)"""
+    content = load_guide(cwd, "always-active/foundation")
     if not content:
         return None
     return f"""
-<system-reminder>Main professional development mode is active.
+<system-reminder>Foundation professional development mode is active.
 
 <developer-principles>
 {content}
@@ -190,10 +190,10 @@ cwd = input_data.get("cwd", "")
 # Collect all matching guides with their names
 triggered = []
 
-# ALWAYS load main.md first
-main_prompt = get_main_prompt(cwd)
-if main_prompt:
-    triggered.append(("MAIN", main_prompt))
+# ALWAYS load foundation.md first
+foundation_prompt = get_foundation_prompt(cwd)
+if foundation_prompt:
+    triggered.append(("FOUNDATION", foundation_prompt))
 
 # Check for brainstorming triggers (highest priority for special modes)
 if check_patterns(prompt, BRAINSTORMING_PATTERNS):
