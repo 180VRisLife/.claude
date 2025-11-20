@@ -1,5 +1,28 @@
 # Visionos Implementation Best Practices
 
+## Before You Begin: Agent Selection
+
+For complex implementations, consider using specialized agents:
+
+**Feature Development**:
+- @expert-visionos-26-feature - visionOS 2.6+ features
+- @shareplay-feature - SharePlay integration and collaboration
+- @volumetric-layouts-feature - Volumetric content and 3D layouts
+- @native-video-playback-feature - AVKit video playback
+- @storekit-feature - StoreKit and in-app purchases
+- See `.claude/agents/specialist/` for complete roster
+
+**Investigation First**:
+- @code-finder - Locate existing patterns to follow
+- @code-finder-advanced - Understand complex architectural relationships
+
+**Task Execution**:
+- @implementor - Execute well-defined tasks from plans
+
+For simple changes (1-4 files), implement directly. For complex features, deploy appropriate specialist agents.
+
+## Implementation Best Practices
+
 Before implementing visionOS features, ensure you follow these critical practices:
 
 1. **Understand Existing Patterns**

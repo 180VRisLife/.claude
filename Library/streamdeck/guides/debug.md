@@ -129,3 +129,9 @@ Example 3: "Plugin works locally but fails after distribution"
   - Agent 1: File paths and resource bundling
   - Agent 2: Manifest validation and Stream Deck version compatibility
   - Agent 3: Code signing and distribution packaging
+
+Example 4: "Complex feature-specific bug"
+→ Combine investigation with specialist knowledge:
+  - Agent 1: @code-finder-advanced to understand the implementation
+  - Agent 2: @root-cause-analyzer focusing on the bug hypothesis
+  - Agent 3: Domain specialist (@shareplay-feature, @backend, etc.) to review against best practices

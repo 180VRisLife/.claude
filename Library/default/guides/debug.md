@@ -148,3 +148,9 @@ Example 3: "Performance degrades over time"
   - Agent 1: Memory management and retain cycles
   - Agent 2: Resource cleanup and lifecycle issues
   - Agent 3: Data accumulation and cache management
+
+Example 4: "Complex feature-specific bug"
+→ Combine investigation with specialist knowledge:
+  - Agent 1: @code-finder-advanced to understand the implementation
+  - Agent 2: @root-cause-analyzer focusing on the bug hypothesis
+  - Agent 3: Domain specialist (@shareplay-feature, @backend, etc.) to review against best practices

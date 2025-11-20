@@ -180,3 +180,9 @@ Example 3: "Page load performance degrading"
   - Agent 1: Bundle size and code splitting optimization
   - Agent 2: API request waterfalls and data fetching strategy
   - Agent 3: Memory leaks and event listener cleanup
+
+Example 4: "Complex feature-specific bug"
+→ Combine investigation with specialist knowledge:
+  - Agent 1: @code-finder-advanced to understand the implementation
+  - Agent 2: @root-cause-analyzer focusing on the bug hypothesis
+  - Agent 3: Domain specialist (@shareplay-feature, @backend, etc.) to review against best practices

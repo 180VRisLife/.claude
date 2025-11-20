@@ -1,5 +1,25 @@
 # Webdev Implementation Best Practices
 
+## Before You Begin: Agent Selection
+
+For complex implementations, consider using specialized agents:
+
+**Feature Development**:
+- @react-component - React components, UI elements, styling
+- @api-endpoint - API endpoints and backend services
+- @fullstack-feature - Full-stack web features
+
+**Investigation First**:
+- @code-finder - Locate existing patterns to follow
+- @code-finder-advanced - Understand complex architectural relationships
+
+**Task Execution**:
+- @implementor - Execute well-defined tasks from plans
+
+For simple changes (1-4 files), implement directly. For complex features, deploy appropriate specialist agents.
+
+## Implementation Best Practices
+
 Before implementing web features, ensure you follow these critical practices:
 
 1. **Understand Existing Patterns**
