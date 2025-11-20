@@ -68,9 +68,10 @@ Always start by understanding the request's true scope:
 ### Phase 2: Deep Investigation
 Based on scope, deploy appropriate research:
 - **Small scope**: Direct Read/Grep/Glob tools
-- **Medium scope**: Single base/code-finder agent
-- **Large scope**: Multiple parallel base/code-finder and/or base/code-finder-advanced agents
-- **Unknown scope**: Multiple parallel base/code-finder-advanced agents
+- **Medium scope**: Single @code-finder agent for pattern discovery
+- **Large scope**: Multiple parallel @code-finder agents OR @code-finder-advanced for complex relationships
+- **Unknown scope**: Multiple parallel @code-finder-advanced agents for comprehensive semantic analysis
+- **Diagnosing issues**: @root-cause-analyzer to understand why current approach has limitations
 
 ### Phase 3: Pattern Recognition
 Before planning new implementations:
@@ -238,19 +239,19 @@ Implement:
 
 ### Example 1: "Plan user authentication system"
 ```
-1. Search for existing auth code
-2. Find login/logout implementations
-3. Identify session management patterns
-4. Discover security utilities
+1. Deploy @code-finder to search for existing auth code
+2. Deploy @code-finder-advanced to find login/logout implementations and trace flows
+3. Use @code-finder-advanced to identify session management patterns
+4. Direct Read to discover security utilities
 5. THEN plan based on what exists
 ```
 
 ### Example 2: "Plan API sync for offline data"
 ```
-1. Check for existing API setup
-2. Search for sync implementations
-3. Find similar caching patterns
-4. Review data persistence
+1. Deploy @code-finder for existing API setup
+2. Deploy @code-finder to search for sync implementations
+3. Use @code-finder-advanced to find similar caching patterns
+4. Deploy @code-finder to review data persistence
 5. THEN design solution using found patterns
 ```
 
@@ -299,9 +300,10 @@ Use TodoWrite to track planning phases:
 - "Documenting execution plan"
 
 Deploy agents for research:
-- base/code-finder: Pattern discovery
-- base/code-finder-advanced: Complex relationship analysis
-- Multiple agents: Parallel domain investigation
+- @code-finder: Fast pattern discovery across codebase
+- @code-finder-advanced: Complex relationship and architectural analysis
+- @root-cause-analyzer: If investigating why current implementation has issues
+- Multiple parallel agents: For domain investigation (UI, services, data layers)
 
 Reference templates:
 - Use default-parallel.template.md structure for complex plans
