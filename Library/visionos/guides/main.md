@@ -70,6 +70,20 @@ Now launching parallel agents for the RealityKit and UI implementation:
 
 </agent_delegation>
 
+## Agent Quick Reference
+
+**Discovery & Analysis**:
+- @code-finder - Quick code location (Haiku, fast)
+- @code-finder-advanced - Deep investigation (Sonnet, thorough)
+- @root-cause-analyzer - Bug diagnosis (investigation only)
+
+**Implementation**:
+- @implementor - Execute well-defined tasks
+- Domain specialists (@expert-visionos-26-feature, @shareplay-feature, @volumetric-layouts-feature, etc.) - Feature development
+
+**Documentation**:
+- @library-docs-writer - Fetch and compress external docs
+
 ## Workflow Patterns
 
 **Optimal Execution Flow**:
