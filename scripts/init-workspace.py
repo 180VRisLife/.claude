@@ -438,18 +438,49 @@ def merge_settings(domain_settings_template: Path, workspace_claude: Path, prese
     print(f"  ✓ Created settings.local.json")
 
 
-def create_domain_marker(workspace_claude: Path, domain: str):
-    """Create domain.json marker file."""
-    domain_data = {
-        "domain": domain,
-        "initialized": datetime.utcnow().isoformat() + "Z"
-    }
+def load_domain_config(workspace_claude: Path) -> Dict:
+    """Load existing domain configuration."""
+    domain_file = workspace_claude / "domain.json"
+    if domain_file.exists():
+        try:
+            with open(domain_file, 'r') as f:
+                return json.load(f)
+        except:
+            pass
+    return {}
 
+
+def save_domain_config(workspace_claude: Path, config: Dict):
+    """Save domain configuration."""
     domain_file = workspace_claude / "domain.json"
     with open(domain_file, 'w') as f:
-        json.dump(domain_data, f, indent=2)
+        json.dump(config, f, indent=2)
 
-    print(f"  ✓ Created domain.json marker")
+
+def create_domain_marker(workspace_claude: Path, domain: str, config: Dict = None):
+    """Create domain.json marker file with configuration tracking."""
+    existing_config = load_domain_config(workspace_claude)
+
+    # Preserve existing configuration state
+    domain_data = {
+        "domain": domain,
+        "initialized": existing_config.get("initialized", datetime.utcnow().isoformat() + "Z"),
+        "last_updated": datetime.utcnow().isoformat() + "Z",
+        "build_settings_configured": existing_config.get("build_settings_configured", False),
+        "debug_icons_generated": existing_config.get("debug_icons_generated", False),
+        "template_versions": existing_config.get("template_versions", {}),
+    }
+
+    # Merge in new configuration if provided
+    if config:
+        domain_data.update(config)
+
+    save_domain_config(workspace_claude, domain_data)
+
+    if existing_config:
+        print(f"  ✓ Updated domain.json marker")
+    else:
+        print(f"  ✓ Created domain.json marker")
 
 
 def check_dependencies() -> Dict[str, bool]:
@@ -541,22 +572,76 @@ def ensure_worktree_infrastructure(workspace_path: Path):
     print(f"  ✓ Created .worktrees/ directory")
 
 
-def configure_debug_release_build_settings(workspace_path: Path, domain: str, dependencies: Dict[str, bool]):
-    """Configure separate Debug/Release build settings for Xcode projects."""
+def is_xcode_build_settings_configured(workspace_path: Path, domain: str, dependencies: Dict[str, bool]) -> bool:
+    """Check if Xcode project already has Debug/Release build settings configured."""
     if domain not in ['ios', 'macos', 'visionos']:
-        return
+        return False
+
+    if not dependencies.get('pbxproj'):
+        return False
+
+    # Find Xcode project
+    xcode_projects = list(workspace_path.glob('*.xcodeproj'))
+    if not xcode_projects:
+        return False
+
+    project_path = xcode_projects[0] / 'project.pbxproj'
+
+    try:
+        from pbxproj import XcodeProject
+        project = XcodeProject.load(str(project_path))
+
+        debug_bundle_id = None
+        release_bundle_id = None
+        debug_app_icon = None
+        release_app_icon = None
+
+        # Check if Debug and Release have different bundle IDs and app icons
+        for config in project.objects.get_configurations_on_targets():
+            settings = config.buildSettings
+            if config.name == 'Debug':
+                debug_bundle_id = settings.get('PRODUCT_BUNDLE_IDENTIFIER')
+                debug_app_icon = settings.get('ASSETCATALOG_COMPILER_APPICON_NAME')
+            elif config.name == 'Release':
+                release_bundle_id = settings.get('PRODUCT_BUNDLE_IDENTIFIER')
+                release_app_icon = settings.get('ASSETCATALOG_COMPILER_APPICON_NAME')
+
+        # Consider configured if:
+        # 1. Both configs have bundle IDs AND they're different, OR
+        # 2. Debug bundle ID has .debug suffix, OR
+        # 3. Different app icon names configured
+        has_different_bundles = (debug_bundle_id and release_bundle_id and debug_bundle_id != release_bundle_id)
+        has_debug_suffix = (debug_bundle_id and '.debug' in debug_bundle_id)
+        has_different_icons = (debug_app_icon and release_app_icon and debug_app_icon != release_app_icon)
+
+        return has_different_bundles or has_debug_suffix or has_different_icons
+
+    except Exception:
+        return False
+
+
+def configure_debug_release_build_settings(workspace_path: Path, domain: str, dependencies: Dict[str, bool], workspace_claude: Path) -> bool:
+    """Configure separate Debug/Release build settings for Xcode projects. Returns True if configured."""
+    if domain not in ['ios', 'macos', 'visionos']:
+        return False
 
     if not dependencies.get('pbxproj'):
         print(f"  ℹ  Skipping build settings configuration (pbxproj not installed)")
-        return
+        return False
 
     print(f"\n⚙️  Configuring Debug/Release build settings...")
+
+    # Check if already configured
+    if is_xcode_build_settings_configured(workspace_path, domain, dependencies):
+        print(f"  ℹ  Build settings already configured (Debug/Release separation detected)")
+        print(f"  ℹ  Skipping to preserve existing configuration")
+        return True
 
     # Find Xcode project
     xcode_projects = list(workspace_path.glob('*.xcodeproj'))
     if not xcode_projects:
         print(f"  ℹ  No Xcode project found, skipping build settings configuration")
-        return
+        return False
 
     project_path = xcode_projects[0] / 'project.pbxproj'
     project_name = xcode_projects[0].stem
@@ -606,21 +691,25 @@ def configure_debug_release_build_settings(workspace_path: Path, domain: str, de
         print(f"  ✓ Configured product names: {project_name}-Debug / {project_name}")
         print(f"  ✓ Configured app icons: AppIcon-Debug / AppIcon")
 
+        return True
+
     except ImportError:
         print(f"  ! pbxproj import failed (should not happen)")
+        return False
     except Exception as e:
         print(f"  ! Error configuring build settings: {e}")
         print(f"  ! You may need to configure bundle IDs manually in Xcode")
+        return False
 
 
-def setup_debug_icons(workspace_path: Path, domain: str, dependencies: Dict[str, bool]):
-    """Set up debug app icons using the generate-debug-icon.py script."""
+def setup_debug_icons(workspace_path: Path, domain: str, dependencies: Dict[str, bool]) -> bool:
+    """Set up debug app icons using the generate-debug-icon.py script. Returns True if generated."""
     if domain not in ['ios', 'macos', 'visionos']:
-        return
+        return False
 
     if not dependencies.get('PIL'):
         print(f"  ℹ  Skipping debug icon generation (Pillow not installed)")
-        return
+        return False
 
     print(f"\n🎨 Setting up debug icons...")
 
@@ -628,9 +717,17 @@ def setup_debug_icons(workspace_path: Path, domain: str, dependencies: Dict[str,
     assets_dirs = list(workspace_path.glob('**/Assets.xcassets'))
     if not assets_dirs:
         print(f"  ℹ  No Assets.xcassets found, skipping icon generation")
-        return
+        return False
 
     assets_path = assets_dirs[0]
+
+    # Check if AppIcon-Debug already exists
+    debug_icon_path = assets_path / "AppIcon-Debug.appiconset"
+    if debug_icon_path.exists():
+        print(f"  ℹ  AppIcon-Debug already exists at: {debug_icon_path.relative_to(workspace_path)}")
+        print(f"  ℹ  Skipping icon generation to preserve existing icons")
+        return True
+
     print(f"  ✓ Found assets at: {assets_path.relative_to(workspace_path)}")
 
     # Copy the generate-debug-icon.py script to project's .claude/scripts/
@@ -658,79 +755,147 @@ def setup_debug_icons(workspace_path: Path, domain: str, dependencies: Dict[str,
             for line in result.stdout.split('\n'):
                 if line.strip():
                     print(f"  {line}")
+            return True
         else:
             print(f"  ! Icon generation failed: {result.stderr}")
             print(f"  ! You can run manually: python3 .claude/scripts/generate-debug-icon.py {assets_path}")
+            return False
 
     except Exception as e:
         print(f"  ! Error running icon generation script: {e}")
         print(f"  ! You can run manually: python3 .claude/scripts/generate-debug-icon.py {assets_path}")
+        return False
 
 
-def create_debug_overlay_template(workspace_path: Path, domain: str, library_path: Path, project_name: str, utilities_dir: Path):
-    """Create DebugOverlay.swift template for the project."""
+def extract_template_version(content: str) -> Optional[str]:
+    """Extract version marker from template content."""
+    # Look for version markers like: // Template Version: 1.0
+    match = re.search(r'//\s*Template\s+Version:\s*(\S+)', content)
+    if match:
+        return match.group(1)
+    return None
+
+
+def should_update_template_file(existing_path: Path, template_path: Path) -> Tuple[bool, str]:
+    """
+    Determine if template file should be updated.
+    Returns: (should_update, reason)
+    """
+    if not existing_path.exists():
+        return (True, "new")
+
+    if not template_path.exists():
+        return (False, "no_template")
+
+    existing_content = existing_path.read_text()
+    template_content = template_path.read_text()
+
+    # Check for version markers
+    existing_version = extract_template_version(existing_content)
+    template_version = extract_template_version(template_content)
+
+    # If template has version but existing doesn't, it's an old file
+    if template_version and not existing_version:
+        return (False, "user_customized")  # Preserve user customizations
+
+    # If both have versions, compare them
+    if existing_version and template_version:
+        if template_version > existing_version:
+            return (True, f"update_{existing_version}_to_{template_version}")
+        else:
+            return (False, "up_to_date")
+
+    # No version markers - assume user may have customized
+    return (False, "user_customized")
+
+
+def merge_template_improvements(existing_path: Path, template_path: Path, project_name: str) -> bool:
+    """
+    Intelligently merge template improvements while preserving user customizations.
+    Returns True if file was updated.
+    """
+    should_update, reason = should_update_template_file(existing_path, template_path)
+
+    if not should_update:
+        if reason == "user_customized":
+            print(f"  ℹ  {existing_path.name} exists and may have customizations, preserving")
+        elif reason == "up_to_date":
+            print(f"  ℹ  {existing_path.name} is up to date")
+        return False
+
+    if reason == "new":
+        # New file, create from template
+        template_content = template_path.read_text()
+        content = template_content.replace("{{PROJECT_NAME}}", project_name)
+        existing_path.write_text(content)
+        print(f"  ✓ Created {existing_path.name}")
+        return True
+    elif reason.startswith("update_"):
+        # Template has newer version - for now, preserve existing
+        # In future, could implement smart merging here
+        print(f"  ℹ  {existing_path.name} has updates available, but preserving existing to avoid data loss")
+        print(f"  💡 Consider manually reviewing template at {template_path}")
+        return False
+
+    return False
+
+
+def create_debug_overlay_template(workspace_path: Path, domain: str, library_path: Path, project_name: str, utilities_dir: Path) -> bool:
+    """Create or update DebugOverlay.swift template for the project. Returns True if created/updated."""
     if domain not in ['ios', 'macos', 'visionos']:
-        return
+        return False
 
     template_path = library_path / "file-templates" / "DebugOverlay.swift.template"
     if not template_path.exists():
         print(f"  ! DebugOverlay template not found: {template_path}")
-        return
+        return False
 
     overlay_path = utilities_dir / "DebugOverlay.swift"
-    if overlay_path.exists():
-        print(f"  ℹ  DebugOverlay.swift already exists, skipping")
-        return
-
-    template_content = template_path.read_text()
-    overlay_content = template_content.replace("{{PROJECT_NAME}}", project_name)
-
-    overlay_path.write_text(overlay_content)
-    print(f"  ✓ Created DebugOverlay.swift")
+    return merge_template_improvements(overlay_path, template_path, project_name)
 
 
-def setup_git_info_helper(workspace_path: Path, domain: str, library_path: Path, project_name: str, utilities_dir: Path):
-    """Create GitInfo.swift helper for git state detection."""
+def setup_git_info_helper(workspace_path: Path, domain: str, library_path: Path, project_name: str, utilities_dir: Path) -> bool:
+    """Create or update GitInfo.swift helper for git state detection. Returns True if created/updated."""
     if domain not in ['ios', 'macos', 'visionos']:
-        return
+        return False
 
     template_path = library_path / "file-templates" / "GitInfo.swift.template"
     if not template_path.exists():
         print(f"  ! GitInfo template not found: {template_path}")
-        return
+        return False
 
     gitinfo_path = utilities_dir / "GitInfo.swift"
-    if gitinfo_path.exists():
-        print(f"  ℹ  GitInfo.swift already exists, skipping")
-        return
-
-    template_content = template_path.read_text()
-    gitinfo_content = template_content.replace("{{PROJECT_NAME}}", project_name)
-
-    gitinfo_path.write_text(gitinfo_content)
-    print(f"  ✓ Created GitInfo.swift")
+    return merge_template_improvements(gitinfo_path, template_path, project_name)
 
 
-def setup_debug_logger(domain: str, workspace_path: Path, library_path: Path):
-    """Set up DebugLogger.swift for macOS and visionOS projects."""
+def setup_debug_logger(domain: str, workspace_path: Path, library_path: Path) -> Dict[str, bool]:
+    """
+    Set up DebugLogger.swift for macOS and visionOS projects.
+    Returns dict tracking what was created/updated.
+    """
+    results = {
+        'debug_logger': False,
+        'debug_overlay': False,
+        'git_info': False
+    }
+
     # Only applicable for macOS and visionOS
     if domain not in ['macos', 'visionos']:
-        return
+        return results
 
-    print(f"\n🪵 Setting up DebugLogger...")
+    print(f"\n🪵 Setting up debug infrastructure...")
 
     # Find Xcode project to determine project name
     xcode_projects = list(workspace_path.glob('*.xcodeproj'))
     if not xcode_projects:
-        print("  ! No Xcode project found, skipping DebugLogger setup")
-        return
+        print("  ! No Xcode project found, skipping debug infrastructure setup")
+        return results
 
     # Get project name from first .xcodeproj file
     project_name = xcode_projects[0].stem
     print(f"  ✓ Detected project: {project_name}")
 
     # Determine subsystem name (reverse domain notation)
-    # Try to extract from bundle ID if possible, otherwise use generic format
     subsystem = f"com.{project_name.lower()}.debug"
 
     # Find project directory (directory with same name as .xcodeproj without extension)
@@ -743,38 +908,39 @@ def setup_debug_logger(domain: str, workspace_path: Path, library_path: Path):
             project_dir = possible_dirs[0]
         else:
             print(f"  ! Could not find source directory for {project_name}")
-            return
+            return results
 
     # Create Utilities directory
     utilities_dir = project_dir / "Utilities"
     utilities_dir.mkdir(exist_ok=True)
     print(f"  ✓ Created {project_name}/Utilities/")
 
-    # Read template
+    # Handle DebugLogger with smart merging
     template_path = library_path / "file-templates" / "DebugLogger.swift.template"
-    if not template_path.exists():
-        print(f"  ! Template not found: {template_path}")
-        return
+    if template_path.exists():
+        logger_path = utilities_dir / "DebugLogger.swift"
 
-    template_content = template_path.read_text()
-
-    # Check if DebugLogger.swift already exists
-    logger_path = utilities_dir / "DebugLogger.swift"
-    if logger_path.exists():
-        print(f"  ℹ  DebugLogger.swift already exists at {project_name}/Utilities/, skipping")
+        # For DebugLogger, we need to replace both PROJECT_NAME and SUBSYSTEM
+        # Use custom logic instead of generic merge_template_improvements
+        if logger_path.exists():
+            print(f"  ℹ  DebugLogger.swift already exists at {project_name}/Utilities/, preserving")
+            results['debug_logger'] = True
+        else:
+            template_content = template_path.read_text()
+            logger_content = template_content.replace("{{PROJECT_NAME}}", project_name)
+            logger_content = logger_content.replace("{{SUBSYSTEM}}", subsystem)
+            logger_path.write_text(logger_content)
+            print(f"  ✓ Created DebugLogger.swift at {project_name}/Utilities/")
+            print(f"  ✓ Log file will be: /tmp/{project_name}-Debug.log")
+            results['debug_logger'] = True
     else:
-        # Replace placeholders
-        logger_content = template_content.replace("{{PROJECT_NAME}}", project_name)
-        logger_content = logger_content.replace("{{SUBSYSTEM}}", subsystem)
+        print(f"  ! DebugLogger template not found: {template_path}")
 
-        # Write DebugLogger.swift
-        logger_path.write_text(logger_content)
-        print(f"  ✓ Created DebugLogger.swift at {project_name}/Utilities/")
-        print(f"  ✓ Log file will be: /tmp/{project_name}-Debug.log")
+    # Create DebugOverlay and GitInfo templates
+    results['debug_overlay'] = create_debug_overlay_template(workspace_path, domain, library_path, project_name, utilities_dir)
+    results['git_info'] = setup_git_info_helper(workspace_path, domain, library_path, project_name, utilities_dir)
 
-    # Also create DebugOverlay and GitInfo templates
-    create_debug_overlay_template(workspace_path, domain, library_path, project_name, utilities_dir)
-    setup_git_info_helper(workspace_path, domain, library_path, project_name, utilities_dir)
+    return results
 
 
 def setup_streamdeck_debug(workspace_path: Path, library_path: Path):
@@ -1179,9 +1345,12 @@ def main():
     domain_settings_template = library_path / "settings.local.template.json"
     merge_settings(domain_settings_template, workspace_claude, preserved)
 
-    # Create domain marker
-    print(f"\n✍️  Creating domain marker...")
-    create_domain_marker(workspace_claude, domain)
+    # Track configuration state
+    config_state = {
+        'build_settings_configured': False,
+        'debug_icons_generated': False,
+        'template_versions': {}
+    }
 
     # Set up comprehensive .gitignore from domain template
     setup_gitignore(workspace_path, library_path, domain)
@@ -1190,13 +1359,21 @@ def main():
     ensure_worktree_infrastructure(workspace_path)
 
     # Configure Debug/Release build settings for Apple platforms
-    configure_debug_release_build_settings(workspace_path, domain, deps)
+    build_settings_configured = configure_debug_release_build_settings(workspace_path, domain, deps, workspace_claude)
+    config_state['build_settings_configured'] = build_settings_configured
 
     # Generate debug app icons for Apple platforms
-    setup_debug_icons(workspace_path, domain, deps)
+    debug_icons_generated = setup_debug_icons(workspace_path, domain, deps)
+    config_state['debug_icons_generated'] = debug_icons_generated
 
     # Set up DebugLogger, DebugOverlay, and GitInfo for macOS/visionOS projects
-    setup_debug_logger(domain, workspace_path, library_path)
+    debug_results = setup_debug_logger(domain, workspace_path, library_path)
+    if debug_results.get('debug_logger'):
+        config_state['template_versions']['DebugLogger'] = '1.0'
+    if debug_results.get('debug_overlay'):
+        config_state['template_versions']['DebugOverlay'] = '1.0'
+    if debug_results.get('git_info'):
+        config_state['template_versions']['GitInfo'] = '1.0'
 
     # Set up Stream Deck debug infrastructure
     if domain == 'streamdeck':
@@ -1218,12 +1395,30 @@ def main():
             project_name = xcode_projects[0].stem
             update_claude_md(domain, workspace_path, project_name)
 
+    # Create/update domain marker with configuration state
+    print(f"\n✍️  Saving configuration state...")
+    create_domain_marker(workspace_claude, domain, config_state)
+
     # Verify installation
     print(f"\n✅ Verifying installation...")
     if verify_installation(workspace_claude):
         print(f"\n🎉 Workspace initialized successfully with '{domain}' domain!")
         print(f"\n   Configuration files installed to: {workspace_claude}")
         print(f"   You can now use domain-specific commands and agents.")
+
+        # Print configuration summary
+        print(f"\n📊 Configuration Summary:")
+        if config_state.get('build_settings_configured'):
+            print(f"   ✓ Build settings: Configured (Debug/Release separation)")
+        if config_state.get('debug_icons_generated'):
+            print(f"   ✓ Debug icons: Generated")
+        if config_state.get('template_versions'):
+            print(f"   ✓ Debug infrastructure: {', '.join(config_state['template_versions'].keys())}")
+
+        # Inform about preserved files
+        existing_config = load_domain_config(workspace_claude)
+        if existing_config.get('initialized') != existing_config.get('last_updated'):
+            print(f"\n   ℹ️  Re-initialization preserved existing customizations")
     else:
         print(f"\n❌ Installation verification failed. Please check the Library folder.")
         sys.exit(1)
