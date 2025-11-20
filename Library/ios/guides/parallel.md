@@ -55,6 +55,30 @@ When delegating to agents, include:
 - **Critical context**: Key information the agent needs but won't discover independently
 - **Success criteria**: Clear definition of task completion
 
+## Agent Selection for Parallel Tasks
+
+**Base Agents** (for well-defined execution):
+- @implementor - Execute specific tasks from plans with clear boundaries
+
+**Specialist Agents** (for feature development):
+Choose based on your domain and task type:
+- **default**: @backend, @frontend, @fullstack
+- **ios/macos**: @ui-swiftui, @networking-data, @architecture-coordinator
+- **visionos**: @shareplay-feature, @volumetric-layouts-feature, @expert-visionos-26-feature, etc.
+- **webdev**: @react-component, @api-endpoint, @fullstack-feature
+- **streamdeck**: @action-feature, @ui-feature, @integration-feature
+
+**Research Agents** (for discovery phase):
+- @code-finder - Fast pattern discovery
+- @code-finder-advanced - Deep semantic analysis
+- @root-cause-analyzer - Diagnostic investigation
+
+**Agent Type Selection Rules**:
+1. Implementation tasks → @implementor or specialist agents
+2. Research/discovery → @code-finder or @code-finder-advanced
+3. Bug diagnosis → @root-cause-analyzer
+4. Documentation → @library-docs-writer
+
 ## Parallel Execution Syntax
 
 Always use a single `function_calls` block for parallel execution:
@@ -101,23 +125,23 @@ Always use a single `function_calls` block for parallel execution:
 
 ### Pattern 1: Layer-Based Parallelization
 ```
-Stage 1: Database schema + Interface definitions + Core utilities
-Stage 2: Service layer + Manager classes + UI components
-Stage 3: Tests + Documentation + Configuration
+Stage 1: @implementor agents for database schema + Interface definitions + Core utilities
+Stage 2: Parallel specialists (@backend + @frontend) for service layer and UI components
+Stage 3: @implementor agents for tests + documentation
 ```
 
 ### Pattern 2: Feature-Based Parallelization
 ```
-Stage 1: Independent feature implementations
-Stage 2: Integration points between features
-Stage 3: Cross-cutting concerns and polish
+Stage 1: Multiple @backend (or specialist) agents for independent features
+Stage 2: @implementor agents for integration points
+Stage 3: @implementor for cross-cutting concerns
 ```
 
 ### Pattern 3: Research-First Parallelization
 ```
-Stage 1: Multiple research agents investigating different aspects
-Stage 2: Consolidation and planning based on findings
-Stage 3: Parallel implementation of discovered requirements
+Stage 1: Multiple @code-finder-advanced agents investigating different aspects
+Stage 2: Analysis and planning based on findings
+Stage 3: Parallel @implementor or specialist agents for implementation
 ```
 
 ## Critical Reminders
