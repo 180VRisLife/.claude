@@ -112,7 +112,7 @@ Steps:
 5. Review guide files to determine if this specialist agent should be mentioned:
    a. Read library/[domain]/guides/implementation.md - Consider adding to "Feature Development" section if this is a common feature type
    b. Read library/[domain]/guides/parallel.md - Consider adding to examples if this agent is commonly used in parallel
-   c. Read library/[domain]/guides/main.md - Consider adding to "Domain specialists" if this is a primary specialist
+   c. Read library/[domain]/guides/always-active/foundation.md - Consider adding to "Domain specialists" if this is a primary specialist
    d. Note: Only update guide files if the agent represents a significant, frequently-used feature type. Most specialists don't require guide updates.
 
 File structure:
@@ -167,7 +167,7 @@ File structure conventions:
 - commands/: 1-requirements.md, 2-architecture.md, 3-priority.md, 4-parallelization.md, 5-execution.md
 - hooks/: workflow-orchestrator.py, parallel.py
 - file-templates/: requirements.template.md, architecture.template.md, priority.template.md, parallelization.template.md
-- guides/: main.md, planning.md, brainstorming.md, deep-research.md, debug.md, investigation.md, implementation.md, parallel.md
+- guides/: always-active/foundation.md, planning.md, brainstorming.md, deep-research.md, debug.md, investigation.md, implementation.md, parallel.md
 
 Start by researching best practices for the specified domain's development, then systematically create each folder by:
 1. Reading the library/default/ equivalent
@@ -222,9 +222,9 @@ Optimize for **logical coherence** and **developer experience** rather than arbi
 The Workflow Orchestrator hook automatically injects contextual guides based on these keywords. Multiple guides can stack together.
 
 **Always active:**
-- **main.md** → Professional development mode (automatically loaded on every prompt)
+- **foundation.md** → Professional development mode (automatically loaded on every prompt)
 
-**Keyword-triggered guides (stack with main):**
+**Keyword-triggered guides (stack with foundation):**
 - **brainstorm** → Socratic questioning with emojis, collaborative discovery mindset
 - **deep research** → Evidence-based systematic investigation with parallel research streams
 - **plan out/planning** → Research-only mode with no implementation, creates strategic documentation
@@ -254,7 +254,7 @@ Commands, Output Styles, and Hooks operate independently. To trigger multiple be
 
 ### Domain-Specific Hook System
 After running `/init-workspace`, your project will have domain-specific hooks that automatically enhance Claude's behavior:
-- **workflow-orchestrator.py** - Intelligently injects workflow guides based on keywords in your prompts (main.md is always active, others stack based on keywords: brainstorm, deep-research, planning, implementation, debug, investigation)
+- **workflow-orchestrator.py** - Intelligently injects workflow guides based on keywords in your prompts (foundation.md is always active, others stack based on keywords: brainstorm, deep-research, planning, implementation, debug, investigation)
 - **parallel.py** - Loads the parallel execution guide after planning (PostToolUse hook)
 
 These hooks are workspace-local and automatically use the domain-appropriate guides from your `.claude/guides/` folder.
@@ -296,7 +296,7 @@ Specialist agents vary by domain and exist in `./.claude/agents/specialist/`. Fo
 *Note: Guides are workspace-local after running `/init-workspace` and exist in `./.claude/guides/`*
 
 **Always loaded:**
-- **main.md** - Professional development mode with agent delegation, parallel execution, and code standards
+- **foundation.md** - Professional development mode with agent delegation, parallel execution, and code standards
 
 **Keyword-triggered:**
 - **brainstorming.md** - Collaborative discovery workflow (keyword: "brainstorm")
