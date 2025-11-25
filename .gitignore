@@ -18,6 +18,9 @@ statsig/
 # Todo tracking files
 todos/
 
+# Planning documents
+plans/
+
 # File history
 file-history/
 
