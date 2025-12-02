@@ -18,6 +18,20 @@ fi
 
 Analyze git diffs, running any additional `git` commands necessary to understand the scope of change.
 
+**Required git commands:**
+```bash
+git status
+git diff --cached  # Staged changes
+git diff           # Unstaged changes
+git log --oneline -8  # Recent commits for style reference
+```
+
+**Commit Message Style Guide:**
+Use the recent commits output to match the repository's commit message style. Follow the same conventions for:
+- Commit type prefixes (feat, fix, docs, etc.)
+- Scope format (parentheses, specific vs general)
+- Subject line style (capitalization, punctuation, length)
+
 ### ⛔️ CRITICAL: Debugging Code Check
 
 **ABSOLUTE RULE: DEBUG LOGGING MUST NEVER BE COMMITTED**
@@ -73,7 +87,17 @@ After the debugging check, assess if other changes are production-ready. Look fo
 3. Provide your reasoning for why they're not ready
 4. **If user says proceed:** Continue with commit, but add issues to a cleanup reminder list
 
-**Check for unnecessary files:** Identify empty test files or temporary files that shouldn't be committed. Add them to the cleanup reminder list if found but user wants to proceed.
+**Check for unnecessary files:** Before committing, identify files that shouldn't be committed:
+- Empty or near-empty test files (e.g., `test.txt` with just "test" in it)
+- Temporary files created for testing
+- Files with meaningless content that don't contribute to the project
+
+Example: If you see a file like `test.txt` with 5 bytes containing "hello", that's probably junk.
+
+**If you identify such files:**
+1. Exclude them from staging/commits
+2. After completing all other commits, ask the user: "I noticed [files] appear to be temporary/test files. Should I delete them?"
+3. If user confirms, delete them. If not, help determine proper content and then amend them into the appropriate commits.
 
 ### Amend vs New Commit Decision
 
