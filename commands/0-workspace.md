@@ -37,6 +37,30 @@ After the script completes successfully, use the Task tool to launch an agent th
 - Use non-deterministic placement that fits the existing structure
 - Keep the content as-is from the reference file (no modifications)
 
+3. **For default domain only - Optimize .gitignore for detected languages:**
+If the domain is `default`, use the Task tool to launch an agent that will trim the `.gitignore` file to only include relevant sections. The agent should:
+- Analyze the project to determine which languages/frameworks are actually used by checking for:
+  - **Python**: `*.py` files, `requirements.txt`, `setup.py`, `pyproject.toml`, `Pipfile`
+  - **Node.js/JavaScript/TypeScript**: `package.json`, `*.js`, `*.ts`, `*.jsx`, `*.tsx`
+  - **Go**: `go.mod`, `go.sum`, `*.go`
+  - **Rust**: `Cargo.toml`, `*.rs`
+  - **Java**: `*.java`, `pom.xml`, `build.gradle`
+  - **C/C++**: `*.c`, `*.cpp`, `*.h`, `*.hpp`, `Makefile`, `CMakeLists.txt`
+  - **Ruby**: `Gemfile`, `*.rb`
+- Read the `.gitignore` file that was just created/updated
+- Keep the following sections regardless of language detected:
+  - Environment variables section
+  - Worktrees section
+  - IDE and Editors section
+  - OS section
+  - Logs section
+  - Temporary files section
+  - Database section (if any language detected)
+- Remove language-specific sections that don't apply (e.g., remove the "# Go" section if no Go files detected)
+- Preserve any entries that were in the original `.gitignore` before the script ran (marked by "# Added by /init-workspace")
+- Write the optimized `.gitignore` back, keeping the section headers and comments for retained sections
+- Report which language sections were kept and which were removed
+
 **Inform the user of:**
 1. Which domain was selected and why (1-2 sentence justification if auto-detected)
 2. Confirmation that initialization succeeded, including:
@@ -46,3 +70,4 @@ After the script completes successfully, use the Task tool to launch an agent th
    - **For default domain:** Python debug infrastructure created (`utils/git_info.py`, `utils/debug_logger.py`, environment templates)
    - **For other domains:** Any domain-specific infrastructure that was set up
 3. Confirmation that file size guidelines were added to CLAUDE.md (and where they were placed)
+4. **For default domain:** Which language sections were kept/removed from `.gitignore` based on detected languages in the project
