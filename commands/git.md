@@ -23,14 +23,87 @@ Analyze git diffs, running any additional `git` commands necessary to understand
 git status
 git diff --cached  # Staged changes
 git diff           # Unstaged changes
-git log --oneline -8  # Recent commits for style reference
+git log --oneline -30  # Recent commits for style reference
 ```
 
 **Commit Message Style Guide:**
-Use the recent commits output to match the repository's commit message style. Follow the same conventions for:
-- Commit type prefixes (feat, fix, docs, etc.)
-- Scope format (parentheses, specific vs general)
-- Subject line style (capitalization, punctuation, length)
+
+First, analyze the repository's recent commits (30+) to maintain consistency with existing patterns. Then apply these standards:
+
+### Required Tag Format
+
+Every commit MUST start with one of these 5 tags:
+
+| Tag | Use For |
+|-----|---------|
+| `feat` | New features, capabilities, or functionality |
+| `fix` | Bug fixes, error corrections, issue resolutions |
+| `refactor` | Code restructuring without changing behavior |
+| `chore` | Maintenance, dependencies, configs, tooling |
+| `docs` | Documentation only changes |
+
+### Message Structure
+
+**Simple changes (1-2 files, single concern):**
+```
+tag(scope): one-line summary of change
+```
+
+**Extensive changes (3+ files, multiple concerns, or complex logic):**
+```
+tag(scope): one-line summary of change
+
+- First specific change or addition
+- Second specific change or modification
+- Third notable change or removal
+```
+
+### Concrete Examples
+
+**Simple commits:**
+```
+feat(auth): add OAuth2 login flow
+fix(api): resolve null pointer in user lookup
+refactor(utils): extract date formatting helpers
+chore(deps): update react to v19
+docs(readme): add installation instructions
+```
+
+**Extensive commits:**
+```
+feat(dashboard): implement analytics widget
+
+- Add real-time chart component with WebSocket updates
+- Create data aggregation service for metrics
+- Integrate with existing permission system
+- Add unit tests for aggregation logic
+```
+
+```
+refactor(database): migrate to connection pooling
+
+- Replace single connection with pool manager
+- Add connection health checks and retry logic
+- Update all repository classes to use pool
+- Remove deprecated connection factory
+```
+
+```
+fix(checkout): resolve payment processing failures
+
+- Handle timeout errors with exponential backoff
+- Add validation for currency format edge cases
+- Fix race condition in cart total calculation
+```
+
+### Style Rules
+
+- **Lowercase** after the colon (no capitalization)
+- **No period** at end of subject line
+- **Imperative mood** ("add" not "added", "fix" not "fixes")
+- **50 char limit** for subject line (soft limit, 72 hard)
+- **Bullet points** use `-` prefix with one space
+- **Blank line** between subject and bullet list
 
 ### ⛔️ CRITICAL: Debugging Code Check
 
@@ -154,11 +227,18 @@ git commit --amend -m "updated message"  # Update message
 
 Example commit workflow for large changes:
 ```bash
-# Feature A
-git add src/feature-a.js src/feature-a-utils.js
-git commit -m "feat(feature-a): implement new feature"
+# Feature A (extensive - use bullet list)
+git add src/feature-a.js src/feature-a-utils.js tests/feature-a.test.js
+git commit -m "$(cat <<'EOF'
+feat(feature-a): implement new feature
 
-# Feature B
+- Add core feature logic with validation
+- Create utility helpers for data transformation
+- Add unit tests for edge cases
+EOF
+)"
+
+# Feature B (simple - one-liner)
 git add src/feature-b.js
 git commit -m "feat(feature-b): add related feature"
 
@@ -376,10 +456,10 @@ Please address these before moving forward with new features.
 This ensures technical debt is tracked and doesn't accumulate.
 
 ### Commit Messages
-- Follow Conventional Commits: `type(scope): subject`
-- Types: feat, fix, docs, style, refactor, test, chore
-- Group related changes in logical commits
-- Keep messages concise and descriptive
+- **Required tags:** `feat`, `fix`, `refactor`, `chore`, `docs`
+- **Format:** `tag(scope): subject` + optional bullet list for extensive changes
+- **Style:** Lowercase after colon, no period, imperative mood
+- **Analyze 30+ recent commits** to match repository's existing patterns
 
 ## Key Reminders
 
