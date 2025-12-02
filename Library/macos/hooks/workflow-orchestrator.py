@@ -100,6 +100,13 @@ DEEP_RESEARCH_PATTERNS = [
     r'\b(deep research)\b'
 ]
 
+# Parallel execution trigger patterns
+PARALLEL_PATTERNS = [
+    r'\b(parallel|in parallel|concurrently|simultaneously)\b',
+    r'\b(multiple agents|spawn agents|launch agents)\b',
+    r'\b(batch|batches|paralleli[sz]e|paralleli[sz]ation)\b'
+]
+
 # Prompt generator functions
 def get_foundation_prompt(cwd):
     """Generate foundation development mode prompt (always loaded)"""
@@ -206,6 +213,21 @@ def get_deep_research_prompt(cwd):
 </system-reminder>
 """
 
+def get_parallel_prompt(cwd):
+    """Generate parallel execution prompt with loaded guide content"""
+    content = load_guide(cwd, "parallel")
+    if not content:
+        return None
+    return f"""
+<system-reminder>The user has mentioned parallel execution or agent delegation.
+
+<parallel-execution-workflow>
+{content}
+</parallel-execution-workflow>
+
+</system-reminder>
+"""
+
 def check_patterns(text, patterns):
     """Check if any pattern matches the text (case insensitive)."""
     for pattern in patterns:
@@ -270,6 +292,12 @@ if "INVESTIGATION" not in already_injected and check_patterns(prompt, INVESTIGAT
     investigation_prompt = get_investigation_prompt(cwd)
     if investigation_prompt:
         triggered.append(("INVESTIGATION", investigation_prompt))
+
+# Check for parallel execution triggers
+if "PARALLEL" not in already_injected and check_patterns(prompt, PARALLEL_PATTERNS):
+    parallel_prompt = get_parallel_prompt(cwd)
+    if parallel_prompt:
+        triggered.append(("PARALLEL", parallel_prompt))
 
 # Save newly injected guides to session state
 if triggered:
