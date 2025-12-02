@@ -1,16 +1,6 @@
 {
   "includeCoAuthoredBy": false,
   "hooks": {
-    "UserPromptSubmit": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python3 /Users/chrisjamesbliss/.claude/hooks/git-hook.py"
-          }
-        ]
-      }
-    ],
     "Notification": [
       {
         "hooks": [
