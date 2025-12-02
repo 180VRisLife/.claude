@@ -108,3 +108,7 @@ iOSInjectionProject/
 *.swp
 *.swo
 *~
+
+# Claude Code
+.claude/
+CLAUDE.md
