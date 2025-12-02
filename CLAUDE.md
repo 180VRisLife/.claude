@@ -1,39 +1,8 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides guidance to Claude Code when working with code in this repository.
 
-## Overview
-
-This is a comprehensive configuration system for Claude Code that enables domain-aware AI assistance across multiple development platforms. The system uses a **Library-based architecture** where domain-specific configurations (agents, commands, hooks, templates) are centrally maintained in `~/.claude/library/` and deployed to individual project workspaces via `/0-workspace`.
-
-**How it works:**
-1. Global configuration lives in `~/.claude/` with domain templates in `library/`
-2. Run `/0-workspace` in a project to auto-detect domain and copy appropriate config to `./.claude/`
-3. Domain-specific commands, agents, hooks, and styles become available in that workspace
-
-## Core Commands
-
-### Workspace Initialization
-
-**Command:** `/0-workspace` or `/0-workspace <domain>`
-
-Automatically detects your project type (visionOS, iOS, macOS, webdev, streamdeck, or default) and copies the appropriate domain configuration from the Library to your local `.claude/` folder.
-
-**What it does:**
-- Analyzes project files to detect domain (imports, dependencies, config files)
-- Creates `.claude/` directory in project workspace
-- Copies domain-specific agents, commands, hooks, guides, and templates
-- Merges settings and creates domain marker file
-
-### Git Commit Orchestration
-
-**Command:** `/git`
-
-Analyzes git changes and orchestrates commits intelligently:
-- **Small changes** (<3 files, single feature): Single commit
-- **Large changes** (3+ files, multiple features): Multiple logical commits grouped by feature/type
-
-**Git Commit Policy - CRITICAL:**
+## Git Policy
 
 **ABSOLUTE RULE: Claude NEVER commits without the `/git` command.**
 
@@ -42,58 +11,17 @@ Analyzes git changes and orchestrates commits intelligently:
 - **ALWAYS** respond: "Please run `/git` to orchestrate commits properly"
 - **NEVER** commit after completing tasks, even if user says "and commit it"
 
-The `/git` command analyzes changes and creates logical, well-structured commits. Bypassing it defeats the orchestration system.
+**Debug Logging:** Never commit debug logging. The `/git` command enforces this.
 
-### Debug Logging Policy
+## Git Worktrees
 
-**⛔️ ABSOLUTE RULE: DEBUG LOGGING MUST NEVER BE COMMITTED**
-
-**ONLY exceptions:** Debug UI features or release diagnostics infrastructure (properly gated for production).
-
-The `/git` command enforces this automatically.
-
-### Git Worktrees
-
-**Git worktrees enable isolated parallel development for non-trivial work.**
-
-**Why use worktrees:**
-- **Isolation** - Changes don't affect main codebase
-- **Parallel sessions** - Run multiple Claude sessions simultaneously in different worktrees
-- **Easy abandonment** - Delete worktree if approach doesn't work
-- **Clean history** - Each feature gets its own branch and merge
-- **No mixing** - Each project's worktrees stay in its own `.worktrees/` subdirectory
+Use `/wt feature-name` to create isolated worktrees for non-trivial work.
 
 **Workflow:**
-
-1. **Create** - In any session: `/wt feature-name`
-   - Creates worktree in `.worktrees/feature-name/`
-   - Creates branch `feature-name`
-   - Saves original prompt to `PROMPT.md`
-   - Provides navigation instructions
-   - **Stops** - does not begin implementation
-
-2. **Navigate** - You manually:
-   - `cd .worktrees/feature-name`
-   - Start new Claude session: `claude`
-
-3. **Work** - In new session:
-   - Reference `PROMPT.md` for original context
-   - Plan and implement as normal
-   - Run `/git` to commit (auto-deletes PROMPT.md)
-
-4. **Merge** - `/git` asks if you want to merge back and cleanup
-   - Confirm to merge, delete worktree, and delete branches (local + remote)
-   - Decline to keep working and make more commits
-
-**Key points:**
-- **Location** - Worktrees are created in `.worktrees/` subdirectory within each repo
-- **Organization** - Prevents worktrees from different projects mixing together
-- **Context preservation** - PROMPT.md captures original task, auto-deleted by `/git`
-- **User-controlled merge** - `/git` asks for confirmation before merging/cleanup
-- **Continue working** - Decline merge to make more commits in the worktree
-- **Use `/wt-mgmt`** - Check status, find conflicts, cleanup suggestions
-- **Cleanup on merge** - `/git` removes worktree AND deletes branch (local + remote) after successful merge
-- **Persistent worktrees** - Worktrees stay in `.worktrees/` until you merge or manually remove them
+1. `/wt feature-name` - Creates worktree, saves prompt to PROMPT.md, stops
+2. User navigates to `.worktrees/feature-name` and starts new Claude session
+3. Work in new session, reference PROMPT.md for context
+4. `/git` commits and asks about merging back
 
 ## Agent-First Policy
 
@@ -134,48 +62,7 @@ After `/0-workspace`, agents available in `./.claude/agents/`:
 
 See `./.claude/agents/specialist/` for your domain's complete roster.
 
-## Workflow Orchestration
-
-The **Workflow Orchestrator** hook intelligently injects contextual workflow guides based on your prompts, providing specialized guidance that stacks together for comprehensive assistance.
-
-**How it works:**
-- **Foundation.md is ALWAYS active** - Professional development mode is the foundation for every interaction
-- **Keyword-triggered guides** - Additional specialized guides stack on top based on your prompt
-- **No settings changes** - Pure content injection approach (no output style switching)
-
-**Available workflow modes:**
-
-- **brainstorm** → Socratic questioning with emojis, collaborative discovery mindset
-- **deep research** → Evidence-based systematic investigation with parallel research streams
-- **plan out / planning** → Research-only mode with no implementation, creates strategic documentation
-- **implement / build / code** → Best practices for feature implementation (stacks with foundation)
-- **debug** → Debugging workflow and error investigation (stacks with foundation)
-- **investigate / research** → Code investigation and pattern analysis (stacks with foundation)
-
-**Guide stacking example:**
-- "debug this planning" → Loads: foundation + debug + planning
-- "implement user auth" → Loads: foundation + implementation
-- "deep research the architecture" → Loads: foundation + deep-research + investigation
-
-## Extended Thinking
-
-Trigger keywords allocate extended thinking tokens:
-
-- **think** → 4,000 tokens (5-15 seconds) - standard problem-solving
-- **megathink** → 10,000 tokens - complex refactoring and design decisions
-- **ultrathink** → 31,999 tokens - seemingly impossible tasks and team-stumping bugs
-
-Configured via settings.json `alwaysThinkingEnabled: true`
-
 ## File Size Guidelines
-
-### CLAUDE.md Files (Auto-loaded)
-
-These are always loaded into context, so keep them concise:
-- **Global** (~/.claude/CLAUDE.md): 150-400 lines (~8-16KB)
-- **Local** (./.claude/CLAUDE.md or ./CLAUDE.md): 200-500 lines (~12-20KB)
-- **Maximum**: 600 lines before splitting into guides/
-- **Optimal**: Under 50KB per file (official Anthropic guidance)
 
 ### Philosophy
 
@@ -185,20 +72,10 @@ Optimize for **logical coherence** and **developer experience** rather than arbi
 - **Load relevance**: Auto-loaded files (CLAUDE.md) must stay tight; on-demand files can be larger
 - **Search efficiency**: One searchable file often beats navigating multiple fragments
 
-### Token Budget (1M context)
-
-With Sonnet 4.5's 1M token context window and context awareness:
-- CLAUDE.md files: ~10-20K tokens (1-2%)
-- All documentation: ~50-100K tokens (5-10%)
-- Active code work: ~100-500K tokens (10-50%)
-- Remaining: ~400K+ tokens (40%+) for deep work
-
 **Modern reality**: File size is less critical than logical organization and relevance. Claude tracks token budget automatically.
 
 ## Development Notes
 
 - **Most changes don't need CLAUDE.md updates** - Use feature documentation instead
-- **Preserve flat folder structure** - All files directly in top-level folders within domains
 - **Template first** - Always read default template before creating domain-specific versions
-- **Structure consistency** - New domains/features must match default structure exactly
-- **Worktree cleanup** - `/git` removes worktrees AND deletes branches (local + remote) after merging
+- **Organize logically** - Group files into folders and subfolders that reflect conceptual relationships
