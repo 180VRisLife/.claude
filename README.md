@@ -8,7 +8,7 @@ A comprehensive configuration system for Claude to build production-ready applic
 
 **First time in a new project:**
 ```
-/init-workspace
+/0-workspace
 ```
 This command automatically detects your project type (visionos, web, etc.) and copies the appropriate domain configuration from the Library to your local `.claude/` folder.
 
@@ -66,13 +66,13 @@ Analyzes git changes and orchestrates commits - Determines if changes are small 
 ```
 Auto-generates directory and branch name (e.g., `/wt user authentication` → `.worktrees/user-authentication/`)
 
-2. Implement and test the feature in the worktree directory
+2. Start a new Claude Code session in the worktree directory to implement the feature
 
 3. Commit, merge, and cleanup:
 ```
 /git
 ```
-Automatically handles commits, merges back to base branch, removes the worktree, and deletes the branch (local + remote).
+Automatically handles commits, merges back to base branch, removes the worktree, and deletes the branch.
 
 **Managing Multiple Worktrees:**
 ```
