@@ -76,6 +76,10 @@ Optimize for **logical coherence** and **developer experience** rather than arbi
 
 ## Development Notes
 
-- **Most changes don't need CLAUDE.md updates** - Use feature documentation instead
+- **Most changes don't need CLAUDE.md updates** - Code is the documentation; use inline comments when needed
 - **Template first** - Always read default template before creating domain-specific versions
 - **Organize logically** - Group files into folders and subfolders that reflect conceptual relationships
+
+## Subdirectory Documentation
+
+When a subdirectory has unique conventions not covered by parent CLAUDE.md, suggest: "Should I create a CLAUDE.md for [directory] documenting [specific patterns]?"
