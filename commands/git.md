@@ -1,5 +1,18 @@
 I have just finished one or more changes. It's time to commit changes.
 
+## Auto-Commit Policy
+
+**IMPORTANT: Once all Phase 1 checks pass, proceed directly to committing WITHOUT asking for confirmation.**
+
+Do NOT ask "Should I commit?" or "Would you like me to commit?" - just commit the changes. The user invoked `/git` specifically to commit, so confirmation is not needed.
+
+**Only stop and ask when:**
+- ⛔️ Debugging code is found (hard stop per debug check rules)
+- ⚠️ Commit readiness issues are found (ask if user wants to proceed anyway)
+- 🤔 Unsure whether to amend vs new commit (ask user preference)
+
+If none of these blockers apply, commit immediately.
+
 ## Phase 1: Analysis
 
 ### Cleanup Temporary Files
@@ -217,6 +230,8 @@ git commit --amend -m "updated message"  # Update message
 
 ## Phase 2: Commit Strategy
 
+**Execute commits immediately - no confirmation needed.**
+
 ### For Small Changes
 **When:** Single feature, <3 files, or trivial changes
 **Action:** Stage and commit: `git add [files] && git commit -m "type(scope): message"`
@@ -243,6 +258,8 @@ git add src/feature-b.js
 git commit -m "feat(feature-b): add related feature"
 
 ## Phase 3: Final Steps
+
+**Proceed without asking - commit directly.**
 
 1. Stage and commit changes in logical batches
 2. List all commits created with their messages
