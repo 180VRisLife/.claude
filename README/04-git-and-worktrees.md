@@ -1,5 +1,16 @@
 # Git and Worktrees
 
+## Catchup Command
+
+```
+/catchup [issue#]
+```
+
+Reloads work-in-progress context when resuming a session:
+- Reads all uncommitted changes (staged and unstaged)
+- Summarizes what's being worked on and what remains
+- Optionally fetches a GitHub issue to relate changes to it
+
 ## Git Command
 
 ```
