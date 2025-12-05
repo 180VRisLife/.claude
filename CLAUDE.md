@@ -23,6 +23,32 @@ Use `/wt feature-name` to create isolated worktrees for non-trivial work.
 3. Work in new session, reference PROMPT.md for context
 4. `/git` commits and asks about merging back
 
+## Documentation-First Policy
+
+**Before implementing features with external libraries, ALWAYS check `.docs/` first.**
+
+**Workflow:**
+1. When a task involves external libraries (SwiftUI, React, Prisma, etc.), search `.docs/` for existing documentation
+2. If docs exist → use them as the source of truth (no web search or MCP needed)
+3. If docs are missing → proactively tell user: "I need documentation for [library/feature]. Should I create it?"
+4. Create docs via `/docs --feature [topic]` or fetch directly with MCP tools
+
+**Documentation Structure:**
+- `.docs/` - Project-level API references grouped by cluster
+- `.docs/features/` - Individual feature documentation
+- `.docs/index.md` - Inventory of all documentation with gap analysis
+
+**Why This Matters:**
+- Local docs are LLM-optimized (only non-obvious info)
+- Faster than external lookups
+- Consistent source of truth across sessions
+- Proactive gap detection prevents errors
+
+**Commands:**
+- `/docs [query]` - Quick lookup (auto-detects Apple vs general libraries)
+- `/docs --feature [topic]` - Create feature documentation file
+- `/docs --project [description]` - Create full documentation bundle (3-5 files)
+
 ## Agent-First Policy
 
 **CRITICAL: Default to agents for all non-trivial tasks.**
