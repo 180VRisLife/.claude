@@ -13,6 +13,72 @@ Do NOT ask "Should I commit?" or "Would you like me to commit?" - just commit th
 
 If none of these blockers apply, commit immediately.
 
+## Phase 0: Workspace Detection (Multi-Repo)
+
+**Check if in a workspace directory containing multiple repositories:**
+
+```bash
+# If current directory is NOT a git repo...
+if ! git rev-parse --git-dir &>/dev/null; then
+  # Look for git repos in subdirectories (including symlinks)
+  repos=$(find . -maxdepth 2 \( -type d -o -type l \) -exec test -d "{}/.git" \; -print 2>/dev/null | sort -u)
+fi
+```
+
+**If workspace detected (multiple repos found):**
+
+```
+📂 Workspace detected - not a git repository, but contains:
+  • repo-a -> /path/to/repo-a
+  • repo-b -> /path/to/repo-b
+
+Orchestrating commits across all repositories...
+```
+
+### Workspace Workflow
+
+1. **Parallel Analysis** - Run Phase 1 checks (status, diff, debug scan) on ALL repos simultaneously
+2. **Combined Summary** - Present findings from all repos together before any commits:
+   ```
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   📊 Workspace Changes Summary
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+   repo-a (3 files changed):
+     M  src/core/handler.py
+     M  src/api/client.py
+     A  src/utils/retry.py
+
+   repo-b (no changes)
+
+   ⛔️ Issues found:
+     • repo-a: console.log in src/api/client.py:42
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   ```
+3. **Stop on blockers** - If ANY repo has debug code or issues, handle before proceeding
+4. **Sequential Commits** - After all checks pass, commit each repo one at a time:
+   - Enter repo directory
+   - Run Phase 2-3 (commit strategy + execution)
+   - Report result
+   - Move to next repo
+5. **Final Summary** - Show all commits across all repos:
+   ```
+   ✅ Workspace commits complete!
+
+   repo-a:
+     • abc1234 - feat(core): add request validation
+     • def5678 - chore(api): update client config
+
+   repo-b:
+     • (no changes)
+   ```
+
+**If only one repo has changes:** Proceed directly with that repo (skip multi-repo summary).
+
+**If NO repos have changes:** Report "No changes to commit in any repository" and exit.
+
+---
+
 ## Phase 1: Analysis
 
 ### Cleanup Temporary Files
@@ -480,6 +546,7 @@ This ensures technical debt is tracked and doesn't accumulate.
 
 ## Key Reminders
 
+- **Workspace support:** If not in a git repo but directory contains repos, orchestrate commits across all
 - **Small changes:** Single commit with clear message
 - **Large changes:** Multiple logical commits, grouped by feature/type
 - **Always check for debugging code** before committing
