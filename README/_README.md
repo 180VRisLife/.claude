@@ -10,6 +10,9 @@ A comprehensive configuration system for Claude to build production-ready applic
 | `/1-5` | Workflow commands (requirements → execution) |
 | `/git` | Analyze changes and orchestrate commits |
 | `/wt [feature]` | Create isolated worktree for parallel development |
+| `/catchup` | Reload WIP context from uncommitted changes |
+| `/docs [lib]` | Force context7 MCP lookup for library docs |
+| `/apple [query]` | Force apple-docs MCP lookup |
 
 | Keyword | Purpose |
 |---------|---------|
@@ -30,5 +33,6 @@ A comprehensive configuration system for Claude to build production-ready applic
 | [03 - Workflow Commands](README/03-workflow-commands.md) | `/1-requirements` through `/5-execution` |
 | [04 - Git & Worktrees](README/04-git-and-worktrees.md) | `/git`, `/wt`, `/wt-mgmt` |
 | [05 - Agents](README/05-agents.md) | Base and specialist agents |
-| [06 - Creation Templates](README/06-creation-templates.md) | New feature/domain prompts |
-| [07 - Architecture](README/07-architecture-reference.md) | System architecture, hooks, templates |
+| [06 - MCP Tools](README/06-mcp-tools.md) | MCP servers, `/docs`, `/apple` commands |
+| [07 - Creation Templates](README/07-creation-templates.md) | New feature/domain prompts |
+| [08 - Architecture](README/08-architecture-reference.md) | System architecture, hooks, templates |
