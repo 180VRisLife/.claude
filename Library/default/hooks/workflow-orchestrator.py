@@ -12,37 +12,34 @@ import json
 import os
 import re
 import sys
-import time
 from pathlib import Path
 
 # Session state tracking
-SESSION_TIMEOUT = 14400  # 4 hours in seconds
+# Session is determined by Claude Code's process ID (ppid) - when Claude restarts, new PID = new session
 
 def get_session_file(cwd):
-    """Get session file path based on cwd + parent process (Claude's terminal)"""
-    ppid = os.getppid()  # Claude Code's process
+    """Get session file path based on cwd + parent process (Claude Code's PID)"""
+    ppid = os.getppid()  # Claude Code's process - changes when Claude restarts
     # Use MD5 for deterministic hashing (Python's hash() is randomized per-process)
     cwd_hash = hashlib.md5(cwd.encode()).hexdigest()[:12]
     session_id = f"{cwd_hash}-{ppid}"
     return Path(f"/tmp/claude-workflow-{session_id}.json")
 
 def get_injected_guides(session_file):
-    """Read which guides have been injected this session"""
+    """Read which guides have been injected this session (based on Claude Code PID)"""
     try:
         if session_file.exists():
-            # Check if file is recent (within timeout)
-            if time.time() - session_file.stat().st_mtime < SESSION_TIMEOUT:
-                with open(session_file) as f:
-                    return set(json.load(f).get("injected", []))
+            with open(session_file) as f:
+                return set(json.load(f).get("injected", []))
     except Exception:
         pass
     return set()
 
 def save_injected_guides(session_file, guides):
-    """Save which guides have been injected"""
+    """Save which guides have been injected this session"""
     try:
         with open(session_file, 'w') as f:
-            json.dump({"injected": list(guides), "updated": time.time()}, f)
+            json.dump({"injected": list(guides)}, f)
     except Exception:
         pass  # Fail silently - injection still works, just won't dedupe
 
@@ -306,12 +303,25 @@ if triggered:
 
     output = []
 
-    # First, tell Claude to report what was triggered
+    # Build the announcement instruction for Claude
     trigger_names = [name for name, _ in triggered]
-    instruction = f"""<system-reminder>
-IMPORTANT: Workflow guides active: {', '.join(trigger_names)}
 
-These guides have been loaded to provide context-aware assistance for your request.
+    # Format previously active guides (exclude FOUNDATION from "already active" display since it's always there)
+    previously_active = [g for g in already_injected if g != "FOUNDATION"]
+
+    # Build announcement instruction
+    announcement_parts = []
+    announcement_parts.append(f"**New:** {', '.join(trigger_names)}")
+    if previously_active:
+        announcement_parts.append(f"**Already active:** {', '.join(sorted(previously_active))}")
+
+    instruction = f"""<system-reminder>
+IMPORTANT: Workflow guides have been injected for this request.
+
+You MUST announce this to the user at the START of your response using this exact format:
+📋 Guides: {' | '.join(announcement_parts)}
+
+This announcement is mandatory - do not skip it. After the announcement, proceed with your response normally.
 </system-reminder>
 """
     output.append(instruction)
