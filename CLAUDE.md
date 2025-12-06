@@ -13,6 +13,16 @@ This file provides guidance to Claude Code when working with code in this reposi
 
 **Debug Logging:** Never commit debug logging. The `/utl:git-commit` command enforces this.
 
+## DebugLogger
+
+**Always use the project's DebugLogger utility for debug logging** (extension varies: `.swift`, `.py`, `.ts`, etc.).
+
+- Writes to `/tmp/{ProjectName}-Debug.log` — read this file to see app runtime output
+- DEBUG builds log; RELEASE builds are no-ops
+- No conditional guards needed in code
+- Methods: `log()`, `info()`, `warning()`, `error()`, `separator()`
+- Categories: domain-specific (`.app`, `.ui`, `.services`, `.network`, `.general`, etc.)
+
 ## Build Verification
 
 **After any non-trivial code change, build/compile and fix until clean.**
