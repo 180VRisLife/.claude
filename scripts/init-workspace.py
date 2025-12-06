@@ -325,7 +325,15 @@ def main():
     print(f"📦 Domain: {domain}")
 
     deps = check_dependencies()
-    library_path = Path.home() / '.claude' / 'library' / domain
+
+    # Map domains to library subdirectories
+    DOMAIN_PATHS = {
+        'ios': 'apple/ios',
+        'macos': 'apple/macos',
+        'visionos': 'apple/visionos',
+    }
+    library_subpath = DOMAIN_PATHS.get(domain, domain)
+    library_path = Path.home() / '.claude' / 'library' / library_subpath
 
     if not library_path.exists():
         print(f"❌ Library not found: {library_path}")

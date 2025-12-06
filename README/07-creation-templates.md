@@ -13,11 +13,9 @@ Steps:
 1. Research best practices for this template type across different languages/platforms
 2. Create the baseline template in library/default/file-templates/[template-name].template
 3. For each relevant domain, create a domain-specific version:
-   - library/ios/file-templates/[TemplateName].swift.template
-   - library/macos/file-templates/[TemplateName].swift.template
-   - library/visionos/file-templates/[TemplateName].swift.template
-   - library/webdev/file-templates/[templateName].ts.template (or .tsx for React components)
-   - library/streamdeck/file-templates/[templateName].ts.template
+   - library/apple/ios/file-templates/[TemplateName].swift.template
+   - library/apple/macos/file-templates/[TemplateName].swift.template
+   - library/apple/visionos/file-templates/[TemplateName].swift.template
 4. Follow existing naming conventions per domain:
    - Swift: PascalCase (e.g., CrashReporter.swift.template)
    - TypeScript: camelCase (e.g., crashReporter.ts.template)
@@ -39,7 +37,7 @@ Create a new development domain for [DOMAIN_NAME] that [DOMAIN_DESCRIPTION e.g.,
 
 Steps:
 1. Create the domain folder structure:
-   ~/.claude/library/[domain]/
+   ~/.claude/library/[category]/[domain]/  (e.g., apple/ios, apple/android)
    ├── file-templates/
    └── settings.local.template.json
 
@@ -60,9 +58,10 @@ Steps:
 5. (Optional) Create scripts/ folder for platform-specific utilities
 
 6. Update ~/.claude/scripts/init-workspace.py:
-   a. Add domain indicators (strong and medium) following existing patterns
-   b. Add detection logic in the appropriate priority order
-   c. Ensure config file checks are domain-specific
+   a. Add domain to DOMAIN_PATHS mapping (maps domain name to library path)
+   b. Add domain indicators (strong and medium) following existing patterns
+   c. Add detection logic in the appropriate priority order
+   d. Ensure config file checks are domain-specific
 
 File naming conventions by language:
 - Swift/Kotlin: PascalCase (DebugLogger.swift, DebugLogger.kt)
