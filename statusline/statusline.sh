@@ -1,6 +1,7 @@
 #!/bin/bash
 # Custom status line that shows accurate total context usage
 # Matches /context command output (tokens used, without autocompact buffer)
+# Shows "X% to compact" (green/yellow/red) when autocompact on, "X% to end" (cyan) when off
 
 INPUT=$(cat)
 TRANSCRIPT=$(echo "$INPUT" | jq -r '.transcript_path // empty')
@@ -27,6 +28,10 @@ case "$MODEL_ID" in
         CONTEXT_WINDOW=200000   # Default to 200k for unknown models
         ;;
 esac
+
+# Check if autocompact is enabled (read from ~/.claude.json)
+# Use 'if .autoCompactEnabled == false' to properly handle false values
+AUTOCOMPACT_ENABLED=$(jq -r 'if .autoCompactEnabled == false then "false" else "true" end' ~/.claude.json 2>/dev/null)
 
 # Autocompact buffer - reserved space for Claude's internal operations
 AUTOCOMPACT_BUFFER=45000
@@ -56,12 +61,26 @@ if [ -n "$TRANSCRIPT" ] && [ -f "$TRANSCRIPT" ]; then
             PERCENTAGE="0.0"
         fi
 
-        # Calculate percentage remaining until auto-compact triggers
-        REMAINING_TOKENS=$((USABLE_CONTEXT - TOTAL_TOKENS))
-        if [ "$REMAINING_TOKENS" -lt 0 ]; then
-            REMAINING_TOKENS=0
+        # Calculate percentage remaining based on autocompact setting
+        if [ "$AUTOCOMPACT_ENABLED" = "true" ]; then
+            # Percentage remaining until auto-compact triggers (usable context)
+            REMAINING_TOKENS=$((USABLE_CONTEXT - TOTAL_TOKENS))
+            if [ "$REMAINING_TOKENS" -lt 0 ]; then
+                REMAINING_TOKENS=0
+            fi
+            COMPACT_REMAINING=$(awk "BEGIN {printf \"%.0f\", ($REMAINING_TOKENS / $USABLE_CONTEXT) * 100}")
+            COMPACT_TEXT="to compact"
+            COMPACT_USE_URGENCY_COLORS="true"
+        else
+            # Percentage remaining until full context window
+            REMAINING_TOKENS=$((CONTEXT_WINDOW - TOTAL_TOKENS))
+            if [ "$REMAINING_TOKENS" -lt 0 ]; then
+                REMAINING_TOKENS=0
+            fi
+            COMPACT_REMAINING=$(awk "BEGIN {printf \"%.0f\", ($REMAINING_TOKENS / $CONTEXT_WINDOW) * 100}")
+            COMPACT_TEXT="to end"
+            COMPACT_USE_URGENCY_COLORS="false"
         fi
-        COMPACT_REMAINING=$(awk "BEGIN {printf \"%.0f\", ($REMAINING_TOKENS / $USABLE_CONTEXT) * 100}")
 
         # Format token count (e.g., 64k or 1.2M)
         if [ "$TOTAL_TOKENS" -ge 1000000 ]; then
@@ -128,14 +147,13 @@ if [ -n "$TRANSCRIPT" ] && [ -f "$TRANSCRIPT" ]; then
             TOKEN_COLOR="$GREEN"
         fi
 
-        # Choose compact indicator color (inverted - countdown)
-        # Green: >30% remaining, Yellow: 10-30%, Red: <10%
-        if [ "$COMPACT_REMAINING" -le 10 ]; then
-            COMPACT_COLOR="$RED"
-        elif [ "$COMPACT_REMAINING" -le 30 ]; then
-            COMPACT_COLOR="$YELLOW"
+        # Choose compact indicator color (static based on mode)
+        if [ "$COMPACT_USE_URGENCY_COLORS" = "true" ]; then
+            # Magenta for autocompact mode
+            COMPACT_COLOR="$MAGENTA"
         else
-            COMPACT_COLOR="$GREEN"
+            # Cyan for manual mode (autocompact off)
+            COMPACT_COLOR="$CYAN"
         fi
 
         # Format git info with separate colors
@@ -152,7 +170,7 @@ if [ -n "$TRANSCRIPT" ] && [ -f "$TRANSCRIPT" ]; then
         fi
 
         # Output status line with colors (includes compact countdown)
-        echo -e "${CYAN}${MODEL_NAME}${RESET}${GRAY} | ${RESET}${TOKEN_COLOR}${TOKEN_DISPLAY}/${WINDOW_DISPLAY} (${PERCENTAGE}%)${RESET}${GRAY} - ${RESET}${COMPACT_COLOR}${COMPACT_REMAINING}% to compact${RESET}${GIT_DISPLAY}${GRAY} | ${RESET}${MAGENTA}${DIR_NAME}${RESET}"
+        echo -e "${CYAN}${MODEL_NAME}${RESET}${GRAY} | ${RESET}${TOKEN_COLOR}${TOKEN_DISPLAY}/${WINDOW_DISPLAY} (${PERCENTAGE}%)${RESET}${GRAY} - ${RESET}${COMPACT_COLOR}${COMPACT_REMAINING}% ${COMPACT_TEXT}${RESET}${GIT_DISPLAY}${GRAY} | ${RESET}${MAGENTA}${DIR_NAME}${RESET}"
     else
         # No assistant messages yet - show base overhead
         # System prompt (~3k) + System tools (~14.5k) + Memory files (~1k)
@@ -160,9 +178,18 @@ if [ -n "$TRANSCRIPT" ] && [ -f "$TRANSCRIPT" ]; then
         TOTAL_TOKENS=$BASE_OVERHEAD
         PERCENTAGE=$(awk "BEGIN {printf \"%.1f\", ($TOTAL_TOKENS / $CONTEXT_WINDOW) * 100}")
 
-        # Calculate compact countdown
-        REMAINING_TOKENS=$((USABLE_CONTEXT - TOTAL_TOKENS))
-        COMPACT_REMAINING=$(awk "BEGIN {printf \"%.0f\", ($REMAINING_TOKENS / $USABLE_CONTEXT) * 100}")
+        # Calculate compact countdown based on autocompact setting
+        if [ "$AUTOCOMPACT_ENABLED" = "true" ]; then
+            REMAINING_TOKENS=$((USABLE_CONTEXT - TOTAL_TOKENS))
+            COMPACT_REMAINING=$(awk "BEGIN {printf \"%.0f\", ($REMAINING_TOKENS / $USABLE_CONTEXT) * 100}")
+            COMPACT_TEXT="to compact"
+            COMPACT_USE_URGENCY_COLORS="true"
+        else
+            REMAINING_TOKENS=$((CONTEXT_WINDOW - TOTAL_TOKENS))
+            COMPACT_REMAINING=$(awk "BEGIN {printf \"%.0f\", ($REMAINING_TOKENS / $CONTEXT_WINDOW) * 100}")
+            COMPACT_TEXT="to end"
+            COMPACT_USE_URGENCY_COLORS="false"
+        fi
         if [ "$TOTAL_TOKENS" -ge 1000000 ]; then
             TOKEN_DISPLAY=$(awk "BEGIN {printf \"%.1fM\", $TOTAL_TOKENS / 1000000}")
         else
@@ -222,13 +249,11 @@ if [ -n "$TRANSCRIPT" ] && [ -f "$TRANSCRIPT" ]; then
             TOKEN_COLOR="$GREEN"
         fi
 
-        # Choose compact indicator color
-        if [ "$COMPACT_REMAINING" -le 10 ]; then
-            COMPACT_COLOR="$RED"
-        elif [ "$COMPACT_REMAINING" -le 30 ]; then
-            COMPACT_COLOR="$YELLOW"
+        # Choose compact indicator color (static based on mode)
+        if [ "$COMPACT_USE_URGENCY_COLORS" = "true" ]; then
+            COMPACT_COLOR="$MAGENTA"
         else
-            COMPACT_COLOR="$GREEN"
+            COMPACT_COLOR="$CYAN"
         fi
 
         # Format git info with separate colors
@@ -244,7 +269,7 @@ if [ -n "$TRANSCRIPT" ] && [ -f "$TRANSCRIPT" ]; then
             GIT_DISPLAY=""
         fi
 
-        echo -e "${CYAN}${MODEL_NAME}${RESET}${GRAY} | ${RESET}${TOKEN_COLOR}${TOKEN_DISPLAY}/${WINDOW_DISPLAY} (${PERCENTAGE}%)${RESET}${GRAY} - ${RESET}${COMPACT_COLOR}${COMPACT_REMAINING}% to compact${RESET}${GIT_DISPLAY}${GRAY} | ${RESET}${MAGENTA}${DIR_NAME}${RESET}"
+        echo -e "${CYAN}${MODEL_NAME}${RESET}${GRAY} | ${RESET}${TOKEN_COLOR}${TOKEN_DISPLAY}/${WINDOW_DISPLAY} (${PERCENTAGE}%)${RESET}${GRAY} - ${RESET}${COMPACT_COLOR}${COMPACT_REMAINING}% ${COMPACT_TEXT}${RESET}${GIT_DISPLAY}${GRAY} | ${RESET}${MAGENTA}${DIR_NAME}${RESET}"
     fi
 else
     # Fallback if transcript not available - show base overhead
@@ -252,9 +277,18 @@ else
     TOTAL_TOKENS=$BASE_OVERHEAD
     PERCENTAGE=$(awk "BEGIN {printf \"%.1f\", ($TOTAL_TOKENS / $CONTEXT_WINDOW) * 100}")
 
-    # Calculate compact countdown
-    REMAINING_TOKENS=$((USABLE_CONTEXT - TOTAL_TOKENS))
-    COMPACT_REMAINING=$(awk "BEGIN {printf \"%.0f\", ($REMAINING_TOKENS / $USABLE_CONTEXT) * 100}")
+    # Calculate compact countdown based on autocompact setting
+    if [ "$AUTOCOMPACT_ENABLED" = "true" ]; then
+        REMAINING_TOKENS=$((USABLE_CONTEXT - TOTAL_TOKENS))
+        COMPACT_REMAINING=$(awk "BEGIN {printf \"%.0f\", ($REMAINING_TOKENS / $USABLE_CONTEXT) * 100}")
+        COMPACT_TEXT="to compact"
+        COMPACT_USE_URGENCY_COLORS="true"
+    else
+        REMAINING_TOKENS=$((CONTEXT_WINDOW - TOTAL_TOKENS))
+        COMPACT_REMAINING=$(awk "BEGIN {printf \"%.0f\", ($REMAINING_TOKENS / $CONTEXT_WINDOW) * 100}")
+        COMPACT_TEXT="to end"
+        COMPACT_USE_URGENCY_COLORS="false"
+    fi
 
     if [ "$TOTAL_TOKENS" -ge 1000000 ]; then
         TOKEN_DISPLAY=$(awk "BEGIN {printf \"%.1fM\", $TOTAL_TOKENS / 1000000}")
@@ -311,13 +345,11 @@ else
         TOKEN_COLOR="$GREEN"
     fi
 
-    # Choose compact indicator color
-    if [ "$COMPACT_REMAINING" -le 10 ]; then
-        COMPACT_COLOR="$RED"
-    elif [ "$COMPACT_REMAINING" -le 30 ]; then
-        COMPACT_COLOR="$YELLOW"
+    # Choose compact indicator color (static based on mode)
+    if [ "$COMPACT_USE_URGENCY_COLORS" = "true" ]; then
+        COMPACT_COLOR="$MAGENTA"
     else
-        COMPACT_COLOR="$GREEN"
+        COMPACT_COLOR="$CYAN"
     fi
 
     # Format git info with separate colors
@@ -327,5 +359,5 @@ else
         GIT_DISPLAY=""
     fi
 
-    echo -e "${CYAN}${MODEL_NAME}${RESET}${GRAY} | ${RESET}${TOKEN_COLOR}${TOKEN_DISPLAY}/${WINDOW_DISPLAY} (${PERCENTAGE}%)${RESET}${GRAY} - ${RESET}${COMPACT_COLOR}${COMPACT_REMAINING}% to compact${RESET}${GIT_DISPLAY}${GRAY} | ${RESET}${MAGENTA}${DIR_NAME}${RESET}"
+    echo -e "${CYAN}${MODEL_NAME}${RESET}${GRAY} | ${RESET}${TOKEN_COLOR}${TOKEN_DISPLAY}/${WINDOW_DISPLAY} (${PERCENTAGE}%)${RESET}${GRAY} - ${RESET}${COMPACT_COLOR}${COMPACT_REMAINING}% ${COMPACT_TEXT}${RESET}${GIT_DISPLAY}${GRAY} | ${RESET}${MAGENTA}${DIR_NAME}${RESET}"
 fi
