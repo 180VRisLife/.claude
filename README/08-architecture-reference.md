@@ -15,7 +15,7 @@ After running `/0-workspace`, your project will have domain-specific hooks that 
 
 | Hook | Purpose |
 |------|---------|
-| **workflow-orchestrator.py** | Intelligently injects workflow guides |
+| **guide-injector.py** | Intelligently injects workflow guides |
 | **parallel.py** | Loads the parallel execution guide after planning (PostToolUse hook) |
 
 ## Guides

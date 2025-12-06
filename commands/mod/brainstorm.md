@@ -10,4 +10,4 @@ Read the guide from `.claude/guides/brainstorming.md` and output it in this exac
 </system-reminder>
 ```
 
-This matches the output from the workflow orchestrator hook when triggered by the keyword "brainstorm".
+This matches the output from the guide injector hook when triggered by the keyword "brainstorm".

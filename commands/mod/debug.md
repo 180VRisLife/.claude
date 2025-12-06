@@ -10,4 +10,4 @@ Read the guide from `.claude/guides/debug.md` and output it in this exact format
 </system-reminder>
 ```
 
-This matches the output from the workflow orchestrator hook when triggered by the keyword "debug".
+This matches the output from the guide injector hook when triggered by the keyword "debug".

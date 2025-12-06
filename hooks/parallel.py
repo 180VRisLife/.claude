@@ -2,7 +2,7 @@
 """
 Parallel Execution Hook (PostToolUse)
 Injects parallelization guide after ExitPlanMode, using shared session tracking
-with the workflow orchestrator to prevent duplicate injections.
+with the guide injector to prevent duplicate injections.
 """
 import hashlib
 import json
@@ -21,7 +21,7 @@ logging.basicConfig(
     filemode='a'
 )
 
-# --- Session State Tracking (shared with workflow-orchestrator.py) ---
+# --- Session State Tracking (shared with guide-injector.py) ---
 def get_session_file(cwd):
     """Get session file path based on cwd + parent process (Claude Code's PID)"""
     ppid = os.getppid()
@@ -80,7 +80,7 @@ def main():
             logging.error(f"Error loading parallel guide: {e}")
             sys.exit(0)
 
-        # Build announcement (same format as workflow orchestrator)
+        # Build announcement (same format as guide injector)
         previously_active = [g for g in already_injected if g != "FOUNDATION"]
         announcement_parts = ["**New:** PARALLEL"]
         if previously_active:

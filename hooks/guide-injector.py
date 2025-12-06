@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Workflow Orchestrator Hook
-Intelligently injects workflow guides based on user prompts for enhanced context-aware assistance.
+Guide Injector Hook
+Intelligently injects contextual guides based on user prompts for enhanced context-aware assistance.
 - Injects foundation.md once per session (not on every prompt)
 - Conditionally injects additional guides based on trigger keywords (once per session each)
 - Supports stacking multiple guides for comprehensive guidance

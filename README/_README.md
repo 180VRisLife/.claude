@@ -29,7 +29,7 @@ A comprehensive configuration system for Claude to build production-ready applic
 | Doc | Contents |
 |-----|----------|
 | [01 - Quick Start](README/01-quick-start.md) | Initialize workspace with `/0-workspace` |
-| [02 - Triggers & Guides](README/02-triggers-and-guides.md) | Thinking keywords, workflow orchestrator |
+| [02 - Triggers & Guides](README/02-triggers-and-guides.md) | Thinking keywords, guide injector |
 | [03 - Workflow Commands](README/03-workflow-commands.md) | `/1-requirements` through `/5-execution` |
 | [04 - Git & Worktrees](README/04-git-and-worktrees.md) | `/git`, `/wt`, `/wt-mgmt` |
 | [05 - Agents](README/05-agents.md) | Base agents (code-finder, implementor, etc.) |

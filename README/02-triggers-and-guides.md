@@ -12,7 +12,7 @@ Trigger extended thinking by including these keywords in your prompt:
 
 ## Workflow Guides
 
-The Workflow Orchestrator injects contextual guides based on keywords. **foundation.md** is always active.
+The Guide Injector injects contextual guides based on keywords. **foundation.md** is always active.
 
 | Primary | Also Triggers | Purpose |
 |---------|---------------|---------|

@@ -10,4 +10,4 @@ Read the guide from `.claude/guides/planning.md` and output it in this exact for
 </system-reminder>
 ```
 
-This matches the output from the workflow orchestrator hook when triggered by the keyword "plan".
+This matches the output from the guide injector hook when triggered by the keyword "plan".

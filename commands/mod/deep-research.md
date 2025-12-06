@@ -10,4 +10,4 @@ Read the guide from `.claude/guides/deep-research.md` and output it in this exac
 </system-reminder>
 ```
 
-This matches the output from the workflow orchestrator hook when triggered by the keyword "deep research".
+This matches the output from the guide injector hook when triggered by the keyword "deep research".

@@ -13,7 +13,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 $HOME/.claude/library/default/hooks/workflow-orchestrator.py"
+            "command": "python3 $HOME/.claude/library/default/hooks/guide-injector.py"
           }
         ]
       }
