@@ -13,6 +13,15 @@ This file provides guidance to Claude Code when working with code in this reposi
 
 **Debug Logging:** Never commit debug logging. The `/utl:git` command enforces this.
 
+## Build Verification
+
+**After any non-trivial code change, build/compile and fix until clean.**
+
+- Run the appropriate build command (compile, lint, type-check, etc.)
+- Fix ALL errors AND warnings—not just errors
+- Repeat until zero issues remain
+- **Skip only for:** one-line changes, documentation-only changes, or config tweaks
+
 ## Git Worktrees
 
 Use `/utl:iwt feature-name` to create isolated worktrees for non-trivial work.
