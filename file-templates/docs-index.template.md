@@ -21,7 +21,7 @@
 - [x] {{covered_area}}
 
 **Needs Expansion:**
-- [ ] {{partial_area}} - `/utl:docs --feature {{topic}}`
+- [ ] {{partial_area}} - `/utl:documentation --feature {{topic}}`
 
 **Not Documented:**
 - [ ] {{missing_area}}

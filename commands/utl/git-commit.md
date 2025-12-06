@@ -86,7 +86,7 @@ Orchestrating commits across all repositories...
 Before analyzing changes, clean up temporary files that should never be committed:
 
 ```bash
-# Remove PROMPT.md if it exists (created by /utl:iwt command)
+# Remove PROMPT.md if it exists (created by /utl:init-worktree command)
 if [ -f "PROMPT.md" ]; then
   rm PROMPT.md
   echo "🧹 Cleaned up PROMPT.md"
@@ -498,7 +498,7 @@ Merged commits:
 
 You are now on branch <base-branch>.
 
-💡 If issues arise: Fix forward with new commits or create hotfix worktree via `/utl:iwt hotfix-name`
+💡 If issues arise: Fix forward with new commits or create hotfix worktree via `/utl:init-worktree hotfix-name`
 ```
 
 **On failure:**
@@ -507,7 +507,7 @@ You are now on branch <base-branch>.
 
 You can:
 1. Resolve conflicts in the worktree
-2. Run /utl:git again after resolving
+2. Run /utl:git-commit again after resolving
 3. Delete the worktree via `git worktree remove <path>`
 ```
 
@@ -518,7 +518,7 @@ You can:
 ✅ Commits saved in worktree!
 
 You can continue working in this worktree, or merge later via:
-  • Run /utl:git again when ready to merge
+  • Run /utl:git-commit again when ready to merge
   • Manually: git checkout main && git merge <branch> && git worktree remove <path>
 ```
 

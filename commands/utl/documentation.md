@@ -1,13 +1,13 @@
-# /utl:docs - Smart Documentation Lookup & Generation
+# /utl:documentation - Smart Documentation Lookup & Generation
 
 Unified documentation command with auto-detection, local-first lookup, and structured output generation.
 
 **Usage:**
-- `/utl:docs SwiftUI List` - Auto-detect platform, quick lookup
-- `/utl:docs --feature SwiftUI NavigationStack` - Generate `.docs/features/` file
-- `/utl:docs --project iOS app with Core Data and CloudKit` - Generate `.docs/` project bundle
-- `/utl:docs --apple Core Animation` - Force Apple MCP
-- `/utl:docs --context7 react hooks` - Force Context7 MCP
+- `/utl:documentation SwiftUI List` - Auto-detect platform, quick lookup
+- `/utl:documentation --feature SwiftUI NavigationStack` - Generate `.docs/features/` file
+- `/utl:documentation --project iOS app with Core Data and CloudKit` - Generate `.docs/` project bundle
+- `/utl:documentation --apple Core Animation` - Force Apple MCP
+- `/utl:documentation --context7 react hooks` - Force Context7 MCP
 
 **Query:** $ARGUMENTS
 
@@ -118,7 +118,7 @@ After generating documentation, analyze for missing coverage:
 3. Suggest next steps:
    ```
    Suggestions:
-   - Run `/utl:docs --feature CloudKit advanced sync` for detailed sync docs
+   - Run `/utl:documentation --feature CloudKit advanced sync` for detailed sync docs
    - Consider creating `.docs/patterns/error-handling.md` for conventions
    ```
 4. Ask before creating additional docs:
@@ -132,19 +132,19 @@ After generating documentation, analyze for missing coverage:
 ## Examples
 
 ```
-/utl:docs SwiftUI List
+/utl:documentation SwiftUI List
 → Auto-detect Apple, quick lookup, present inline
 
-/utl:docs --feature Core Data CloudKit sync
+/utl:documentation --feature Core Data CloudKit sync
 → Fetch from Apple MCP, compress, write to .docs/features/core-data-cloudkit-sync.llm-ref.md
 
-/utl:docs --project iOS app using SwiftUI, Core Data, and CloudKit
+/utl:documentation --project iOS app using SwiftUI, Core Data, and CloudKit
 → Generate .docs/index.md + 3-4 cluster files
 
-/utl:docs --context7 prisma migrations
+/utl:documentation --context7 prisma migrations
 → Force Context7, fetch Prisma migration docs
 
-/utl:docs --apple Metal shader compilation
+/utl:documentation --apple Metal shader compilation
 → Force Apple MCP for Metal docs
 ```
 

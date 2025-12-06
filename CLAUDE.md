@@ -4,14 +4,14 @@ This file provides guidance to Claude Code when working with code in this reposi
 
 ## Git Policy
 
-**ABSOLUTE RULE: Claude NEVER commits without the `/utl:git` command.**
+**ABSOLUTE RULE: Claude NEVER commits without the `/utl:git-commit` command.**
 
-- **ONLY** commit when user runs `/utl:git` explicitly
+- **ONLY** commit when user runs `/utl:git-commit` explicitly
 - **DO NOT** commit on verbal requests ("commit this", "make a commit", etc.)
-- **ALWAYS** respond: "Please run `/utl:git` to orchestrate commits properly"
+- **ALWAYS** respond: "Please run `/utl:git-commit` to orchestrate commits properly"
 - **NEVER** commit after completing tasks, even if user says "and commit it"
 
-**Debug Logging:** Never commit debug logging. The `/utl:git` command enforces this.
+**Debug Logging:** Never commit debug logging. The `/utl:git-commit` command enforces this.
 
 ## Build Verification
 
@@ -22,16 +22,6 @@ This file provides guidance to Claude Code when working with code in this reposi
 - Repeat until zero issues remain
 - **Skip only for:** one-line changes, documentation-only changes, or config tweaks
 
-## Git Worktrees
-
-Use `/utl:iwt feature-name` to create isolated worktrees for non-trivial work.
-
-**Workflow:**
-1. `/utl:iwt feature-name` - Creates worktree, saves prompt to PROMPT.md, stops
-2. User navigates to `.worktrees/feature-name` and starts new Claude session
-3. Work in new session, reference PROMPT.md for context
-4. `/utl:git` commits and asks about merging back
-
 ## Documentation-First Policy
 
 **Before implementing features with external libraries, ALWAYS check `.docs/` first.**
@@ -40,7 +30,7 @@ Use `/utl:iwt feature-name` to create isolated worktrees for non-trivial work.
 1. When a task involves external libraries (SwiftUI, React, Prisma, etc.), search `.docs/` for existing documentation
 2. If docs exist → use them as the source of truth (no web search or MCP needed)
 3. If docs are missing → proactively tell user: "I need documentation for [library/feature]. Should I create it?"
-4. Create docs via `/utl:docs --feature [topic]` or fetch directly with MCP tools
+4. Create docs via `/utl:documentation --feature [topic]` or fetch directly with MCP tools
 
 **Documentation Structure:**
 - `.docs/` - Project-level API references grouped by cluster
@@ -52,11 +42,6 @@ Use `/utl:iwt feature-name` to create isolated worktrees for non-trivial work.
 - Faster than external lookups
 - Consistent source of truth across sessions
 - Proactive gap detection prevents errors
-
-**Commands:**
-- `/utl:docs [query]` - Quick lookup (auto-detects Apple vs general libraries)
-- `/utl:docs --feature [topic]` - Create feature documentation file
-- `/utl:docs --project [description]` - Create full documentation bundle (3-5 files)
 
 ## Agent-First Policy
 
