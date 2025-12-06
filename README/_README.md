@@ -34,5 +34,4 @@ A comprehensive configuration system for Claude to build production-ready applic
 | [04 - Git & Worktrees](README/04-git-and-worktrees.md) | `/utl:git-commit`, `/utl:init-worktree`, `/utl:catchup` |
 | [05 - Agents](README/05-agents.md) | Base agents (code-finder, implementor, etc.) |
 | [06 - MCP Tools](README/06-mcp-tools.md) | MCP servers, docs command |
-| [07 - Creation Templates](README/07-creation-templates.md) | New feature/domain prompts |
-| [08 - Architecture](README/08-architecture-reference.md) | System architecture, hooks, templates |
+| [07 - Architecture](README/07-architecture-reference.md) | System architecture, hooks, templates |
