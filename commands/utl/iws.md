@@ -3,8 +3,8 @@ Set up domain-specific infrastructure for the workspace.
 **Note:** Base agents, workflow commands, guides, and hooks are now global (in `~/.claude/`). This command sets up domain-specific infrastructure.
 
 **Usage:**
-- `/0-workspace` - Auto-detect domain from codebase
-- `/0-workspace <domain>` - Use specified domain
+- `/utl:iws` - Auto-detect domain from codebase
+- `/utl:iws <domain>` - Use specified domain
 
 **Available domains:**
 - **ios**: iOS apps (Swift, UIKit/SwiftUI)

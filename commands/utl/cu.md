@@ -9,7 +9,7 @@ Resume work by understanding the user's intent first, then analyzing changes thr
 **First, understand what the user wants:**
 
 1. **User prompt provided:** If `$ARGUMENTS` contains instructions, that's the primary focus
-2. **PROMPT.md exists:** Contains original task context (from `/wt`)
+2. **PROMPT.md exists:** Contains original task context (from `/utl:iwt`)
 3. **Neither:** Ask user what they'd like to accomplish before proceeding
 
 ```bash

@@ -8,7 +8,7 @@ MCP (Model Context Protocol) servers extend Claude with specialized capabilities
 
 Fetches up-to-date documentation for any library (npm, pip, crates, etc.).
 
-**Command:** `/docs [library] [topic]`
+**Command:** `/utl:docs [library] [topic]`
 
 **Automatic triggers:**
 - Questions about library APIs
@@ -17,9 +17,9 @@ Fetches up-to-date documentation for any library (npm, pip, crates, etc.).
 
 **Examples:**
 ```
-/docs next.js app router
-/docs react hooks
-/docs prisma schema
+/utl:docs next.js app router
+/utl:docs react hooks
+/utl:docs prisma schema
 ```
 
 ### apple-docs
@@ -52,7 +52,7 @@ Searches Apple Developer Documentation, WWDC content, and sample code.
 | Mode | Description |
 |------|-------------|
 | **Automatic** | Claude uses MCPs when queries match their domain |
-| **Explicit command** | `/docs` or `/apple` forces MCP usage |
+| **Explicit command** | `/utl:docs` or `/apple` forces MCP usage |
 | **Direct request** | "Use context7 to look up..." or "Search Apple docs for..." |
 
 ## When to Use Commands
