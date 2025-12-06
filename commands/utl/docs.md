@@ -1,13 +1,13 @@
-# /docs - Smart Documentation Lookup & Generation
+# /utl:docs - Smart Documentation Lookup & Generation
 
 Unified documentation command with auto-detection, local-first lookup, and structured output generation.
 
 **Usage:**
-- `/docs SwiftUI List` - Auto-detect platform, quick lookup
-- `/docs --feature SwiftUI NavigationStack` - Generate `.docs/features/` file
-- `/docs --project iOS app with Core Data and CloudKit` - Generate `.docs/` project bundle
-- `/docs --apple Core Animation` - Force Apple MCP
-- `/docs --context7 react hooks` - Force Context7 MCP
+- `/utl:docs SwiftUI List` - Auto-detect platform, quick lookup
+- `/utl:docs --feature SwiftUI NavigationStack` - Generate `.docs/features/` file
+- `/utl:docs --project iOS app with Core Data and CloudKit` - Generate `.docs/` project bundle
+- `/utl:docs --apple Core Animation` - Force Apple MCP
+- `/utl:docs --context7 react hooks` - Force Context7 MCP
 
 **Query:** $ARGUMENTS
 
@@ -118,7 +118,7 @@ After generating documentation, analyze for missing coverage:
 3. Suggest next steps:
    ```
    Suggestions:
-   - Run `/docs --feature CloudKit advanced sync` for detailed sync docs
+   - Run `/utl:docs --feature CloudKit advanced sync` for detailed sync docs
    - Consider creating `.docs/patterns/error-handling.md` for conventions
    ```
 4. Ask before creating additional docs:
@@ -132,19 +132,19 @@ After generating documentation, analyze for missing coverage:
 ## Examples
 
 ```
-/docs SwiftUI List
+/utl:docs SwiftUI List
 → Auto-detect Apple, quick lookup, present inline
 
-/docs --feature Core Data CloudKit sync
+/utl:docs --feature Core Data CloudKit sync
 → Fetch from Apple MCP, compress, write to .docs/features/core-data-cloudkit-sync.llm-ref.md
 
-/docs --project iOS app using SwiftUI, Core Data, and CloudKit
+/utl:docs --project iOS app using SwiftUI, Core Data, and CloudKit
 → Generate .docs/index.md + 3-4 cluster files
 
-/docs --context7 prisma migrations
+/utl:docs --context7 prisma migrations
 → Force Context7, fetch Prisma migration docs
 
-/docs --apple Metal shader compilation
+/utl:docs --apple Metal shader compilation
 → Force Apple MCP for Metal docs
 ```
 

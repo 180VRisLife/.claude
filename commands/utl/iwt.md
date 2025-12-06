@@ -2,12 +2,12 @@ The user wants to create a new git worktree for isolated feature development.
 
 ## Phase 1: Extract and Normalize Feature Name
 
-Parse the feature description from the user's input after `/wt`:
+Parse the feature description from the user's input after `/utl:iwt`:
 
 **Example inputs:**
-- `/wt user authentication system` → `user-authentication-system`
-- `/wt Fix bug in payment flow` → `fix-bug-in-payment-flow`
-- `/wt SharePlay integration` → `shareplay-integration`
+- `/utl:iwt user authentication system` → `user-authentication-system`
+- `/utl:iwt Fix bug in payment flow` → `fix-bug-in-payment-flow`
+- `/utl:iwt SharePlay integration` → `shareplay-integration`
 
 **Normalization rules:**
 1. Convert to lowercase
@@ -88,7 +88,7 @@ fi
 
 Create the worktree with the normalized feature name and save the user's original prompt:
 
-**Note:** The `.worktrees/` directory and `.gitignore` configuration are set up by `/init-workspace`. If you haven't run `/init-workspace` yet, the directory will be created automatically here.
+**Note:** The `.worktrees/` directory and `.gitignore` configuration are set up by `/utl:iws`. If you haven't run `/utl:iws` yet, the directory will be created automatically here.
 
 ```bash
 # Create .worktrees directory if it doesn't exist (fallback)
@@ -109,7 +109,7 @@ fi
 cat > "$worktree_dir/$feature_name/PROMPT.md" << 'EOF'
 # Original Task
 
-[Insert the user's original prompt that triggered /wt here - everything after `/wt`]
+[Insert the user's original prompt that triggered /utl:iwt here - everything after `/utl:iwt`]
 
 ---
 *This file captures the original context for this worktree.*
@@ -165,8 +165,8 @@ The prompt file will be automatically deleted when you run /git.
 
 This creates a clean separation between setup and work:
 
-1. **Setup** (current session): `/wt feature-name` creates infrastructure
+1. **Setup** (current session): `/utl:iwt feature-name` creates infrastructure
 2. **Navigate** (you): `cd .worktrees/feature-name`
 3. **Work** (new session): Start `claude`, reference PROMPT.md, implement
-4. **Commit** (new session): Run `/git` to commit (auto-deletes PROMPT.md)
-5. **Merge** (new session): `/git` asks if you want to merge back and cleanup
+4. **Commit** (new session): Run `/utl:git` to commit (auto-deletes PROMPT.md)
+5. **Merge** (new session): `/utl:git` asks if you want to merge back and cleanup
