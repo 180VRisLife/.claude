@@ -6,12 +6,12 @@ A comprehensive configuration system for Claude to build production-ready applic
 
 | Command | Purpose |
 |---------|---------|
-| `/utl:iws` | Initialize workspace (domain config in current project) |
+| `/utl:init-workspace` | Initialize workspace (domain config in current project) |
+| `/utl:init-worktree [feature]` | Initialize worktree for parallel development |
+| `/utl:catchup` | Reload WIP context from uncommitted changes |
+| `/utl:documentation [lib]` | Smart documentation lookup & generation |
+| `/utl:git-commit` | Analyze changes and orchestrate commits |
 | `/wkf:1-5` | Workflow commands (requirements → execution) |
-| `/utl:git` | Analyze changes and orchestrate commits |
-| `/utl:iwt [feature]` | Initialize worktree for parallel development |
-| `/utl:cu` | Catchup - reload WIP context from uncommitted changes |
-| `/utl:docs [lib]` | Force context7 MCP lookup for library docs |
 | `/apple [query]` | Force apple-docs MCP lookup |
 
 | Keyword | Purpose |
@@ -28,11 +28,11 @@ A comprehensive configuration system for Claude to build production-ready applic
 
 | Doc | Contents |
 |-----|----------|
-| [01 - Quick Start](README/01-quick-start.md) | Initialize workspace with `/utl:iws` |
+| [01 - Quick Start](README/01-quick-start.md) | Initialize workspace with `/utl:init-workspace` |
 | [02 - Triggers & Guides](README/02-triggers-and-guides.md) | Thinking keywords, guide injector |
 | [03 - Workflow Commands](README/03-workflow-commands.md) | `/wkf:1` through `/wkf:5` |
-| [04 - Git & Worktrees](README/04-git-and-worktrees.md) | `/utl:git`, `/utl:iwt` |
+| [04 - Git & Worktrees](README/04-git-and-worktrees.md) | `/utl:git-commit`, `/utl:init-worktree`, `/utl:catchup` |
 | [05 - Agents](README/05-agents.md) | Base agents (code-finder, implementor, etc.) |
-| [06 - MCP Tools](README/06-mcp-tools.md) | MCP servers, `/utl:docs`, `/apple` commands |
+| [06 - MCP Tools](README/06-mcp-tools.md) | MCP servers, docs command |
 | [07 - Creation Templates](README/07-creation-templates.md) | New feature/domain prompts |
 | [08 - Architecture](README/08-architecture-reference.md) | System architecture, hooks, templates |
