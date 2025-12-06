@@ -83,7 +83,7 @@ Options:
 ### Feature Docs (`--feature`)
 
 1. Determine platform and fetch from appropriate MCP(s)
-2. Use @docs-fetcher agent pattern to compress:
+2. Compress documentation to LLM-optimized format:
    - INCLUDE: Non-obvious signatures, constraints, gotchas, platform availability
    - EXCLUDE: Basic patterns, obvious usage, what Claude knows
 3. Write to `.docs/features/{feature-name}.llm-ref.md`
@@ -93,7 +93,7 @@ Options:
 
 1. Parse description for technology stack
 2. Identify API clusters (e.g., "SwiftUI Views", "Core Data", "Networking")
-3. Launch parallel @docs-fetcher agents for each cluster
+3. Fetch and compress documentation for each cluster in parallel
 4. Generate files:
    - `.docs/index.md` - Inventory + gap analysis
    - `.docs/{cluster-1}.llm-ref.md`
