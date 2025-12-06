@@ -32,7 +32,7 @@ A comprehensive configuration system for Claude to build production-ready applic
 | [02 - Triggers & Guides](README/02-triggers-and-guides.md) | Thinking keywords, workflow orchestrator |
 | [03 - Workflow Commands](README/03-workflow-commands.md) | `/1-requirements` through `/5-execution` |
 | [04 - Git & Worktrees](README/04-git-and-worktrees.md) | `/git`, `/wt`, `/wt-mgmt` |
-| [05 - Agents](README/05-agents.md) | Base and specialist agents |
+| [05 - Agents](README/05-agents.md) | Base agents (code-finder, implementor, etc.) |
 | [06 - MCP Tools](README/06-mcp-tools.md) | MCP servers, `/docs`, `/apple` commands |
 | [07 - Creation Templates](README/07-creation-templates.md) | New feature/domain prompts |
 | [08 - Architecture](README/08-architecture-reference.md) | System architecture, hooks, templates |

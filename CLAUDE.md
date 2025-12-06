@@ -71,22 +71,19 @@ Use `/wt feature-name` to create isolated worktrees for non-trivial work.
 
 ## Agent Types
 
-After `/0-workspace`, agents available in `./.claude/agents/`:
+Base agents are available globally in `~/.claude/agents/`:
 
-**Base Agents (universal):**
 - **@code-finder** - DEFAULT for code searches (Haiku, fast/cheap)
 - **@code-finder-advanced** - Deep investigation (Sonnet, thorough)
 - **@root-cause-analyzer** - Bug diagnosis (investigation only)
 - **@implementor** - Executes tasks from plans
-- **@library-docs-writer** - Fetches/compresses library docs
+- **@docs-fetcher** - Fetch and compress external documentation
 
-**Specialist Agents (domain-specific):**
-- **default**: backend-feature, frontend-feature, fullstack-feature
-- **iOS/macOS/visionOS**: ui-swiftui, networking-data, architecture, etc.
-- **webdev**: react-component, api-endpoint, fullstack-feature
-- **streamdeck**: action-feature, integration-feature, ui-feature
-
-See `./.claude/agents/specialist/` for your domain's complete roster.
+**Subagent Pattern:** Base agents are building blocks. When creating project-specific agents:
+- **Delegate to base agents** for their specialties (use @code-finder for searches, @root-cause-analyzer for debugging)
+- **Don't duplicate** base agent functionality in specialist agents
+- **Compose workflows** by orchestrating multiple base agents
+- Example: A `@feature-builder` agent should spawn @code-finder to understand existing patterns, then @implementor for execution
 
 ## File Size Guidelines
 
