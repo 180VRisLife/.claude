@@ -2,8 +2,114 @@
 # Custom status line that shows accurate total context usage
 # Matches /context command output (tokens used, without autocompact buffer)
 # Shows "X% to compact" (green/yellow/red) when autocompact on, "X% to end" (cyan) when off
+# Supports workspaces with multiple git repos
+
+set +x  # Disable xtrace in case it's inherited from environment
 
 INPUT=$(cat)
+
+# Function to abbreviate repo name (first letter of each word)
+# e.g., SleepPilot -> SP, HomePi -> HP, my-cool-repo -> MCR
+abbreviate_repo_name() {
+    local name="$1"
+    # Split on capital letters, hyphens, underscores, spaces
+    # Take first letter of each part, uppercase it
+    echo "$name" | sed 's/\([A-Z]\)/ \1/g; s/[-_]/ /g' | awk '{
+        result=""
+        for(i=1; i<=NF; i++) {
+            if(length($i) > 0) {
+                result = result toupper(substr($i, 1, 1))
+            }
+        }
+        print result
+    }'
+}
+
+# Function to get git info for a single repo directory
+# Returns: branch|dirty|added|removed|untracked
+get_repo_git_info() {
+    local repo_path="$1"
+    local branch added removed untracked dirty
+
+    branch=$(cd "$repo_path" 2>/dev/null && git branch --show-current 2>/dev/null || echo "")
+    if [ -z "$branch" ]; then
+        echo ""
+        return
+    fi
+
+    # Get staged + unstaged changes
+    added=$(cd "$repo_path" && { git diff --numstat 2>/dev/null; git diff --cached --numstat 2>/dev/null; } | awk '{added+=$1} END {print added+0}')
+    removed=$(cd "$repo_path" && { git diff --numstat 2>/dev/null; git diff --cached --numstat 2>/dev/null; } | awk '{removed+=$2} END {print removed+0}')
+    untracked=$(cd "$repo_path" && git ls-files --others --exclude-standard 2>/dev/null | wc -l | awk '{print $1+0}')
+
+    # Determine if dirty
+    if [ "$added" -gt 0 ] || [ "$removed" -gt 0 ] || [ "$untracked" -gt 0 ]; then
+        dirty="*"
+    else
+        dirty="✓"
+    fi
+
+    echo "${branch}|${dirty}|${added}|${removed}|${untracked}"
+}
+
+# Function to scan workspace for git repos and build display
+# Sets global variables: WORKSPACE_DISPLAY, TOTAL_ADDED, TOTAL_REMOVED, TOTAL_UNTRACKED
+scan_workspace_repos() {
+    local workspace_path="$1"
+    local repos_display=""
+    TOTAL_ADDED=0
+    TOTAL_REMOVED=0
+    TOTAL_UNTRACKED=0
+    local repo_count=0
+
+    # Scan immediate children (including symlinks) for git repos
+    for item in "$workspace_path"/*; do
+        [ -e "$item" ] || continue  # Skip if doesn't exist
+
+        # Follow symlinks and check if it's a git repo
+        local real_path
+        if [ -L "$item" ]; then
+            real_path=$(readlink -f "$item" 2>/dev/null || readlink "$item" 2>/dev/null)
+        else
+            real_path="$item"
+        fi
+
+        # Skip non-directories
+        [ -d "$real_path" ] || continue
+
+        # Check if this is a git repo
+        if [ -d "$real_path/.git" ] || (cd "$real_path" 2>/dev/null && git rev-parse --git-dir >/dev/null 2>&1); then
+            local repo_name=$(basename "$item")
+            local abbrev=$(abbreviate_repo_name "$repo_name")
+            local git_info=$(get_repo_git_info "$real_path")
+
+            if [ -n "$git_info" ]; then
+                local branch=$(echo "$git_info" | cut -d'|' -f1)
+                local dirty=$(echo "$git_info" | cut -d'|' -f2)
+                local added=$(echo "$git_info" | cut -d'|' -f3)
+                local removed=$(echo "$git_info" | cut -d'|' -f4)
+                local untracked=$(echo "$git_info" | cut -d'|' -f5)
+
+                # Aggregate totals
+                TOTAL_ADDED=$((TOTAL_ADDED + added))
+                TOTAL_REMOVED=$((TOTAL_REMOVED + removed))
+                TOTAL_UNTRACKED=$((TOTAL_UNTRACKED + untracked))
+
+                # Build display for this repo
+                if [ -n "$repos_display" ]; then
+                    repos_display="${repos_display} ${abbrev}:${branch}${dirty}"
+                else
+                    repos_display="${abbrev}:${branch}${dirty}"
+                fi
+                repo_count=$((repo_count + 1))
+            fi
+        fi
+    done
+
+    WORKSPACE_DISPLAY="$repos_display"
+    WORKSPACE_REPO_COUNT=$repo_count
+}
+
 TRANSCRIPT=$(echo "$INPUT" | jq -r '.transcript_path // empty')
 MODEL_ID=$(echo "$INPUT" | jq -r '.model.id // ""')
 MODEL_NAME=$(echo "$INPUT" | jq -r '.model.display_name // "Claude"')
@@ -98,9 +204,12 @@ if [ -n "$TRANSCRIPT" ] && [ -f "$TRANSCRIPT" ]; then
             WINDOW_DISPLAY=$(awk "BEGIN {printf \"%.0fk\", $CONTEXT_WINDOW / 1000}")
         fi
 
-        # Get git info
+        # Get git info - check for single repo or workspace
         GIT_BRANCH=$(cd "$CWD" 2>/dev/null && git branch --show-current 2>/dev/null || echo "")
+        IS_WORKSPACE="false"
+
         if [ -n "$GIT_BRANCH" ]; then
+            # Single git repo
             # Check if in a worktree and get worktree name
             IS_WORKTREE=$(cd "$CWD" && git rev-parse --is-inside-work-tree 2>/dev/null && [ -f "$(git rev-parse --git-dir)/commondir" ] && echo "true" || echo "false")
             if [ "$IS_WORKTREE" = "true" ]; then
@@ -111,13 +220,25 @@ if [ -n "$TRANSCRIPT" ] && [ -f "$TRANSCRIPT" ]; then
             fi
 
             # Get git diff stats
-            # Get staged + unstaged changes to tracked files
             ADDED=$(cd "$CWD" && { git diff --numstat 2>/dev/null; git diff --cached --numstat 2>/dev/null; } | awk '{added+=$1} END {print added+0}')
             REMOVED=$(cd "$CWD" && { git diff --numstat 2>/dev/null; git diff --cached --numstat 2>/dev/null; } | awk '{removed+=$2} END {print removed+0}')
-
-            # Count untracked files
             UNTRACKED_COUNT=$(cd "$CWD" && git ls-files --others --exclude-standard 2>/dev/null | wc -l | awk '{print $1+0}')
+
+            # Determine dirty status
+            if [ "$ADDED" -gt 0 ] || [ "$REMOVED" -gt 0 ] || [ "$UNTRACKED_COUNT" -gt 0 ]; then
+                DIRTY_INDICATOR="*"
+            else
+                DIRTY_INDICATOR="✓"
+            fi
         else
+            # Not a git repo - check if it's a workspace with git repos
+            scan_workspace_repos "$CWD"
+            if [ "$WORKSPACE_REPO_COUNT" -gt 0 ]; then
+                IS_WORKSPACE="true"
+                ADDED=$TOTAL_ADDED
+                REMOVED=$TOTAL_REMOVED
+                UNTRACKED_COUNT=$TOTAL_UNTRACKED
+            fi
             WORKTREE_SUFFIX=""
         fi
 
@@ -125,7 +246,6 @@ if [ -n "$TRANSCRIPT" ] && [ -f "$TRANSCRIPT" ]; then
         DIR_NAME=$(basename "$CWD")
 
         # Colors (ANSI escape codes)
-        # Token status colors (reserved): GREEN (<50%), YELLOW (50-80%), RED (>80%)
         CYAN='\033[36m'
         YELLOW='\033[33m'
         GREEN='\033[32m'
@@ -137,7 +257,6 @@ if [ -n "$TRANSCRIPT" ] && [ -f "$TRANSCRIPT" ]; then
         RESET='\033[0m'
 
         # Choose token color based on percentage thresholds
-        # Green: <50%, Yellow: 50-80%, Red: >80%
         PERCENT_INT=$(echo "$PERCENTAGE" | awk '{printf "%d", $1}')
         if [ "$PERCENT_INT" -ge 80 ]; then
             TOKEN_COLOR="$RED"
@@ -149,28 +268,31 @@ if [ -n "$TRANSCRIPT" ] && [ -f "$TRANSCRIPT" ]; then
 
         # Choose compact indicator color (static based on mode)
         if [ "$COMPACT_USE_URGENCY_COLORS" = "true" ]; then
-            # Magenta for autocompact mode
             COMPACT_COLOR="$MAGENTA"
         else
-            # Cyan for manual mode (autocompact off)
             COMPACT_COLOR="$CYAN"
         fi
 
-        # Format git info with separate colors
-        if [ -n "$GIT_BRANCH" ]; then
-            # Build diff display
-            if [ "$UNTRACKED_COUNT" -gt 0 ]; then
-                DIFF_DISPLAY="(+${ADDED},-${REMOVED}, ${UNTRACKED_COUNT} new)"
-            else
-                DIFF_DISPLAY="(+${ADDED},-${REMOVED})"
-            fi
-            GIT_DISPLAY="${GRAY} | ${RESET}${BLUE}⎇ ${GIT_BRANCH}${WORKTREE_SUFFIX}${RESET}${GRAY} | ${RESET}${WHITE}${DIFF_DISPLAY}${RESET}"
+        # Build diff display (used for both single repo and workspace)
+        if [ "$UNTRACKED_COUNT" -gt 0 ]; then
+            DIFF_DISPLAY="(+${ADDED},-${REMOVED}, ${UNTRACKED_COUNT} new)"
+        else
+            DIFF_DISPLAY="(+${ADDED},-${REMOVED})"
+        fi
+
+        # Format git info based on single repo vs workspace
+        if [ "$IS_WORKSPACE" = "true" ]; then
+            # Workspace: show 📁 RepoAbbrev:branch✓/* format
+            GIT_DISPLAY="${GRAY} | ${RESET}${BLUE}📁 ${WORKSPACE_DISPLAY}${RESET}${GRAY} - ${RESET}${WHITE}${DIFF_DISPLAY}${RESET}"
+        elif [ -n "$GIT_BRANCH" ]; then
+            # Single repo: show ⎇ branch✓/* format
+            GIT_DISPLAY="${GRAY} | ${RESET}${BLUE}⎇ ${GIT_BRANCH}${DIRTY_INDICATOR}${WORKTREE_SUFFIX}${RESET}${GRAY} - ${RESET}${WHITE}${DIFF_DISPLAY}${RESET}"
         else
             GIT_DISPLAY=""
         fi
 
         # Output status line with colors (includes compact countdown)
-        echo -e "${CYAN}${MODEL_NAME}${RESET}${GRAY} | ${RESET}${TOKEN_COLOR}${TOKEN_DISPLAY}/${WINDOW_DISPLAY} (${PERCENTAGE}%)${RESET}${GRAY} - ${RESET}${COMPACT_COLOR}${COMPACT_REMAINING}% ${COMPACT_TEXT}${RESET}${GIT_DISPLAY}${GRAY} | ${RESET}${MAGENTA}${DIR_NAME}${RESET}"
+        echo -e "${CYAN}${MODEL_NAME}${RESET}${GRAY} | ${RESET}${TOKEN_COLOR}${TOKEN_DISPLAY}/${WINDOW_DISPLAY} (${PERCENTAGE}%)${RESET}${GRAY} - ${RESET}${COMPACT_COLOR}${COMPACT_REMAINING}% ${COMPACT_TEXT}${RESET}${GIT_DISPLAY}"
     else
         # No assistant messages yet - show base overhead
         # System prompt (~3k) + System tools (~14.5k) + Memory files (~1k)
@@ -201,10 +323,12 @@ if [ -n "$TRANSCRIPT" ] && [ -f "$TRANSCRIPT" ]; then
             WINDOW_DISPLAY=$(awk "BEGIN {printf \"%.0fk\", $CONTEXT_WINDOW / 1000}")
         fi
 
-        # Get git info
+        # Get git info - check for single repo or workspace
         GIT_BRANCH=$(cd "$CWD" 2>/dev/null && git branch --show-current 2>/dev/null || echo "")
+        IS_WORKSPACE="false"
+
         if [ -n "$GIT_BRANCH" ]; then
-            # Check if in a worktree and get worktree name
+            # Single git repo
             IS_WORKTREE=$(cd "$CWD" && git rev-parse --is-inside-work-tree 2>/dev/null && [ -f "$(git rev-parse --git-dir)/commondir" ] && echo "true" || echo "false")
             if [ "$IS_WORKTREE" = "true" ]; then
                 WORKTREE_NAME=$(basename "$CWD")
@@ -213,21 +337,29 @@ if [ -n "$TRANSCRIPT" ] && [ -f "$TRANSCRIPT" ]; then
                 WORKTREE_SUFFIX=""
             fi
 
-            # Get staged + unstaged changes to tracked files
             ADDED=$(cd "$CWD" && { git diff --numstat 2>/dev/null; git diff --cached --numstat 2>/dev/null; } | awk '{added+=$1} END {print added+0}')
             REMOVED=$(cd "$CWD" && { git diff --numstat 2>/dev/null; git diff --cached --numstat 2>/dev/null; } | awk '{removed+=$2} END {print removed+0}')
-
-            # Count untracked files
             UNTRACKED_COUNT=$(cd "$CWD" && git ls-files --others --exclude-standard 2>/dev/null | wc -l | awk '{print $1+0}')
+
+            if [ "$ADDED" -gt 0 ] || [ "$REMOVED" -gt 0 ] || [ "$UNTRACKED_COUNT" -gt 0 ]; then
+                DIRTY_INDICATOR="*"
+            else
+                DIRTY_INDICATOR="✓"
+            fi
         else
+            scan_workspace_repos "$CWD"
+            if [ "$WORKSPACE_REPO_COUNT" -gt 0 ]; then
+                IS_WORKSPACE="true"
+                ADDED=$TOTAL_ADDED
+                REMOVED=$TOTAL_REMOVED
+                UNTRACKED_COUNT=$TOTAL_UNTRACKED
+            fi
             WORKTREE_SUFFIX=""
         fi
 
-        # Get shortened directory path
         DIR_NAME=$(basename "$CWD")
 
-        # Colors (ANSI escape codes)
-        # Token status colors (reserved): GREEN (<50%), YELLOW (50-80%), RED (>80%)
+        # Colors
         CYAN='\033[36m'
         YELLOW='\033[33m'
         GREEN='\033[32m'
@@ -238,8 +370,6 @@ if [ -n "$TRANSCRIPT" ] && [ -f "$TRANSCRIPT" ]; then
         GRAY='\033[90m'
         RESET='\033[0m'
 
-        # Choose token color based on percentage thresholds
-        # Green: <50%, Yellow: 50-80%, Red: >80%
         PERCENT_INT=$(echo "$PERCENTAGE" | awk '{printf "%d", $1}')
         if [ "$PERCENT_INT" -ge 80 ]; then
             TOKEN_COLOR="$RED"
@@ -249,27 +379,29 @@ if [ -n "$TRANSCRIPT" ] && [ -f "$TRANSCRIPT" ]; then
             TOKEN_COLOR="$GREEN"
         fi
 
-        # Choose compact indicator color (static based on mode)
         if [ "$COMPACT_USE_URGENCY_COLORS" = "true" ]; then
             COMPACT_COLOR="$MAGENTA"
         else
             COMPACT_COLOR="$CYAN"
         fi
 
-        # Format git info with separate colors
-        if [ -n "$GIT_BRANCH" ]; then
-            # Build diff display
-            if [ "$UNTRACKED_COUNT" -gt 0 ]; then
-                DIFF_DISPLAY="(+${ADDED},-${REMOVED}, ${UNTRACKED_COUNT} new)"
-            else
-                DIFF_DISPLAY="(+${ADDED},-${REMOVED})"
-            fi
-            GIT_DISPLAY="${GRAY} | ${RESET}${BLUE}⎇ ${GIT_BRANCH}${WORKTREE_SUFFIX}${RESET}${GRAY} | ${RESET}${WHITE}${DIFF_DISPLAY}${RESET}"
+        # Build diff display
+        if [ "$UNTRACKED_COUNT" -gt 0 ]; then
+            DIFF_DISPLAY="(+${ADDED},-${REMOVED}, ${UNTRACKED_COUNT} new)"
+        else
+            DIFF_DISPLAY="(+${ADDED},-${REMOVED})"
+        fi
+
+        # Format git info based on single repo vs workspace
+        if [ "$IS_WORKSPACE" = "true" ]; then
+            GIT_DISPLAY="${GRAY} | ${RESET}${BLUE}📁 ${WORKSPACE_DISPLAY}${RESET}${GRAY} - ${RESET}${WHITE}${DIFF_DISPLAY}${RESET}"
+        elif [ -n "$GIT_BRANCH" ]; then
+            GIT_DISPLAY="${GRAY} | ${RESET}${BLUE}⎇ ${GIT_BRANCH}${DIRTY_INDICATOR}${WORKTREE_SUFFIX}${RESET}${GRAY} - ${RESET}${WHITE}${DIFF_DISPLAY}${RESET}"
         else
             GIT_DISPLAY=""
         fi
 
-        echo -e "${CYAN}${MODEL_NAME}${RESET}${GRAY} | ${RESET}${TOKEN_COLOR}${TOKEN_DISPLAY}/${WINDOW_DISPLAY} (${PERCENTAGE}%)${RESET}${GRAY} - ${RESET}${COMPACT_COLOR}${COMPACT_REMAINING}% ${COMPACT_TEXT}${RESET}${GIT_DISPLAY}${GRAY} | ${RESET}${MAGENTA}${DIR_NAME}${RESET}"
+        echo -e "${CYAN}${MODEL_NAME}${RESET}${GRAY} | ${RESET}${TOKEN_COLOR}${TOKEN_DISPLAY}/${WINDOW_DISPLAY} (${PERCENTAGE}%)${RESET}${GRAY} - ${RESET}${COMPACT_COLOR}${COMPACT_REMAINING}% ${COMPACT_TEXT}${RESET}${GIT_DISPLAY}"
     fi
 else
     # Fallback if transcript not available - show base overhead
@@ -301,29 +433,43 @@ else
         WINDOW_DISPLAY=$(awk "BEGIN {printf \"%.0fk\", $CONTEXT_WINDOW / 1000}")
     fi
 
-    # Get git info
+    # Get git info - check for single repo or workspace
     GIT_BRANCH=$(cd "$CWD" 2>/dev/null && git branch --show-current 2>/dev/null || echo "")
+    IS_WORKSPACE="false"
+
     if [ -n "$GIT_BRANCH" ]; then
-        # Check if in a worktree
+        # Single git repo
         IS_WORKTREE=$(cd "$CWD" && git rev-parse --is-inside-work-tree 2>/dev/null && [ -f "$(git rev-parse --git-dir)/commondir" ] && echo "true" || echo "false")
         if [ "$IS_WORKTREE" = "true" ]; then
-            WORKTREE_INDICATOR="🌳 "
+            WORKTREE_NAME=$(basename "$CWD")
+            WORKTREE_SUFFIX=" 🌳 ${WORKTREE_NAME}"
         else
-            WORKTREE_INDICATOR=""
+            WORKTREE_SUFFIX=""
         fi
 
-        ADDED=$(cd "$CWD" && git diff --numstat 2>/dev/null | awk '{added+=$1} END {print added+0}')
-        REMOVED=$(cd "$CWD" && git diff --numstat 2>/dev/null | awk '{removed+=$2} END {print removed+0}')
-        GIT_INFO=" | ${WORKTREE_INDICATOR}⎇ $GIT_BRANCH | (+$ADDED,-$REMOVED)"
+        ADDED=$(cd "$CWD" && { git diff --numstat 2>/dev/null; git diff --cached --numstat 2>/dev/null; } | awk '{added+=$1} END {print added+0}')
+        REMOVED=$(cd "$CWD" && { git diff --numstat 2>/dev/null; git diff --cached --numstat 2>/dev/null; } | awk '{removed+=$2} END {print removed+0}')
+        UNTRACKED_COUNT=$(cd "$CWD" && git ls-files --others --exclude-standard 2>/dev/null | wc -l | awk '{print $1+0}')
+
+        if [ "$ADDED" -gt 0 ] || [ "$REMOVED" -gt 0 ] || [ "$UNTRACKED_COUNT" -gt 0 ]; then
+            DIRTY_INDICATOR="*"
+        else
+            DIRTY_INDICATOR="✓"
+        fi
     else
-        GIT_INFO=""
+        scan_workspace_repos "$CWD"
+        if [ "$WORKSPACE_REPO_COUNT" -gt 0 ]; then
+            IS_WORKSPACE="true"
+            ADDED=$TOTAL_ADDED
+            REMOVED=$TOTAL_REMOVED
+            UNTRACKED_COUNT=$TOTAL_UNTRACKED
+        fi
+        WORKTREE_SUFFIX=""
     fi
 
-    # Get shortened directory path
     DIR_NAME=$(basename "$CWD")
 
-    # Colors (ANSI escape codes)
-    # Token status colors (reserved): GREEN (<50%), YELLOW (50-80%), RED (>80%)
+    # Colors
     CYAN='\033[36m'
     YELLOW='\033[33m'
     GREEN='\033[32m'
@@ -334,8 +480,6 @@ else
     GRAY='\033[90m'
     RESET='\033[0m'
 
-    # Choose token color based on percentage thresholds
-    # Green: <50%, Yellow: 50-80%, Red: >80%
     PERCENT_INT=$(echo "$PERCENTAGE" | awk '{printf "%d", $1}')
     if [ "$PERCENT_INT" -ge 80 ]; then
         TOKEN_COLOR="$RED"
@@ -345,19 +489,27 @@ else
         TOKEN_COLOR="$GREEN"
     fi
 
-    # Choose compact indicator color (static based on mode)
     if [ "$COMPACT_USE_URGENCY_COLORS" = "true" ]; then
         COMPACT_COLOR="$MAGENTA"
     else
         COMPACT_COLOR="$CYAN"
     fi
 
-    # Format git info with separate colors
-    if [ -n "$GIT_BRANCH" ]; then
-        GIT_DISPLAY="${GRAY} | ${RESET}${WORKTREE_INDICATOR}${BLUE}⎇ ${GIT_BRANCH}${RESET}${GRAY} | ${RESET}${WHITE}(+${ADDED},-${REMOVED})${RESET}"
+    # Build diff display
+    if [ "$UNTRACKED_COUNT" -gt 0 ]; then
+        DIFF_DISPLAY="(+${ADDED},-${REMOVED}, ${UNTRACKED_COUNT} new)"
+    else
+        DIFF_DISPLAY="(+${ADDED},-${REMOVED})"
+    fi
+
+    # Format git info based on single repo vs workspace
+    if [ "$IS_WORKSPACE" = "true" ]; then
+        GIT_DISPLAY="${GRAY} | ${RESET}${BLUE}📁 ${WORKSPACE_DISPLAY}${RESET}${GRAY} - ${RESET}${WHITE}${DIFF_DISPLAY}${RESET}"
+    elif [ -n "$GIT_BRANCH" ]; then
+        GIT_DISPLAY="${GRAY} | ${RESET}${BLUE}⎇ ${GIT_BRANCH}${DIRTY_INDICATOR}${WORKTREE_SUFFIX}${RESET}${GRAY} - ${RESET}${WHITE}${DIFF_DISPLAY}${RESET}"
     else
         GIT_DISPLAY=""
     fi
 
-    echo -e "${CYAN}${MODEL_NAME}${RESET}${GRAY} | ${RESET}${TOKEN_COLOR}${TOKEN_DISPLAY}/${WINDOW_DISPLAY} (${PERCENTAGE}%)${RESET}${GRAY} - ${RESET}${COMPACT_COLOR}${COMPACT_REMAINING}% ${COMPACT_TEXT}${RESET}${GIT_DISPLAY}${GRAY} | ${RESET}${MAGENTA}${DIR_NAME}${RESET}"
+    echo -e "${CYAN}${MODEL_NAME}${RESET}${GRAY} | ${RESET}${TOKEN_COLOR}${TOKEN_DISPLAY}/${WINDOW_DISPLAY} (${PERCENTAGE}%)${RESET}${GRAY} - ${RESET}${COMPACT_COLOR}${COMPACT_REMAINING}% ${COMPACT_TEXT}${RESET}${GIT_DISPLAY}"
 fi
