@@ -101,6 +101,10 @@ Optimize for **logical coherence** and **developer experience** rather than arbi
 
 **Modern reality**: File size is less critical than logical organization and relevance. Claude tracks token budget automatically.
 
+## Symlink Workspaces
+
+When working in directories with symlinks, use paths through the symlink (e.g., `./SleepPilot/...`) rather than resolved absolute paths. This ensures file operations stay within the allowed `./` scope and don't require permission prompts.
+
 ## Development Notes
 
 - **Most changes don't need CLAUDE.md updates** - Code is the documentation; use inline comments when needed
