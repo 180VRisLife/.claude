@@ -95,7 +95,10 @@
       "Bash(journalctl:*)",
       "Bash(gh:*)",
       "Bash(defaults:*)",
-      "Bash(launchctl:*)"
+      "Bash(launchctl:*)",
+
+      "WebSearch",
+      "WebFetch"
     ],
     "ask": [
       "Edit(~/.ssh/**)",
