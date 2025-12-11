@@ -283,16 +283,19 @@ if [ -n "$TRANSCRIPT" ] && [ -f "$TRANSCRIPT" ]; then
         # Format git info based on single repo vs workspace
         if [ "$IS_WORKSPACE" = "true" ]; then
             # Workspace: show 📁 RepoAbbrev:branch✓/* format
-            GIT_DISPLAY="${GRAY} | ${RESET}${BLUE}📁 ${WORKSPACE_DISPLAY}${RESET}${GRAY} - ${RESET}${WHITE}${DIFF_DISPLAY}${RESET}"
+            GIT_DISPLAY="${GRAY}└─ ${RESET}${BLUE}📁 ${WORKSPACE_DISPLAY}${RESET}${GRAY} - ${RESET}${WHITE}${DIFF_DISPLAY}${RESET}"
         elif [ -n "$GIT_BRANCH" ]; then
             # Single repo: show ⎇ branch✓/* format
-            GIT_DISPLAY="${GRAY} | ${RESET}${BLUE}⎇ ${GIT_BRANCH}${DIRTY_INDICATOR}${WORKTREE_SUFFIX}${RESET}${GRAY} - ${RESET}${WHITE}${DIFF_DISPLAY}${RESET}"
+            GIT_DISPLAY="${GRAY}└─ ${RESET}${BLUE}⎇ ${GIT_BRANCH}${DIRTY_INDICATOR}${WORKTREE_SUFFIX}${RESET}${GRAY} - ${RESET}${WHITE}${DIFF_DISPLAY}${RESET}"
         else
             GIT_DISPLAY=""
         fi
 
+        # Separator line
+        SEPARATOR="${GRAY}───────────────────────────────────────────────────${RESET}"
+
         # Output status line with colors (includes compact countdown)
-        echo -e "${CYAN}${MODEL_NAME}${RESET}${GRAY} | ${RESET}${TOKEN_COLOR}${TOKEN_DISPLAY}/${WINDOW_DISPLAY} (${PERCENTAGE}%)${RESET}${GRAY} - ${RESET}${COMPACT_COLOR}${COMPACT_REMAINING}% ${COMPACT_TEXT}${RESET}${GIT_DISPLAY}"
+        echo -e "${CYAN}${MODEL_NAME}${RESET}${GRAY} | ${RESET}${TOKEN_COLOR}${TOKEN_DISPLAY}/${WINDOW_DISPLAY} (${PERCENTAGE}%)${RESET}${GRAY} - ${RESET}${COMPACT_COLOR}${COMPACT_REMAINING}% ${COMPACT_TEXT}${RESET}\n${GIT_DISPLAY}\n${SEPARATOR}"
     else
         # No assistant messages yet - show base overhead
         # System prompt (~3k) + System tools (~14.5k) + Memory files (~1k)
@@ -394,14 +397,17 @@ if [ -n "$TRANSCRIPT" ] && [ -f "$TRANSCRIPT" ]; then
 
         # Format git info based on single repo vs workspace
         if [ "$IS_WORKSPACE" = "true" ]; then
-            GIT_DISPLAY="${GRAY} | ${RESET}${BLUE}📁 ${WORKSPACE_DISPLAY}${RESET}${GRAY} - ${RESET}${WHITE}${DIFF_DISPLAY}${RESET}"
+            GIT_DISPLAY="${GRAY}└─ ${RESET}${BLUE}📁 ${WORKSPACE_DISPLAY}${RESET}${GRAY} - ${RESET}${WHITE}${DIFF_DISPLAY}${RESET}"
         elif [ -n "$GIT_BRANCH" ]; then
-            GIT_DISPLAY="${GRAY} | ${RESET}${BLUE}⎇ ${GIT_BRANCH}${DIRTY_INDICATOR}${WORKTREE_SUFFIX}${RESET}${GRAY} - ${RESET}${WHITE}${DIFF_DISPLAY}${RESET}"
+            GIT_DISPLAY="${GRAY}└─ ${RESET}${BLUE}⎇ ${GIT_BRANCH}${DIRTY_INDICATOR}${WORKTREE_SUFFIX}${RESET}${GRAY} - ${RESET}${WHITE}${DIFF_DISPLAY}${RESET}"
         else
             GIT_DISPLAY=""
         fi
 
-        echo -e "${CYAN}${MODEL_NAME}${RESET}${GRAY} | ${RESET}${TOKEN_COLOR}${TOKEN_DISPLAY}/${WINDOW_DISPLAY} (${PERCENTAGE}%)${RESET}${GRAY} - ${RESET}${COMPACT_COLOR}${COMPACT_REMAINING}% ${COMPACT_TEXT}${RESET}${GIT_DISPLAY}"
+        # Separator line
+        SEPARATOR="${GRAY}───────────────────────────────────────────────────${RESET}"
+
+        echo -e "${CYAN}${MODEL_NAME}${RESET}${GRAY} | ${RESET}${TOKEN_COLOR}${TOKEN_DISPLAY}/${WINDOW_DISPLAY} (${PERCENTAGE}%)${RESET}${GRAY} - ${RESET}${COMPACT_COLOR}${COMPACT_REMAINING}% ${COMPACT_TEXT}${RESET}\n${GIT_DISPLAY}\n${SEPARATOR}"
     fi
 else
     # Fallback if transcript not available - show base overhead
@@ -504,12 +510,15 @@ else
 
     # Format git info based on single repo vs workspace
     if [ "$IS_WORKSPACE" = "true" ]; then
-        GIT_DISPLAY="${GRAY} | ${RESET}${BLUE}📁 ${WORKSPACE_DISPLAY}${RESET}${GRAY} - ${RESET}${WHITE}${DIFF_DISPLAY}${RESET}"
+        GIT_DISPLAY="${GRAY}└─ ${RESET}${BLUE}📁 ${WORKSPACE_DISPLAY}${RESET}${GRAY} - ${RESET}${WHITE}${DIFF_DISPLAY}${RESET}"
     elif [ -n "$GIT_BRANCH" ]; then
-        GIT_DISPLAY="${GRAY} | ${RESET}${BLUE}⎇ ${GIT_BRANCH}${DIRTY_INDICATOR}${WORKTREE_SUFFIX}${RESET}${GRAY} - ${RESET}${WHITE}${DIFF_DISPLAY}${RESET}"
+        GIT_DISPLAY="${GRAY}└─ ${RESET}${BLUE}⎇ ${GIT_BRANCH}${DIRTY_INDICATOR}${WORKTREE_SUFFIX}${RESET}${GRAY} - ${RESET}${WHITE}${DIFF_DISPLAY}${RESET}"
     else
         GIT_DISPLAY=""
     fi
 
-    echo -e "${CYAN}${MODEL_NAME}${RESET}${GRAY} | ${RESET}${TOKEN_COLOR}${TOKEN_DISPLAY}/${WINDOW_DISPLAY} (${PERCENTAGE}%)${RESET}${GRAY} - ${RESET}${COMPACT_COLOR}${COMPACT_REMAINING}% ${COMPACT_TEXT}${RESET}${GIT_DISPLAY}"
+    # Separator line
+    SEPARATOR="${GRAY}───────────────────────────────────────────────────${RESET}"
+
+    echo -e "${CYAN}${MODEL_NAME}${RESET}${GRAY} | ${RESET}${TOKEN_COLOR}${TOKEN_DISPLAY}/${WINDOW_DISPLAY} (${PERCENTAGE}%)${RESET}${GRAY} - ${RESET}${COMPACT_COLOR}${COMPACT_REMAINING}% ${COMPACT_TEXT}${RESET}\n${GIT_DISPLAY}\n${SEPARATOR}"
 fi
