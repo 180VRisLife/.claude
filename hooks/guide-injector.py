@@ -43,10 +43,29 @@ def save_injected_guides(session_file, guides):
     except Exception:
         pass  # Fail silently - injection still works, just won't dedupe
 
-# Load guides from local workspace
+# Load guides from local workspace or global ~/.claude
 def load_guide(cwd, guide_name):
-    """Load guide from workspace .claude/guides folder"""
+    """Load guide from workspace .claude/guides folder, or global ~/.claude/guides"""
+    # Try workspace-local first: {cwd}/.claude/guides/
     guide_path = Path(cwd) / ".claude" / "guides" / f"{guide_name}.md"
+    if guide_path.exists():
+        try:
+            with open(guide_path, 'r') as f:
+                return f.read()
+        except Exception:
+            pass
+
+    # Try if cwd IS ~/.claude (guides at {cwd}/guides/)
+    guide_path = Path(cwd) / "guides" / f"{guide_name}.md"
+    if guide_path.exists():
+        try:
+            with open(guide_path, 'r') as f:
+                return f.read()
+        except Exception:
+            pass
+
+    # Fallback to global ~/.claude/guides/
+    guide_path = Path.home() / ".claude" / "guides" / f"{guide_name}.md"
     try:
         with open(guide_path, 'r') as f:
             return f.read()
@@ -301,35 +320,8 @@ if triggered:
     newly_injected = already_injected | {name for name, _ in triggered}
     save_injected_guides(session_file, newly_injected)
 
-    output = []
-
-    # Build the announcement instruction for Claude
-    trigger_names = [name for name, _ in triggered]
-
-    # Format previously active guides (exclude FOUNDATION from "already active" display since it's always there)
-    previously_active = [g for g in already_injected if g != "FOUNDATION"]
-
-    # Build announcement instruction
-    announcement_parts = []
-    announcement_parts.append(f"**New:** {', '.join(trigger_names)}")
-    if previously_active:
-        announcement_parts.append(f"**Already active:** {', '.join(sorted(previously_active))}")
-
-    instruction = f"""<system-reminder>
-IMPORTANT: Workflow guides have been injected for this request.
-
-You MUST announce this to the user at the START of your response using this exact format:
-📋 Guides: {' | '.join(announcement_parts)}
-
-This announcement is mandatory - do not skip it. After the announcement, proceed with your response normally.
-</system-reminder>
-"""
-    output.append(instruction)
-
-    # Then add the actual guide content
-    for name, prompt_text in triggered:
-        output.append(prompt_text)
-
+    # Output guide content (status line will show which guides are active)
+    output = [prompt_text for _, prompt_text in triggered]
     print("\n\n".join(output))
 
 # Allow normal processing
