@@ -7,6 +7,92 @@
 
 set +x  # Disable xtrace in case it's inherited from environment
 
+# Box drawing constants
+BOX_TL='┌' BOX_TR='┐' BOX_BL='└' BOX_BR='┘'
+BOX_H='─' BOX_V='│'
+
+# Colors (ANSI escape codes) - defined early for helper functions
+CYAN='\033[36m'
+YELLOW='\033[33m'
+GREEN='\033[32m'
+RED='\033[31m'
+BLUE='\033[34m'
+MAGENTA='\033[35m'
+WHITE='\033[37m'
+GRAY='\033[90m'
+RESET='\033[0m'
+
+# Get display width of a string (strips ANSI, accounts for wide chars)
+get_display_width() {
+    local str="$1"
+    local stripped=$(echo -e "$str" | sed 's/\x1b\[[0-9;]*m//g')
+    # Count wide characters that display as 2 columns
+    local wide_count=$(echo "$stripped" | grep -o '[📁🌳📋]' | wc -l | tr -d ' ')
+    local char_len=$(echo -n "$stripped" | wc -m | tr -d ' ')
+    echo $((char_len + wide_count))
+}
+
+# Build header line with model name embedded: ┌─ Claude ─────────┐
+build_header_line() {
+    local name="$1"
+    local width="$2"
+    local name_len=${#name}
+    local prefix_len=$((3 + name_len + 1))  # ┌─ NAME space
+    local remaining=$((width - prefix_len - 1))  # -1 for closing ┐
+    [ $remaining -lt 1 ] && remaining=1
+    local dashes=$(printf '%0.s─' $(seq 1 $remaining))
+    echo -e "${GRAY}${BOX_TL}${BOX_H} ${RESET}${CYAN}${name}${RESET}${GRAY} ${dashes}${BOX_TR}${RESET}"
+}
+
+# Build content line with box borders: │ content          │
+build_box_line() {
+    local content="$1"
+    local width="$2"
+    local len=$(get_display_width "$content")
+    local inner_width=$((width - 4))  # -2 for │ and -2 for spaces
+    local padding=$((inner_width - len))
+    [ $padding -lt 0 ] && padding=0
+    echo -e "${GRAY}${BOX_V}${RESET} ${content}$(printf '%*s' $padding '')${GRAY} ${BOX_V}${RESET}"
+}
+
+# Build footer line: └────────────────────┘
+build_footer_line() {
+    local width="$1"
+    local dashes=$(printf '%0.s─' $(seq 1 $((width - 2))))
+    echo -e "${GRAY}${BOX_BL}${dashes}${BOX_BR}${RESET}"
+}
+
+# Output the complete status box with dynamic width
+output_status() {
+    local model="$1"
+    local token_line="$2"
+    local git_line="$3"
+    local guides_line="$4"
+
+    # Calculate widths for dynamic sizing
+    local model_header_width=$((${#model} + 6))  # ┌─ NAME ─┐ minimum
+    local token_width=$(($(get_display_width "$token_line") + 4))
+    local git_width=0
+    local guides_width=0
+    [ -n "$git_line" ] && git_width=$(($(get_display_width "$git_line") + 4))
+    [ -n "$guides_line" ] && guides_width=$(($(get_display_width "$guides_line") + 4))
+
+    # Find max width (minimum 30 for aesthetics)
+    local max_width=30
+    [ $model_header_width -gt $max_width ] && max_width=$model_header_width
+    [ $token_width -gt $max_width ] && max_width=$token_width
+    [ $git_width -gt $max_width ] && max_width=$git_width
+    [ $guides_width -gt $max_width ] && max_width=$guides_width
+
+    # Output the box
+    build_header_line "$model" "$max_width"
+    build_box_line "$token_line" "$max_width"
+    [ -n "$git_line" ] && build_box_line "$git_line" "$max_width"
+    [ -n "$guides_line" ] && build_box_line "$guides_line" "$max_width"
+    build_footer_line "$max_width"
+    echo ""  # Blank line after box for spacing
+}
+
 INPUT=$(cat)
 
 # Function to get active guides from session state file
@@ -227,6 +313,7 @@ if [ -n "$TRANSCRIPT" ] && [ -f "$TRANSCRIPT" ]; then
         # Get git info - check for single repo or workspace
         GIT_BRANCH=$(cd "$CWD" 2>/dev/null && git branch --show-current 2>/dev/null || echo "")
         IS_WORKSPACE="false"
+        ADDED=0 REMOVED=0 UNTRACKED_COUNT=0  # Initialize for non-git directories
 
         if [ -n "$GIT_BRANCH" ]; then
             # Single git repo
@@ -262,20 +349,6 @@ if [ -n "$TRANSCRIPT" ] && [ -f "$TRANSCRIPT" ]; then
             WORKTREE_SUFFIX=""
         fi
 
-        # Get shortened directory path
-        DIR_NAME=$(basename "$CWD")
-
-        # Colors (ANSI escape codes)
-        CYAN='\033[36m'
-        YELLOW='\033[33m'
-        GREEN='\033[32m'
-        RED='\033[31m'
-        BLUE='\033[34m'
-        MAGENTA='\033[35m'
-        WHITE='\033[37m'
-        GRAY='\033[90m'
-        RESET='\033[0m'
-
         # Choose token color based on percentage thresholds
         PERCENT_INT=$(echo "$PERCENTAGE" | awk '{printf "%d", $1}')
         if [ "$PERCENT_INT" -ge 80 ]; then
@@ -300,34 +373,28 @@ if [ -n "$TRANSCRIPT" ] && [ -f "$TRANSCRIPT" ]; then
             DIFF_DISPLAY="(+${ADDED},-${REMOVED})"
         fi
 
-        # Format git info based on single repo vs workspace
+        # Format git info based on single repo vs workspace (without └─ prefix for box layout)
         if [ "$IS_WORKSPACE" = "true" ]; then
-            # Workspace: show 📁 RepoAbbrev:branch✓/* format
-            GIT_DISPLAY="${GRAY}└─ ${RESET}${BLUE}📁 ${WORKSPACE_DISPLAY}${RESET}${GRAY} - ${RESET}${WHITE}${DIFF_DISPLAY}${RESET}"
+            GIT_SHORT="${BLUE}📁 ${WORKSPACE_DISPLAY}${RESET} ${WHITE}${DIFF_DISPLAY}${RESET}"
         elif [ -n "$GIT_BRANCH" ]; then
-            # Single repo: show ⎇ branch✓/* format
-            GIT_DISPLAY="${GRAY}└─ ${RESET}${BLUE}⎇ ${GIT_BRANCH}${DIRTY_INDICATOR}${WORKTREE_SUFFIX}${RESET}${GRAY} - ${RESET}${WHITE}${DIFF_DISPLAY}${RESET}"
+            GIT_SHORT="${BLUE}⎇ ${GIT_BRANCH}${DIRTY_INDICATOR}${WORKTREE_SUFFIX}${RESET} ${WHITE}${DIFF_DISPLAY}${RESET}"
         else
-            GIT_DISPLAY=""
+            GIT_SHORT=""
         fi
-
-        # Separator line
-        SEPARATOR="${GRAY}───────────────────────────────────────────────────${RESET}"
 
         # Get active guides from session state
         ACTIVE_GUIDES=$(get_active_guides "$CWD")
         if [ -n "$ACTIVE_GUIDES" ]; then
-            GUIDES_DISPLAY="${GRAY}└─ ${RESET}${MAGENTA}📋 ${ACTIVE_GUIDES}${RESET}"
+            GUIDES_SHORT="${MAGENTA}📋 ${ACTIVE_GUIDES}${RESET}"
         else
-            GUIDES_DISPLAY=""
+            GUIDES_SHORT=""
         fi
 
-        # Output status line with colors (includes compact countdown)
-        if [ -n "$GUIDES_DISPLAY" ]; then
-            echo -e "${CYAN}${MODEL_NAME}${RESET}${GRAY} | ${RESET}${TOKEN_COLOR}${TOKEN_DISPLAY}/${WINDOW_DISPLAY} (${PERCENTAGE}%)${RESET}${GRAY} - ${RESET}${COMPACT_COLOR}${COMPACT_REMAINING}% ${COMPACT_TEXT}${RESET}\n${GIT_DISPLAY}\n${GUIDES_DISPLAY}\n${SEPARATOR}"
-        else
-            echo -e "${CYAN}${MODEL_NAME}${RESET}${GRAY} | ${RESET}${TOKEN_COLOR}${TOKEN_DISPLAY}/${WINDOW_DISPLAY} (${PERCENTAGE}%)${RESET}${GRAY} - ${RESET}${COMPACT_COLOR}${COMPACT_REMAINING}% ${COMPACT_TEXT}${RESET}\n${GIT_DISPLAY}\n${SEPARATOR}"
-        fi
+        # Build token line
+        TOKEN_LINE="${TOKEN_COLOR}${TOKEN_DISPLAY}/${WINDOW_DISPLAY} (${PERCENTAGE}%)${RESET}${GRAY} • ${RESET}${COMPACT_COLOR}${COMPACT_REMAINING}% ${COMPACT_TEXT}${RESET}"
+
+        # Output with box layout (3 separate lines: tokens, git, guides)
+        output_status "$MODEL_NAME" "$TOKEN_LINE" "$GIT_SHORT" "$GUIDES_SHORT"
     else
         # No assistant messages yet - show base overhead
         # System prompt (~3k) + System tools (~14.5k) + Memory files (~1k)
@@ -361,6 +428,7 @@ if [ -n "$TRANSCRIPT" ] && [ -f "$TRANSCRIPT" ]; then
         # Get git info - check for single repo or workspace
         GIT_BRANCH=$(cd "$CWD" 2>/dev/null && git branch --show-current 2>/dev/null || echo "")
         IS_WORKSPACE="false"
+        ADDED=0 REMOVED=0 UNTRACKED_COUNT=0  # Initialize for non-git directories
 
         if [ -n "$GIT_BRANCH" ]; then
             # Single git repo
@@ -392,19 +460,6 @@ if [ -n "$TRANSCRIPT" ] && [ -f "$TRANSCRIPT" ]; then
             WORKTREE_SUFFIX=""
         fi
 
-        DIR_NAME=$(basename "$CWD")
-
-        # Colors
-        CYAN='\033[36m'
-        YELLOW='\033[33m'
-        GREEN='\033[32m'
-        RED='\033[31m'
-        BLUE='\033[34m'
-        MAGENTA='\033[35m'
-        WHITE='\033[37m'
-        GRAY='\033[90m'
-        RESET='\033[0m'
-
         PERCENT_INT=$(echo "$PERCENTAGE" | awk '{printf "%d", $1}')
         if [ "$PERCENT_INT" -ge 80 ]; then
             TOKEN_COLOR="$RED"
@@ -427,32 +482,28 @@ if [ -n "$TRANSCRIPT" ] && [ -f "$TRANSCRIPT" ]; then
             DIFF_DISPLAY="(+${ADDED},-${REMOVED})"
         fi
 
-        # Format git info based on single repo vs workspace
+        # Format git info based on single repo vs workspace (without └─ prefix for box layout)
         if [ "$IS_WORKSPACE" = "true" ]; then
-            GIT_DISPLAY="${GRAY}└─ ${RESET}${BLUE}📁 ${WORKSPACE_DISPLAY}${RESET}${GRAY} - ${RESET}${WHITE}${DIFF_DISPLAY}${RESET}"
+            GIT_SHORT="${BLUE}📁 ${WORKSPACE_DISPLAY}${RESET} ${WHITE}${DIFF_DISPLAY}${RESET}"
         elif [ -n "$GIT_BRANCH" ]; then
-            GIT_DISPLAY="${GRAY}└─ ${RESET}${BLUE}⎇ ${GIT_BRANCH}${DIRTY_INDICATOR}${WORKTREE_SUFFIX}${RESET}${GRAY} - ${RESET}${WHITE}${DIFF_DISPLAY}${RESET}"
+            GIT_SHORT="${BLUE}⎇ ${GIT_BRANCH}${DIRTY_INDICATOR}${WORKTREE_SUFFIX}${RESET} ${WHITE}${DIFF_DISPLAY}${RESET}"
         else
-            GIT_DISPLAY=""
+            GIT_SHORT=""
         fi
-
-        # Separator line
-        SEPARATOR="${GRAY}───────────────────────────────────────────────────${RESET}"
 
         # Get active guides from session state
         ACTIVE_GUIDES=$(get_active_guides "$CWD")
         if [ -n "$ACTIVE_GUIDES" ]; then
-            GUIDES_DISPLAY="${GRAY}└─ ${RESET}${MAGENTA}📋 ${ACTIVE_GUIDES}${RESET}"
+            GUIDES_SHORT="${MAGENTA}📋 ${ACTIVE_GUIDES}${RESET}"
         else
-            GUIDES_DISPLAY=""
+            GUIDES_SHORT=""
         fi
 
-        # Output status line with colors
-        if [ -n "$GUIDES_DISPLAY" ]; then
-            echo -e "${CYAN}${MODEL_NAME}${RESET}${GRAY} | ${RESET}${TOKEN_COLOR}${TOKEN_DISPLAY}/${WINDOW_DISPLAY} (${PERCENTAGE}%)${RESET}${GRAY} - ${RESET}${COMPACT_COLOR}${COMPACT_REMAINING}% ${COMPACT_TEXT}${RESET}\n${GIT_DISPLAY}\n${GUIDES_DISPLAY}\n${SEPARATOR}"
-        else
-            echo -e "${CYAN}${MODEL_NAME}${RESET}${GRAY} | ${RESET}${TOKEN_COLOR}${TOKEN_DISPLAY}/${WINDOW_DISPLAY} (${PERCENTAGE}%)${RESET}${GRAY} - ${RESET}${COMPACT_COLOR}${COMPACT_REMAINING}% ${COMPACT_TEXT}${RESET}\n${GIT_DISPLAY}\n${SEPARATOR}"
-        fi
+        # Build token line
+        TOKEN_LINE="${TOKEN_COLOR}${TOKEN_DISPLAY}/${WINDOW_DISPLAY} (${PERCENTAGE}%)${RESET}${GRAY} • ${RESET}${COMPACT_COLOR}${COMPACT_REMAINING}% ${COMPACT_TEXT}${RESET}"
+
+        # Output with box layout (3 separate lines: tokens, git, guides)
+        output_status "$MODEL_NAME" "$TOKEN_LINE" "$GIT_SHORT" "$GUIDES_SHORT"
     fi
 else
     # Fallback if transcript not available - show base overhead
@@ -487,6 +538,7 @@ else
     # Get git info - check for single repo or workspace
     GIT_BRANCH=$(cd "$CWD" 2>/dev/null && git branch --show-current 2>/dev/null || echo "")
     IS_WORKSPACE="false"
+    ADDED=0 REMOVED=0 UNTRACKED_COUNT=0  # Initialize for non-git directories
 
     if [ -n "$GIT_BRANCH" ]; then
         # Single git repo
@@ -518,19 +570,6 @@ else
         WORKTREE_SUFFIX=""
     fi
 
-    DIR_NAME=$(basename "$CWD")
-
-    # Colors
-    CYAN='\033[36m'
-    YELLOW='\033[33m'
-    GREEN='\033[32m'
-    RED='\033[31m'
-    BLUE='\033[34m'
-    MAGENTA='\033[35m'
-    WHITE='\033[37m'
-    GRAY='\033[90m'
-    RESET='\033[0m'
-
     PERCENT_INT=$(echo "$PERCENTAGE" | awk '{printf "%d", $1}')
     if [ "$PERCENT_INT" -ge 80 ]; then
         TOKEN_COLOR="$RED"
@@ -553,30 +592,26 @@ else
         DIFF_DISPLAY="(+${ADDED},-${REMOVED})"
     fi
 
-    # Format git info based on single repo vs workspace
+    # Format git info based on single repo vs workspace (without └─ prefix for box layout)
     if [ "$IS_WORKSPACE" = "true" ]; then
-        GIT_DISPLAY="${GRAY}└─ ${RESET}${BLUE}📁 ${WORKSPACE_DISPLAY}${RESET}${GRAY} - ${RESET}${WHITE}${DIFF_DISPLAY}${RESET}"
+        GIT_SHORT="${BLUE}📁 ${WORKSPACE_DISPLAY}${RESET} ${WHITE}${DIFF_DISPLAY}${RESET}"
     elif [ -n "$GIT_BRANCH" ]; then
-        GIT_DISPLAY="${GRAY}└─ ${RESET}${BLUE}⎇ ${GIT_BRANCH}${DIRTY_INDICATOR}${WORKTREE_SUFFIX}${RESET}${GRAY} - ${RESET}${WHITE}${DIFF_DISPLAY}${RESET}"
+        GIT_SHORT="${BLUE}⎇ ${GIT_BRANCH}${DIRTY_INDICATOR}${WORKTREE_SUFFIX}${RESET} ${WHITE}${DIFF_DISPLAY}${RESET}"
     else
-        GIT_DISPLAY=""
+        GIT_SHORT=""
     fi
-
-    # Separator line
-    SEPARATOR="${GRAY}───────────────────────────────────────────────────${RESET}"
 
     # Get active guides from session state
     ACTIVE_GUIDES=$(get_active_guides "$CWD")
     if [ -n "$ACTIVE_GUIDES" ]; then
-        GUIDES_DISPLAY="${GRAY}└─ ${RESET}${MAGENTA}📋 ${ACTIVE_GUIDES}${RESET}"
+        GUIDES_SHORT="${MAGENTA}📋 ${ACTIVE_GUIDES}${RESET}"
     else
-        GUIDES_DISPLAY=""
+        GUIDES_SHORT=""
     fi
 
-    # Output status line with colors
-    if [ -n "$GUIDES_DISPLAY" ]; then
-        echo -e "${CYAN}${MODEL_NAME}${RESET}${GRAY} | ${RESET}${TOKEN_COLOR}${TOKEN_DISPLAY}/${WINDOW_DISPLAY} (${PERCENTAGE}%)${RESET}${GRAY} - ${RESET}${COMPACT_COLOR}${COMPACT_REMAINING}% ${COMPACT_TEXT}${RESET}\n${GIT_DISPLAY}\n${GUIDES_DISPLAY}\n${SEPARATOR}"
-    else
-        echo -e "${CYAN}${MODEL_NAME}${RESET}${GRAY} | ${RESET}${TOKEN_COLOR}${TOKEN_DISPLAY}/${WINDOW_DISPLAY} (${PERCENTAGE}%)${RESET}${GRAY} - ${RESET}${COMPACT_COLOR}${COMPACT_REMAINING}% ${COMPACT_TEXT}${RESET}\n${GIT_DISPLAY}\n${SEPARATOR}"
-    fi
+    # Build token line
+    TOKEN_LINE="${TOKEN_COLOR}${TOKEN_DISPLAY}/${WINDOW_DISPLAY} (${PERCENTAGE}%)${RESET}${GRAY} • ${RESET}${COMPACT_COLOR}${COMPACT_REMAINING}% ${COMPACT_TEXT}${RESET}"
+
+    # Output with box layout (3 separate lines: tokens, git, guides)
+    output_status "$MODEL_NAME" "$TOKEN_LINE" "$GIT_SHORT" "$GUIDES_SHORT"
 fi
