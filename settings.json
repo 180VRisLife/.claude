@@ -102,6 +102,16 @@
     "defaultMode": "acceptEdits"
   },
   "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 /Users/chrisjamesbliss/.claude/hooks/guide-injector.py"
+          }
+        ]
+      }
+    ],
     "Notification": [
       {
         "hooks": [

@@ -3,10 +3,30 @@
 # Matches /context command output (tokens used, without autocompact buffer)
 # Shows "X% to compact" (green/yellow/red) when autocompact on, "X% to end" (cyan) when off
 # Supports workspaces with multiple git repos
+# Shows active workflow guides from guide-injector hook
 
 set +x  # Disable xtrace in case it's inherited from environment
 
 INPUT=$(cat)
+
+# Function to get active guides from session state file
+# Matches the session ID calculation in guide-injector.py
+get_active_guides() {
+    local cwd="$1"
+    local claude_pid="$PPID"  # Parent process is Claude Code
+
+    # Calculate MD5 hash of cwd (first 12 chars) - matches Python's hashlib.md5
+    local cwd_hash=$(echo -n "$cwd" | md5 | cut -c1-12 2>/dev/null || echo -n "$cwd" | md5sum | cut -c1-12)
+    local session_file="/tmp/claude-workflow-${cwd_hash}-${claude_pid}.json"
+
+    if [ -f "$session_file" ]; then
+        # Read all injected guides, format as comma-separated
+        local guides=$(jq -r '.injected // [] | join(", ")' "$session_file" 2>/dev/null)
+        if [ -n "$guides" ] && [ "$guides" != "" ]; then
+            echo "$guides"
+        fi
+    fi
+}
 
 # Function to abbreviate repo name (first letter of each word)
 # e.g., SleepPilot -> SP, HomePi -> HP, my-cool-repo -> MCR
@@ -294,8 +314,20 @@ if [ -n "$TRANSCRIPT" ] && [ -f "$TRANSCRIPT" ]; then
         # Separator line
         SEPARATOR="${GRAY}───────────────────────────────────────────────────${RESET}"
 
+        # Get active guides from session state
+        ACTIVE_GUIDES=$(get_active_guides "$CWD")
+        if [ -n "$ACTIVE_GUIDES" ]; then
+            GUIDES_DISPLAY="${GRAY}└─ ${RESET}${MAGENTA}📋 ${ACTIVE_GUIDES}${RESET}"
+        else
+            GUIDES_DISPLAY=""
+        fi
+
         # Output status line with colors (includes compact countdown)
-        echo -e "${CYAN}${MODEL_NAME}${RESET}${GRAY} | ${RESET}${TOKEN_COLOR}${TOKEN_DISPLAY}/${WINDOW_DISPLAY} (${PERCENTAGE}%)${RESET}${GRAY} - ${RESET}${COMPACT_COLOR}${COMPACT_REMAINING}% ${COMPACT_TEXT}${RESET}\n${GIT_DISPLAY}\n${SEPARATOR}"
+        if [ -n "$GUIDES_DISPLAY" ]; then
+            echo -e "${CYAN}${MODEL_NAME}${RESET}${GRAY} | ${RESET}${TOKEN_COLOR}${TOKEN_DISPLAY}/${WINDOW_DISPLAY} (${PERCENTAGE}%)${RESET}${GRAY} - ${RESET}${COMPACT_COLOR}${COMPACT_REMAINING}% ${COMPACT_TEXT}${RESET}\n${GIT_DISPLAY}\n${GUIDES_DISPLAY}\n${SEPARATOR}"
+        else
+            echo -e "${CYAN}${MODEL_NAME}${RESET}${GRAY} | ${RESET}${TOKEN_COLOR}${TOKEN_DISPLAY}/${WINDOW_DISPLAY} (${PERCENTAGE}%)${RESET}${GRAY} - ${RESET}${COMPACT_COLOR}${COMPACT_REMAINING}% ${COMPACT_TEXT}${RESET}\n${GIT_DISPLAY}\n${SEPARATOR}"
+        fi
     else
         # No assistant messages yet - show base overhead
         # System prompt (~3k) + System tools (~14.5k) + Memory files (~1k)
@@ -407,7 +439,20 @@ if [ -n "$TRANSCRIPT" ] && [ -f "$TRANSCRIPT" ]; then
         # Separator line
         SEPARATOR="${GRAY}───────────────────────────────────────────────────${RESET}"
 
-        echo -e "${CYAN}${MODEL_NAME}${RESET}${GRAY} | ${RESET}${TOKEN_COLOR}${TOKEN_DISPLAY}/${WINDOW_DISPLAY} (${PERCENTAGE}%)${RESET}${GRAY} - ${RESET}${COMPACT_COLOR}${COMPACT_REMAINING}% ${COMPACT_TEXT}${RESET}\n${GIT_DISPLAY}\n${SEPARATOR}"
+        # Get active guides from session state
+        ACTIVE_GUIDES=$(get_active_guides "$CWD")
+        if [ -n "$ACTIVE_GUIDES" ]; then
+            GUIDES_DISPLAY="${GRAY}└─ ${RESET}${MAGENTA}📋 ${ACTIVE_GUIDES}${RESET}"
+        else
+            GUIDES_DISPLAY=""
+        fi
+
+        # Output status line with colors
+        if [ -n "$GUIDES_DISPLAY" ]; then
+            echo -e "${CYAN}${MODEL_NAME}${RESET}${GRAY} | ${RESET}${TOKEN_COLOR}${TOKEN_DISPLAY}/${WINDOW_DISPLAY} (${PERCENTAGE}%)${RESET}${GRAY} - ${RESET}${COMPACT_COLOR}${COMPACT_REMAINING}% ${COMPACT_TEXT}${RESET}\n${GIT_DISPLAY}\n${GUIDES_DISPLAY}\n${SEPARATOR}"
+        else
+            echo -e "${CYAN}${MODEL_NAME}${RESET}${GRAY} | ${RESET}${TOKEN_COLOR}${TOKEN_DISPLAY}/${WINDOW_DISPLAY} (${PERCENTAGE}%)${RESET}${GRAY} - ${RESET}${COMPACT_COLOR}${COMPACT_REMAINING}% ${COMPACT_TEXT}${RESET}\n${GIT_DISPLAY}\n${SEPARATOR}"
+        fi
     fi
 else
     # Fallback if transcript not available - show base overhead
@@ -520,5 +565,18 @@ else
     # Separator line
     SEPARATOR="${GRAY}───────────────────────────────────────────────────${RESET}"
 
-    echo -e "${CYAN}${MODEL_NAME}${RESET}${GRAY} | ${RESET}${TOKEN_COLOR}${TOKEN_DISPLAY}/${WINDOW_DISPLAY} (${PERCENTAGE}%)${RESET}${GRAY} - ${RESET}${COMPACT_COLOR}${COMPACT_REMAINING}% ${COMPACT_TEXT}${RESET}\n${GIT_DISPLAY}\n${SEPARATOR}"
+    # Get active guides from session state
+    ACTIVE_GUIDES=$(get_active_guides "$CWD")
+    if [ -n "$ACTIVE_GUIDES" ]; then
+        GUIDES_DISPLAY="${GRAY}└─ ${RESET}${MAGENTA}📋 ${ACTIVE_GUIDES}${RESET}"
+    else
+        GUIDES_DISPLAY=""
+    fi
+
+    # Output status line with colors
+    if [ -n "$GUIDES_DISPLAY" ]; then
+        echo -e "${CYAN}${MODEL_NAME}${RESET}${GRAY} | ${RESET}${TOKEN_COLOR}${TOKEN_DISPLAY}/${WINDOW_DISPLAY} (${PERCENTAGE}%)${RESET}${GRAY} - ${RESET}${COMPACT_COLOR}${COMPACT_REMAINING}% ${COMPACT_TEXT}${RESET}\n${GIT_DISPLAY}\n${GUIDES_DISPLAY}\n${SEPARATOR}"
+    else
+        echo -e "${CYAN}${MODEL_NAME}${RESET}${GRAY} | ${RESET}${TOKEN_COLOR}${TOKEN_DISPLAY}/${WINDOW_DISPLAY} (${PERCENTAGE}%)${RESET}${GRAY} - ${RESET}${COMPACT_COLOR}${COMPACT_REMAINING}% ${COMPACT_TEXT}${RESET}\n${GIT_DISPLAY}\n${SEPARATOR}"
+    fi
 fi
