@@ -1,11 +1,6 @@
 {
   "includeCoAuthoredBy": false,
-  "sandbox": {
-    "enabled": false,
-    "autoAllowBashIfSandboxed": true
-  },
   "permissions": {
-    "defaultMode": "acceptEdits",
     "allow": [
       "Read(./**)",
       "Read(~/**)",
@@ -14,7 +9,6 @@
       "Write(./**)",
       "Write(~/.claude/plans/**)",
       "Edit(~/.claude/plans/**)",
-
       "Bash(git:*)",
       "Bash(npm:*)",
       "Bash(npx:*)",
@@ -23,7 +17,6 @@
       "Bash(python3:*)",
       "Bash(swift:*)",
       "Bash(xcodebuild:*)",
-
       "Bash(ls:*)",
       "Bash(mkdir:*)",
       "Bash(rm:*)",
@@ -35,7 +28,6 @@
       "Bash(tree:*)",
       "Bash(chmod:*)",
       "Bash(touch:*)",
-
       "Bash(head:*)",
       "Bash(tail:*)",
       "Bash(wc:*)",
@@ -46,7 +38,6 @@
       "Bash(diff:*)",
       "Bash(sed:*)",
       "Bash(awk:*)",
-
       "Bash(pwd:*)",
       "Bash(which:*)",
       "Bash(whereis:*)",
@@ -56,19 +47,16 @@
       "Bash(stat:*)",
       "Bash(file:*)",
       "Bash(readlink:*)",
-
       "Bash(tar:*)",
       "Bash(zip:*)",
       "Bash(unzip:*)",
       "Bash(gzip:*)",
       "Bash(gunzip:*)",
-
       "Bash(ps:*)",
       "Bash(date:*)",
       "Bash(env:*)",
       "Bash(du:*)",
       "Bash(df:*)",
-
       "Bash(make:*)",
       "Bash(cargo:*)",
       "Bash(go:*)",
@@ -77,11 +65,9 @@
       "Bash(bundle:*)",
       "Bash(yarn:*)",
       "Bash(pnpm:*)",
-
       "Bash(xargs:*)",
       "Bash(tee:*)",
       "Bash(test:*)",
-
       "Bash(brew:*)",
       "Bash(ssh:*)",
       "Bash(ssh-keygen:*)",
@@ -96,7 +82,6 @@
       "Bash(gh:*)",
       "Bash(defaults:*)",
       "Bash(launchctl:*)",
-
       "WebSearch",
       "WebFetch"
     ],
@@ -113,7 +98,8 @@
       "Write(~/.config/gh/**)",
       "Write(//etc/**)",
       "Write(//var/**)"
-    ]
+    ],
+    "defaultMode": "acceptEdits"
   },
   "hooks": {
     "Notification": [
@@ -140,6 +126,10 @@
   "statusLine": {
     "type": "command",
     "command": "bash /Users/chrisjamesbliss/.claude/statusline/statusline.sh"
+  },
+  "sandbox": {
+    "enabled": false,
+    "autoAllowBashIfSandboxed": true
   },
   "alwaysThinkingEnabled": true
 }
