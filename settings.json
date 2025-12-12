@@ -84,8 +84,35 @@
       "Bash(defaults:*)",
       "Bash(launchctl:*)",
       "WebSearch",
-      "WebFetch"
+      "WebFetch",
+      "WebFetch(domain:support.pushover.net)",
+      "WebFetch(domain:pushover.net)",
+      "Bash(./check-prerequisites.sh:*)",
+      "Read(//Users/chrisjamesbliss/Downloads/**)",
+      "Bash(./test-notification.sh:*)",
+      "Bash(npm install:*)",
+      "Bash(git checkout:*)",
+      "Bash(git log:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "WebFetch(domain:www.anthropic.com)",
+      "WebFetch(domain:github.com)",
+      "Bash(git mv:*)",
+      "WebFetch(domain:docs.elgato.com)",
+      "Read(//Users/chrisjamesbliss/Documents/GitHub/StreamSense/**)",
+      "Read(//Users/chrisjamesbliss/Documents/GitHub/**)",
+      "Bash(test -d /Users/chrisjamesbliss/Documents/GitHub/StreamSense/StreamSense/.claude)",
+      "Bash(for domain in ios macos visionos webdev streamdeck)",
+      "Bash(do)",
+      "Bash(/Users/chrisjamesbliss/.claude/library/$domain/file-templates/feature-doc.template.md)",
+      "Bash(done)",
+      "WebFetch(domain:code.claude.com)",
+      "Bash(git reset:*)",
+      "Bash(git rev-parse:*)",
+      "Bash(git rm:*)",
+      "Bash(GIT_SEQUENCE_EDITOR=true git rebase:*)"
     ],
+    "deny": [],
     "ask": [
       "Edit(~/.ssh/**)",
       "Edit(~/.aws/**)",
@@ -142,5 +169,5 @@
     "enabled": false,
     "autoAllowBashIfSandboxed": true
   },
-  "alwaysThinkingEnabled": true
+  "alwaysThinkingEnabled": false
 }

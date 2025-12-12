@@ -44,4 +44,8 @@ debug/
 # Python cache
 __pycache__/
 *.pyc
-*.pyostats-cache.json
+*.pyo
+
+# Stats and monitoring
+stats-cache.json
+monitoring/
