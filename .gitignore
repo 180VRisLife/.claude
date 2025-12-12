@@ -44,4 +44,4 @@ debug/
 # Python cache
 __pycache__/
 *.pyc
-*.pyo
+*.pyostats-cache.json
