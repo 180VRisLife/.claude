@@ -9,6 +9,7 @@
       "Write(./**)",
       "Write(~/.claude/plans/**)",
       "Edit(~/.claude/plans/**)",
+      "Bash(cd:*)",
       "Bash(git:*)",
       "Bash(npm:*)",
       "Bash(npx:*)",
