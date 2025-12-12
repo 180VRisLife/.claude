@@ -89,6 +89,14 @@ Base agents are available globally in `~/.claude/agents/`:
 - **Compose workflows** by orchestrating multiple base agents
 - Example: A `@feature-builder` agent should spawn @code-finder to understand existing patterns, then @implementor for execution
 
+## Always Be Swarming
+
+**2+ independent tasks? Deploy agents in parallel.**
+
+Map dependencies → batch independent work → launch simultaneously → repeat until done.
+
+See `~/.claude/guides/parallel.md` for patterns and `~/.claude/file-templates/parallelization.template.md` for planning.
+
 ## File Size Guidelines
 
 ### Philosophy
