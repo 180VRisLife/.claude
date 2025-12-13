@@ -9,6 +9,7 @@ Tracks tool usage metrics for the Grafana dashboard:
 - Git failures
 
 Run as PostToolUse hook.
+Updated: Uses tool_response key (not tool_output).
 """
 
 import json
