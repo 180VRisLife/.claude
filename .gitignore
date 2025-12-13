@@ -48,4 +48,5 @@ __pycache__/
 
 # Stats and monitoring
 stats-cache.json
-monitoring/
+monitoring/*.json
+monitoring/venv/

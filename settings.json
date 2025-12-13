@@ -130,6 +130,16 @@
     "defaultMode": "acceptEdits"
   },
   "hooks": {
+    "PostToolUse": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 /Users/chrisjamesbliss/.claude/hooks/metrics-tracker.py"
+          }
+        ]
+      }
+    ],
     "UserPromptSubmit": [
       {
         "hooks": [
