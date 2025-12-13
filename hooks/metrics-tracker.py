@@ -74,7 +74,7 @@ def main():
 
     tool_name = hook_input.get("tool_name", "")
     tool_input = hook_input.get("tool_input", {})
-    tool_output = hook_input.get("tool_output", {})
+    tool_output = hook_input.get("tool_response", {})  # Claude sends tool_response, not tool_output
 
     metrics = load_metrics()
     updated = False
