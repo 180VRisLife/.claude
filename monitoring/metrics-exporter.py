@@ -33,6 +33,7 @@ session_count = Gauge('claude_code_session_count', 'Number of sessions')
 token_counter = Counter('claude_code_tokens', 'Token usage counter', ['model', 'type'])
 cost_counter = Counter('claude_code_cost', 'Cost counter', ['model'])
 tool_calls_counter = Counter('claude_code_tools', 'Tool calls counter')
+session_counter = Counter('claude_code_sessions', 'Session counter')
 
 # Time tracking metrics (Gauges for all-time totals)
 active_time_cli = Gauge('claude_code_active_time_cli', 'Active CLI time in seconds')
@@ -320,7 +321,14 @@ def calculate_real_time_from_sessions() -> tuple[float, float]:
 def update_metrics():
     """Update all Prometheus metrics from session files (real-time)."""
     # Count sessions
-    session_count.set(count_sessions())
+    session_val = count_sessions()
+    session_count.set(session_val)
+
+    # Increment session counter by delta (for time-windowed queries)
+    prev_sessions = _previous_values.get('sessions', 0)
+    if session_val > prev_sessions:
+        session_counter.inc(session_val - prev_sessions)
+    _previous_values['sessions'] = session_val
 
     # Get real-time token usage from session files
     model_usage = calculate_tokens_from_sessions()
@@ -449,6 +457,14 @@ def main():
     print(f"Stats file: {STATS_FILE}")
     print(f"Serving metrics on http://localhost:9464/metrics")
     print("-" * 50)
+
+    # Initialize counters with current values before starting server
+    # This ensures metrics are visible from the first Prometheus scrape
+    session_val = count_sessions()
+    if session_val > 0:
+        session_counter.inc(session_val)
+        _previous_values['sessions'] = session_val
+        print(f"Initialized session counter: {session_val}")
 
     # Start HTTP server
     start_http_server(9464)
