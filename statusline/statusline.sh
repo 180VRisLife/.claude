@@ -124,87 +124,79 @@ GUIDES_PART=""
 ACTIVE_GUIDES=$(get_active_guides "$CWD")
 [ -n "$ACTIVE_GUIDES" ] && GUIDES_PART="${MAGENTA}📋 ${ACTIVE_GUIDES}${RESET}"
 
-# === Context Window (from transcript) ===
+# === Context Window ===
 GREEN='\033[32m'
 YELLOW='\033[33m'
 RED='\033[31m'
 
-# Determine context window based on model
-case "$MODEL_ID" in
-    *sonnet*\[1m\]*|*sonnet*1m*)  CONTEXT_WINDOW=1000000 ;;
-    *)                            CONTEXT_WINDOW=200000 ;;
-esac
-
 # Check autocompact setting
 AUTOCOMPACT_ENABLED=$(jq -r 'if .autoCompactEnabled == false then "false" else "true" end' ~/.claude.json 2>/dev/null)
 AUTOCOMPACT_BUFFER=45000
-USABLE_CONTEXT=$((CONTEXT_WINDOW - AUTOCOMPACT_BUFFER))
 
-# Calculate tokens from transcript
-CONTEXT_PART=""
-if [ -n "$TRANSCRIPT" ] && [ -f "$TRANSCRIPT" ]; then
-    LAST_USAGE=$(grep '"type":"assistant"' "$TRANSCRIPT" | tail -1 | jq -r '.message.usage // empty')
-
-    if [ -n "$LAST_USAGE" ] && [ "$LAST_USAGE" != "null" ]; then
-        INPUT_TOKENS=$(echo "$LAST_USAGE" | jq -r '.input_tokens // 0')
-        CACHE_CREATE=$(echo "$LAST_USAGE" | jq -r '.cache_creation_input_tokens // 0')
-        CACHE_READ=$(echo "$LAST_USAGE" | jq -r '.cache_read_input_tokens // 0')
-
-        TOTAL_TOKENS=$((INPUT_TOKENS + CACHE_CREATE + CACHE_READ))
-
-        # Format token display (e.g., 64k or 1.2M)
-        if [ "$TOTAL_TOKENS" -ge 1000000 ]; then
-            TOKEN_DISPLAY=$(awk "BEGIN {printf \"%.1fM\", $TOTAL_TOKENS / 1000000}")
-        elif [ "$TOTAL_TOKENS" -ge 1000 ]; then
-            TOKEN_DISPLAY=$(awk "BEGIN {printf \"%.0fk\", $TOTAL_TOKENS / 1000}")
-        else
-            TOKEN_DISPLAY="$TOTAL_TOKENS"
-        fi
-
-        # Format window display (e.g., 200k or 1M)
-        if [ "$CONTEXT_WINDOW" -ge 1000000 ]; then
-            WINDOW_DISPLAY=$(awk "BEGIN {printf \"%.0fM\", $CONTEXT_WINDOW / 1000000}")
-        else
-            WINDOW_DISPLAY=$(awk "BEGIN {printf \"%.0fk\", $CONTEXT_WINDOW / 1000}")
-        fi
-
-        # Percentage of context used
-        PERCENTAGE=$(awk "BEGIN {printf \"%.1f\", ($TOTAL_TOKENS / $CONTEXT_WINDOW) * 100}")
-        PERCENT_INT=$(echo "$PERCENTAGE" | awk '{printf "%d", $1}')
-
-        # Color for token count based on usage
-        if [ "$PERCENT_INT" -lt 50 ]; then
-            TOKEN_COLOR="$GREEN"
-        elif [ "$PERCENT_INT" -lt 80 ]; then
-            TOKEN_COLOR="$YELLOW"
-        else
-            TOKEN_COLOR="$RED"
-        fi
-
-        # Remaining percentage and label
-        if [ "$AUTOCOMPACT_ENABLED" = "true" ]; then
-            REMAINING=$((USABLE_CONTEXT - TOTAL_TOKENS))
-            [ "$REMAINING" -lt 0 ] && REMAINING=0
-            PERCENT_REMAINING=$(awk "BEGIN {printf \"%.0f\", ($REMAINING / $USABLE_CONTEXT) * 100}")
-            LABEL="to compact"
-            # Color: green if >50%, yellow if >20%, red if <=20%
-            if [ "$PERCENT_REMAINING" -gt 50 ]; then
-                COMPACT_COLOR="$GREEN"
-            elif [ "$PERCENT_REMAINING" -gt 20 ]; then
-                COMPACT_COLOR="$YELLOW"
-            else
-                COMPACT_COLOR="$RED"
-            fi
-        else
-            REMAINING=$((CONTEXT_WINDOW - TOTAL_TOKENS))
-            [ "$REMAINING" -lt 0 ] && REMAINING=0
-            PERCENT_REMAINING=$(awk "BEGIN {printf \"%.0f\", ($REMAINING / $CONTEXT_WINDOW) * 100}")
-            LABEL="to end"
-            COMPACT_COLOR="$CYAN"
-        fi
-
-        CONTEXT_PART="${TOKEN_COLOR}${TOKEN_DISPLAY}/${WINDOW_DISPLAY} (${PERCENTAGE}%)${RESET}${GRAY} • ${COMPACT_COLOR}${PERCENT_REMAINING}% ${LABEL}${RESET}"
+# Helper: format tokens (64k, 1.2M, etc.)
+format_tokens() {
+    local tokens="$1"
+    if [ "$tokens" -ge 1000000 ]; then
+        awk "BEGIN {printf \"%.1fM\", $tokens / 1000000}"
+    elif [ "$tokens" -ge 1000 ]; then
+        awk "BEGIN {printf \"%.0fk\", $tokens / 1000}"
+    else
+        echo "$tokens"
     fi
+}
+
+# Helper: get token color based on percentage
+get_token_color() {
+    local percent="$1"
+    if [ "$percent" -lt 50 ]; then
+        echo "$GREEN"
+    elif [ "$percent" -lt 80 ]; then
+        echo "$YELLOW"
+    else
+        echo "$RED"
+    fi
+}
+
+# === Context from API (current_usage) ===
+CONTEXT_PART=""
+CONTEXT_SIZE=$(echo "$INPUT" | jq -r '.context_window.context_window_size // 0')
+CURRENT_USAGE=$(echo "$INPUT" | jq '.context_window.current_usage // null')
+
+if [ "$CONTEXT_SIZE" -gt 0 ] && [ "$CURRENT_USAGE" != "null" ]; then
+    INPUT_TOKENS=$(echo "$CURRENT_USAGE" | jq -r '.input_tokens // 0')
+    CACHE_CREATE=$(echo "$CURRENT_USAGE" | jq -r '.cache_creation_input_tokens // 0')
+    CACHE_READ=$(echo "$CURRENT_USAGE" | jq -r '.cache_read_input_tokens // 0')
+    TOTAL_TOKENS=$((INPUT_TOKENS + CACHE_CREATE + CACHE_READ))
+
+    TOKEN_DISPLAY=$(format_tokens "$TOTAL_TOKENS")
+    WINDOW_DISPLAY=$(format_tokens "$CONTEXT_SIZE")
+    PERCENTAGE=$(awk "BEGIN {printf \"%.1f\", ($TOTAL_TOKENS / $CONTEXT_SIZE) * 100}")
+    PERCENT_INT=$(echo "$PERCENTAGE" | awk '{printf "%d", $1}')
+    TOKEN_COLOR=$(get_token_color "$PERCENT_INT")
+
+    # Remaining calculation
+    if [ "$AUTOCOMPACT_ENABLED" = "true" ]; then
+        USABLE=$((CONTEXT_SIZE - AUTOCOMPACT_BUFFER))
+        REMAINING=$((USABLE - TOTAL_TOKENS))
+        [ "$REMAINING" -lt 0 ] && REMAINING=0
+        PERCENT_REM=$(awk "BEGIN {printf \"%.0f\", ($REMAINING / $USABLE) * 100}")
+        LABEL="to compact"
+        if [ "$PERCENT_REM" -gt 50 ]; then
+            REM_COLOR="$GREEN"
+        elif [ "$PERCENT_REM" -gt 20 ]; then
+            REM_COLOR="$YELLOW"
+        else
+            REM_COLOR="$RED"
+        fi
+    else
+        REMAINING=$((CONTEXT_SIZE - TOTAL_TOKENS))
+        [ "$REMAINING" -lt 0 ] && REMAINING=0
+        PERCENT_REM=$(awk "BEGIN {printf \"%.0f\", ($REMAINING / $CONTEXT_SIZE) * 100}")
+        LABEL="to end"
+        REM_COLOR="$CYAN"
+    fi
+
+    CONTEXT_PART="${TOKEN_COLOR}${TOKEN_DISPLAY}/${WINDOW_DISPLAY} (${PERCENTAGE}%)${RESET}${GRAY} • ${REM_COLOR}${PERCENT_REM}% ${LABEL}${RESET}"
 fi
 
 # === Output single status line ===
