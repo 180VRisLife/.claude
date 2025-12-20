@@ -50,3 +50,6 @@ __pycache__/
 stats-cache.json
 monitoring/*.json
 monitoring/venv/
+
+# Plugin marketplaces (downloaded external repos)
+plugins/marketplaces/
