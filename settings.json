@@ -131,26 +131,6 @@
     "defaultMode": "acceptEdits"
   },
   "hooks": {
-    "PostToolUse": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python3 /Users/chrisjamesbliss/.claude/hooks/metrics-tracker.py"
-          }
-        ]
-      }
-    ],
-    "UserPromptSubmit": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python3 /Users/chrisjamesbliss/.claude/hooks/guide-injector.py"
-          }
-        ]
-      }
-    ],
     "Notification": [
       {
         "hooks": [
@@ -179,5 +159,8 @@
   "sandbox": {
     "enabled": false,
     "autoAllowBashIfSandboxed": true
+  },
+  "enabledPlugins": {
+    "swift-lsp@claude-plugins-official": true
   }
 }
