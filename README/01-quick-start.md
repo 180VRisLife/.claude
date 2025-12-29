@@ -1,25 +1,20 @@
 # Quick Start
 
-## First Time in a New Project
+## Available Commands
 
-```
-/0-workspace
-```
+Run these slash commands in any Claude Code session:
 
-This command automatically detects your project type (visionOS, iOS, macOS, webdev, streamdeck, or default) and sets up domain-specific infrastructure.
+| Command | Purpose |
+|---------|---------|
+| `/worktree [feature]` | Create isolated worktree for feature development |
+| `/git` | Analyze changes and orchestrate commits |
+| `/catchup` | Resume work by reviewing uncommitted changes |
 
-**What it does:**
-- Analyzes project files to detect domain (imports, dependencies, config files)
-- Creates `.claude/` directory with domain marker
-- Installs domain-specific templates (debug logger, git info, overlays)
-- Sets up `.gitignore` with domain patterns
-- Creates `.worktrees/` directory for worktree support
+## Global Resources
 
-**Optional:** Specify domain explicitly:
-```
-/0-workspace <domain>
-```
+Available in `~/.claude/`:
 
-After running `/0-workspace`, you'll have:
-- **Installed locally:** Domain-specific templates in your project
-- **Available globally:** Base agents, workflow commands, and guides from `~/.claude/`
+- **agents/** - Base agents (code-finder, implementor, root-cause-analyzer, etc.)
+- **commands/** - Slash commands (utilities, workflows)
+- **file-templates/** - Document templates for workflows
+- **hooks/** - System hooks (notifications, etc.)
