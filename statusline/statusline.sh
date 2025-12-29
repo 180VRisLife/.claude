@@ -98,6 +98,9 @@ CWD=$(echo "$INPUT" | jq -r '.cwd // ""')
 # === Model ===
 MODEL_ABBREV=$(abbreviate_model "$MODEL_NAME")
 
+# === Directory ===
+DIR_NAME=$(basename "$CWD")
+
 # === Git info ===
 GIT_BRANCH=$(cd "$CWD" 2>/dev/null && git branch --show-current 2>/dev/null || echo "")
 GIT_PART=""
@@ -118,11 +121,17 @@ CONTEXT_PART=""
 CONTEXT_SIZE=$(echo "$INPUT" | jq -r '.context_window.context_window_size // 0')
 CURRENT_USAGE=$(echo "$INPUT" | jq '.context_window.current_usage // null')
 
-if [ "$CONTEXT_SIZE" -gt 0 ] && [ "$CURRENT_USAGE" != "null" ]; then
-    INPUT_TOKENS=$(echo "$CURRENT_USAGE" | jq -r '.input_tokens // 0')
-    CACHE_CREATE=$(echo "$CURRENT_USAGE" | jq -r '.cache_creation_input_tokens // 0')
-    CACHE_READ=$(echo "$CURRENT_USAGE" | jq -r '.cache_read_input_tokens // 0')
-    TOTAL_TOKENS=$((INPUT_TOKENS + CACHE_CREATE + CACHE_READ))
+if [ "$CONTEXT_SIZE" -gt 0 ]; then
+    # If no usage yet, default to 0 tokens
+    if [ "$CURRENT_USAGE" != "null" ]; then
+        INPUT_TOKENS=$(echo "$CURRENT_USAGE" | jq -r '.input_tokens // 0')
+        CACHE_CREATE=$(echo "$CURRENT_USAGE" | jq -r '.cache_creation_input_tokens // 0')
+        CACHE_READ=$(echo "$CURRENT_USAGE" | jq -r '.cache_read_input_tokens // 0')
+        TOTAL_TOKENS=$((INPUT_TOKENS + CACHE_CREATE + CACHE_READ))
+    else
+        TOTAL_TOKENS=0
+    fi
+
     TOKEN_DISPLAY=$(format_tokens "$TOTAL_TOKENS")
     PERCENT_INT=$(awk "BEGIN {printf \"%.0f\", ($TOTAL_TOKENS / $CONTEXT_SIZE) * 100}")
     TOKEN_COLOR=$(get_token_color "$PERCENT_INT")
@@ -133,6 +142,7 @@ fi
 # === Output ===
 SEP="${GRAY} | ${RESET}"
 OUTPUT="${CYAN}${MODEL_ABBREV}${RESET}"
+[ -n "$DIR_NAME" ] && OUTPUT="${OUTPUT}${SEP}${GRAY}${DIR_NAME}${RESET}"
 [ -n "$CONTEXT_PART" ] && OUTPUT="${OUTPUT}${SEP}${CONTEXT_PART}"
 [ -n "$GIT_PART" ] && OUTPUT="${OUTPUT}${SEP}${GIT_PART}"
 
