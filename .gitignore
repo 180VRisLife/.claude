@@ -53,3 +53,9 @@ monitoring/venv/
 
 # Plugin marketplaces (downloaded external repos)
 plugins/marketplaces/
+
+# Plugin cache files
+plugins/cache/
+
+# Telemetry data
+telemetry/
