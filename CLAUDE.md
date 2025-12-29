@@ -4,14 +4,14 @@ This file provides guidance to Claude Code when working with code in this reposi
 
 ## Git Policy
 
-**ABSOLUTE RULE: Claude NEVER commits without the `/utl:git-commit` command.**
+**ABSOLUTE RULE: Claude NEVER commits without the `/git` command.**
 
-- **ONLY** commit when user runs `/utl:git-commit` explicitly
+- **ONLY** commit when user runs `/git` explicitly
 - **DO NOT** commit on verbal requests ("commit this", "make a commit", etc.)
-- **ALWAYS** respond: "Please run `/utl:git-commit` to orchestrate commits properly"
+- **ALWAYS** respond: "Please run `/git` to orchestrate commits properly"
 - **NEVER** commit after completing tasks, even if user says "and commit it"
 
-**Debug Logging:** Never commit debug logging. The `/utl:git-commit` command enforces this.
+**Debug Logging:** Never commit debug logging. The `/git` command enforces this.
 
 ## DebugLogger
 
@@ -40,7 +40,7 @@ This file provides guidance to Claude Code when working with code in this reposi
 1. When a task involves external libraries (SwiftUI, React, Prisma, etc.), search `.docs/` for existing documentation
 2. If docs exist → use them as the source of truth (no web search or MCP needed)
 3. If docs are missing → proactively tell user: "I need documentation for [library/feature]. Should I create it?"
-4. Create docs via `/utl:documentation --feature [topic]` or fetch directly with MCP tools
+4. Create docs directly with MCP tools or manual research
 
 **Documentation Structure:**
 - `.docs/` - Project-level API references grouped by cluster
@@ -95,7 +95,7 @@ Base agents are available globally in `~/.claude/agents/`:
 
 Map dependencies → batch independent work → launch simultaneously → repeat until done.
 
-See `~/.claude/guides/parallel.md` for patterns and `~/.claude/file-templates/parallelization.template.md` for planning.
+See `~/.claude/file-templates/parallelization.template.md` for planning.
 
 ## File Size Guidelines
 

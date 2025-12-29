@@ -3,7 +3,7 @@
 ## Catchup Command
 
 ```
-/utl:catchup [issue#]
+/catchup [issue#]
 ```
 
 Reloads work-in-progress context when resuming a session:
@@ -14,7 +14,7 @@ Reloads work-in-progress context when resuming a session:
 ## Git Commit Command
 
 ```
-/utl:git-commit
+/git
 ```
 
 Analyzes git changes and orchestrates commits:
@@ -29,7 +29,7 @@ Use worktrees to run multiple Claude instances on different features simultaneou
 
 **1. Initialize worktree for isolated development:**
 ```
-/utl:init-worktree [feature description]
+/worktree [feature description]
 ```
 Auto-generates directory and branch name (e.g., `.worktrees/user-authentication/`)
 
@@ -37,7 +37,7 @@ Auto-generates directory and branch name (e.g., `.worktrees/user-authentication/
 
 **3. Commit, merge, and cleanup:**
 ```
-/utl:git-commit
+/git
 ```
 Automatically handles commits, merges back to base branch, removes the worktree, and deletes the branch.
 
@@ -47,4 +47,4 @@ Automatically handles commits, merges back to base branch, removes the worktree,
 - Prevents worktrees from different projects mixing together in your workspace
 - Enables multiple Claude instances on different features without conflicts
 - Main workspace remains untouched while working in worktree
-- `/utl:git-commit` handles the full workflow (commit → merge → cleanup → branch deletion)
+- `/git` handles the full workflow (commit → merge → cleanup → branch deletion)
