@@ -330,8 +330,42 @@ git commit -m "feat(feature-b): add related feature"
 1. Stage and commit changes in logical batches
 2. List all commits created with their messages
 3. Run `git status` to verify all changes are committed
-4. **If in worktree:** Check if in worktree and proceed to Phase 4
-5. **If NOT in worktree:** Skip to Cleanup Reminders section
+4. **Push to remote:** Push the branch to origin
+5. **If in worktree:** Check if in worktree and proceed to Phase 4
+6. **If NOT in worktree:** Skip to Cleanup Reminders section
+
+### Push to Remote
+
+After commits are verified, push the branch:
+
+```bash
+# Get current branch name
+current_branch=$(git rev-parse --abbrev-ref HEAD)
+
+# Push to remote (use -u if upstream not set)
+if git rev-parse --abbrev-ref --symbolic-full-name @{u} &>/dev/null; then
+  # Upstream exists, simple push
+  git push
+else
+  # No upstream, set it
+  git push -u origin "$current_branch"
+fi
+```
+
+**On success:**
+```
+✅ Pushed to origin/<branch-name>
+```
+
+**On failure (e.g., protected branch, no remote):**
+```
+⚠️  Push failed: <error message>
+   You may need to push manually or create a PR.
+```
+
+**Skip push if:**
+- Remote `origin` doesn't exist
+- Branch is detached HEAD
 
 ## Phase 4: Worktree Merge & Cleanup (Worktrees Only)
 
