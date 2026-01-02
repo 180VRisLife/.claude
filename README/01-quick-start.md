@@ -16,5 +16,4 @@ Available in `~/.claude/`:
 
 - **agents/** - Base agents (code-finder, implementor, root-cause-analyzer, etc.)
 - **commands/** - Slash commands (utilities, workflows)
-- **file-templates/** - Document templates for workflows
 - **hooks/** - System hooks (notifications, etc.)
