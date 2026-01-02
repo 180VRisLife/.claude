@@ -102,10 +102,6 @@
       "Read(//Users/chrisjamesbliss/Documents/GitHub/StreamSense/**)",
       "Read(//Users/chrisjamesbliss/Documents/GitHub/**)",
       "Bash(test -d /Users/chrisjamesbliss/Documents/GitHub/StreamSense/StreamSense/.claude)",
-      "Bash(for domain in ios macos visionos webdev streamdeck)",
-      "Bash(do)",
-      "Bash(/Users/chrisjamesbliss/.claude/library/$domain/file-templates/feature-doc.template.md)",
-      "Bash(done)",
       "WebFetch(domain:code.claude.com)",
       "Bash(git reset:*)",
       "Bash(git rev-parse:*)",
@@ -136,7 +132,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash /Users/chrisjamesbliss/.claude/hooks/_system/notifications/_system-notifications-attention-sound.sh"
+            "command": "bash /Users/chrisjamesbliss/.claude/hooks/_system-notifications-attention-sound.sh"
           }
         ]
       }
@@ -146,7 +142,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash /Users/chrisjamesbliss/.claude/hooks/_system/notifications/_system-notifications-play-sound.sh"
+            "command": "bash /Users/chrisjamesbliss/.claude/hooks/_system-notifications-play-sound.sh"
           }
         ]
       }
