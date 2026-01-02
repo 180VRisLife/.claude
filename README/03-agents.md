@@ -2,7 +2,7 @@
 
 Claude automatically recognizes and selects appropriate agents based on the nature of your request.
 
-*Note: Base agents are global and located in `~/.claude/agents/base/`. They are available in all projects without needing to copy them locally.*
+*Note: Base agents are global and located in `~/.claude/agents/`. They are available in all projects without needing to copy them locally.*
 
 ## How to Request Agents
 
@@ -18,7 +18,7 @@ Claude automatically recognizes and selects appropriate agents based on the natu
 
 ## Base Agents
 
-Available in all domains. Located in `~/.claude/agents/base/`
+Available in all domains. Located in `~/.claude/agents/`
 
 ```
 @code-finder

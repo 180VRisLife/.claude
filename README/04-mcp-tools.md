@@ -17,19 +17,10 @@ Fetches up-to-date documentation for any library (npm, pip, crates, etc.).
 
 Searches Apple Developer Documentation, WWDC content, and sample code.
 
-**Command:** `/apple [query]`
-
 **Automatic triggers:**
 - Questions about Apple frameworks (SwiftUI, UIKit, etc.)
 - iOS/macOS/visionOS development queries
 - Requests for Apple API references
-
-**Examples:**
-```
-/apple SwiftUI List
-/apple NSPredicate
-/apple Vision Pro immersive spaces
-```
 
 **Additional capabilities:**
 - `list_technologies` - Browse all Apple frameworks
@@ -43,12 +34,11 @@ Searches Apple Developer Documentation, WWDC content, and sample code.
 | Mode | Description |
 |------|-------------|
 | **Automatic** | Claude uses MCPs when queries match their domain |
-| **Explicit command** | `/apple` forces Apple docs MCP usage |
 | **Direct request** | "Use context7 to look up..." or "Search Apple docs for..." |
 
-## When to Use Commands
+## When to Request Explicitly
 
-Use explicit commands when you want to:
+Ask Claude to use MCP tools when you want to:
 - Guarantee fresh documentation (not from Claude's training data)
 - Force a lookup even for topics Claude might know
-- Get the most current Apple API references
+- Get the most current API references
