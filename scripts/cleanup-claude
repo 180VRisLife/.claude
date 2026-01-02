@@ -10,6 +10,9 @@ echo "Cleaning Claude Code caches..."
 find "$CLAUDE_DIR/debug" -type f -mtime +7 -delete 2>/dev/null
 find "$CLAUDE_DIR/todos" -type f -mtime +7 -delete 2>/dev/null
 find "$CLAUDE_DIR/shell-snapshots" -type f -mtime +7 -delete 2>/dev/null
+find "$CLAUDE_DIR/plans" -type f -mtime +7 -delete 2>/dev/null
+find "$CLAUDE_DIR/file-history" -type f -mtime +7 -delete 2>/dev/null
+find "$CLAUDE_DIR/session-env" -type f -mtime +7 -delete 2>/dev/null
 
 # Truncate logs
 : > "$CLAUDE_DIR/hooks.log" 2>/dev/null
