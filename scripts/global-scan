@@ -1,0 +1,259 @@
+#!/bin/bash
+# Global Developer folder scanner for Claude Code
+# Usage: global-scan [git|init|both]
+#
+# Scans the Developer folder for:
+# - Git repos with uncommitted changes
+# - CLAUDE.md files needing updates
+# - Broken symlinks
+#
+# Outputs structured data for the /global command to parse
+
+set -eo pipefail
+
+DEVELOPER_DIR="/Users/chrisjamesbliss/Developer"
+MODE="${1:-both}"
+
+# Arrays to track results
+declare -a ALL_REPOS=()
+declare -a REPOS_NEEDING_GIT=()
+declare -a REPOS_NEEDING_INIT=()
+declare -a REPOS_CLEAN=()
+declare -a SYMLINKS_VALID=()
+declare -a SYMLINKS_UNAVAILABLE=()
+declare -a SYMLINKS_BROKEN=()
+declare -a NON_GIT_DIRS=()
+
+# Discover all git repositories and check symlinks
+# This function modifies global arrays directly (no subshell)
+discover_repos_and_symlinks() {
+  # Direct repos in Versioned/
+  if [ -d "$DEVELOPER_DIR/Versioned" ]; then
+    for dir in "$DEVELOPER_DIR/Versioned"/*; do
+      if [ -d "$dir/.git" ]; then
+        ALL_REPOS+=("$dir")
+      fi
+    done
+  fi
+
+  # Check symlinks in Unversioned/ and Workspaces/
+  for base_dir in "$DEVELOPER_DIR/Unversioned" "$DEVELOPER_DIR/Workspaces"; do
+    if [ -d "$base_dir" ]; then
+      for link in "$base_dir"/*; do
+        if [ -L "$link" ]; then
+          local target
+          target=$(readlink "$link" 2>/dev/null || true)
+          local name
+          name=$(basename "$link")
+
+          if [ -z "$target" ]; then
+            SYMLINKS_BROKEN+=("$name|$link|unknown")
+          elif [[ "$target" == /Volumes/* ]] && [ ! -d "$target" ]; then
+            SYMLINKS_UNAVAILABLE+=("$name|$link|$target")
+          elif [ ! -e "$target" ]; then
+            SYMLINKS_BROKEN+=("$name|$link|$target")
+          else
+            SYMLINKS_VALID+=("$name|$link|$target")
+            if [ -d "$target/.git" ]; then
+              ALL_REPOS+=("$target")
+            fi
+          fi
+        fi
+      done
+    fi
+  done
+
+  # Deduplicate repos
+  local seen=()
+  local unique_repos=()
+  for repo in "${ALL_REPOS[@]}"; do
+    local canonical
+    canonical=$(cd "$repo" 2>/dev/null && pwd -P || echo "$repo")
+    local is_dup=0
+    for s in "${seen[@]}"; do
+      if [ "$s" = "$canonical" ]; then
+        is_dup=1
+        break
+      fi
+    done
+    if [ "$is_dup" -eq 0 ]; then
+      seen+=("$canonical")
+      unique_repos+=("$repo")
+    fi
+  done
+  ALL_REPOS=("${unique_repos[@]}")
+}
+
+# Check git status for a repo
+check_git_status() {
+  local repo="$1"
+  local name
+  name=$(basename "$repo")
+
+  cd "$repo" 2>/dev/null || return 1
+
+  local branch
+  branch=$(git branch --show-current 2>/dev/null || echo "unknown")
+  local status
+  status=$(git status --porcelain 2>/dev/null || true)
+  local ahead
+  ahead=$(git rev-list --count @{u}..HEAD 2>/dev/null || echo "0")
+
+  if [ -n "$status" ] || [ "$ahead" -gt 0 ]; then
+    local count
+    count=$(echo "$status" | grep -c . || echo "0")
+    echo "$name|$branch|$count|$ahead|$repo"
+    return 0
+  fi
+
+  return 1
+}
+
+# Check CLAUDE.md status for a repo
+check_init_status() {
+  local repo="$1"
+  local name
+  name=$(basename "$repo")
+  local claude_file="$repo/CLAUDE.md"
+
+  if [ ! -f "$claude_file" ]; then
+    echo "$name|missing|0|$repo"
+    return 0
+  fi
+
+  # Check freshness: compare CLAUDE.md mtime vs last git commit
+  local claude_mtime
+  claude_mtime=$(stat -f %m "$claude_file" 2>/dev/null || echo "0")
+  local last_commit
+  last_commit=$(git -C "$repo" log -1 --format=%ct 2>/dev/null || echo "0")
+
+  if [ "$last_commit" -gt "$claude_mtime" ]; then
+    local days_old
+    days_old=$(( (last_commit - claude_mtime) / 86400 ))
+    echo "$name|stale|$days_old|$repo"
+    return 0
+  fi
+
+  # Check size
+  local size
+  size=$(wc -c < "$claude_file" | tr -d ' ')
+  if [ "$size" -lt 500 ]; then
+    echo "$name|incomplete|$size|$repo"
+    return 0
+  fi
+
+  return 1
+}
+
+# Check for non-git directories with code
+check_non_git_dirs() {
+  for base_dir in "$DEVELOPER_DIR/Unversioned"; do
+    if [ -d "$base_dir" ]; then
+      for dir in "$base_dir"/*; do
+        # Follow symlinks to actual directory
+        local actual_dir="$dir"
+        if [ -L "$dir" ]; then
+          actual_dir=$(readlink "$dir" 2>/dev/null || true)
+        fi
+
+        if [ -n "$actual_dir" ] && [ -d "$actual_dir" ] && [ ! -d "$actual_dir/.git" ]; then
+          # Check if it has code files
+          if ls "$actual_dir"/*.py "$actual_dir"/*.swift "$actual_dir"/*.ts "$actual_dir"/*.js "$actual_dir"/*.lua 2>/dev/null | head -1 > /dev/null; then
+            local name
+            name=$(basename "$dir")
+            NON_GIT_DIRS+=("$name|$actual_dir")
+          fi
+        fi
+      done
+    fi
+  done
+}
+
+# Main execution
+main() {
+  echo "SCAN_START"
+  echo "MODE:$MODE"
+
+  # Discover repos and symlinks (modifies global arrays)
+  discover_repos_and_symlinks
+
+  # Output symlink status
+  echo "SYMLINKS_VALID:${#SYMLINKS_VALID[@]}"
+  if [ ${#SYMLINKS_VALID[@]} -gt 0 ]; then
+    for item in "${SYMLINKS_VALID[@]}"; do
+      echo "SYM_OK:$item"
+    done
+  fi
+
+  echo "SYMLINKS_UNAVAILABLE:${#SYMLINKS_UNAVAILABLE[@]}"
+  if [ ${#SYMLINKS_UNAVAILABLE[@]} -gt 0 ]; then
+    for item in "${SYMLINKS_UNAVAILABLE[@]}"; do
+      echo "SYM_NA:$item"
+    done
+  fi
+
+  echo "SYMLINKS_BROKEN:${#SYMLINKS_BROKEN[@]}"
+  if [ ${#SYMLINKS_BROKEN[@]} -gt 0 ]; then
+    for item in "${SYMLINKS_BROKEN[@]}"; do
+      echo "SYM_BROKEN:$item"
+    done
+  fi
+
+  # Git analysis
+  if [ "$MODE" = "git" ] || [ "$MODE" = "both" ]; then
+    for repo in "${ALL_REPOS[@]}"; do
+      local result
+      result=$(check_git_status "$repo" || true)
+      if [ -n "$result" ]; then
+        REPOS_NEEDING_GIT+=("$result")
+      else
+        REPOS_CLEAN+=("$(basename "$repo")")
+      fi
+    done
+
+    echo "GIT_NEEDS:${#REPOS_NEEDING_GIT[@]}"
+    if [ ${#REPOS_NEEDING_GIT[@]} -gt 0 ]; then
+      for item in "${REPOS_NEEDING_GIT[@]}"; do
+        echo "GIT:$item"
+      done
+    fi
+
+    echo "GIT_CLEAN:${#REPOS_CLEAN[@]}"
+    if [ ${#REPOS_CLEAN[@]} -gt 0 ]; then
+      for item in "${REPOS_CLEAN[@]}"; do
+        echo "CLEAN:$item"
+      done
+    fi
+  fi
+
+  # CLAUDE.md analysis
+  if [ "$MODE" = "init" ] || [ "$MODE" = "both" ]; then
+    for repo in "${ALL_REPOS[@]}"; do
+      local result
+      result=$(check_init_status "$repo" || true)
+      if [ -n "$result" ]; then
+        REPOS_NEEDING_INIT+=("$result")
+      fi
+    done
+
+    echo "INIT_NEEDS:${#REPOS_NEEDING_INIT[@]}"
+    if [ ${#REPOS_NEEDING_INIT[@]} -gt 0 ]; then
+      for item in "${REPOS_NEEDING_INIT[@]}"; do
+        echo "INIT:$item"
+      done
+    fi
+  fi
+
+  # Check for non-git directories
+  check_non_git_dirs
+  echo "NON_GIT:${#NON_GIT_DIRS[@]}"
+  if [ ${#NON_GIT_DIRS[@]} -gt 0 ]; then
+    for item in "${NON_GIT_DIRS[@]}"; do
+      echo "NOGIT:$item"
+    done
+  fi
+
+  echo "SCAN_END"
+}
+
+main
