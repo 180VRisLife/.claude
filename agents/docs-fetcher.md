@@ -63,7 +63,6 @@ Specialized agent for fetching and compressing external documentation into LLM-o
 
 ## Output Format
 
-Follow the structure in `~/.claude/file-templates/docs-llm-ref.template.md`:
 - Header with library/feature name
 - Quick reference section
 - Key APIs with signatures

@@ -95,8 +95,6 @@ Base agents are available globally in `~/.claude/agents/`:
 
 Map dependencies → batch independent work → launch simultaneously → repeat until done.
 
-See `~/.claude/file-templates/parallelization.template.md` for planning.
-
 ## File Size Guidelines
 
 ### Philosophy
