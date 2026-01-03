@@ -57,6 +57,9 @@ plugins/marketplaces/
 # Plugin cache files
 plugins/cache/
 
+# Image cache
+image-cache/
+
 # Telemetry data
 telemetry/
 plugins/known_marketplaces.json
