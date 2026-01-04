@@ -108,12 +108,27 @@ GIT_PART=""
 if [ -n "$GIT_BRANCH" ]; then
     DIRTY="✓"
     [ -n "$(cd "$CWD" && git status --porcelain 2>/dev/null)" ] && DIRTY="*"
-    WORKTREE=""
-    [ -f "$(cd "$CWD" && git rev-parse --git-dir 2>/dev/null)/commondir" ] && WORKTREE=":$(basename "$CWD")"
-    GIT_PART="${BLUE}${GIT_BRANCH}${DIRTY}${WORKTREE}${RESET}"
+
+    # Check if in a worktree
+    GIT_DIR=$(cd "$CWD" && git rev-parse --git-dir 2>/dev/null)
+    if [ -f "$GIT_DIR/commondir" ]; then
+        WORKTREE_NAME=$(basename "$CWD")
+        if [ "$GIT_BRANCH" != "$WORKTREE_NAME" ]; then
+            # Branch differs from worktree - show ⎇ ABBREV:branch✓
+            WORKTREE_ABBREV=$(abbreviate_repo_name "$WORKTREE_NAME")
+            GIT_PART="${BLUE}⎇ ${WORKTREE_ABBREV}:${GIT_BRANCH}${DIRTY}${RESET}"
+        else
+            # Branch matches worktree - show ⎇ branch✓
+            GIT_PART="${BLUE}⎇ ${GIT_BRANCH}${DIRTY}${RESET}"
+        fi
+    else
+        # Regular git repo - show ○ branch✓
+        GIT_PART="${BLUE}○ ${GIT_BRANCH}${DIRTY}${RESET}"
+    fi
 else
     scan_workspace_repos "$CWD"
-    [ "$WORKSPACE_REPO_COUNT" -gt 0 ] && GIT_PART="${BLUE}${WORKSPACE_DISPLAY}${RESET}"
+    # Workspace with multiple repos - show ◆ prefix
+    [ "$WORKSPACE_REPO_COUNT" -gt 0 ] && GIT_PART="${BLUE}◆ ${WORKSPACE_DISPLAY}${RESET}"
 fi
 
 # === Context Window ===
