@@ -13,7 +13,9 @@ Do NOT ask "Should I commit?" or "Would you like me to commit?" - just commit th
 
 If none of these blockers apply, commit immediately.
 
-## Phase 0: Workspace Detection (Multi-Repo)
+## Phase 0: Workspace & Monorepo Detection
+
+### 0A: Multi-Repo Workspace Detection
 
 **Check if in a workspace directory containing multiple repositories:**
 
@@ -24,6 +26,60 @@ if ! git rev-parse --git-dir &>/dev/null; then
   repos=$(find . -maxdepth 2 \( -type d -o -type l \) -exec test -d "{}/.git" \; -print 2>/dev/null | sort -u)
 fi
 ```
+
+### 0B: Monorepo Subfolder Detection
+
+**Check if working in a subfolder of a git repo (monorepo scenario):**
+
+```bash
+# Get git root and current working directory
+git_root=$(git rev-parse --show-toplevel 2>/dev/null)
+cwd=$(pwd)
+
+# If we're in a subfolder (not the repo root)
+if [ "$git_root" != "$cwd" ]; then
+  # Get relative path from git root to cwd
+  relative_path="${cwd#$git_root/}"
+
+  # Check for changes outside the current folder
+  outside_changes=$(git status --porcelain | grep -v "^.. $relative_path" | grep -v "^?? $relative_path")
+fi
+```
+
+**If in a subfolder AND changes exist outside current folder:**
+
+```
+📂 Monorepo subfolder detected!
+
+You're working in: <relative_path>
+Git root is at:    <git_root>
+
+Changes INSIDE this folder:
+  M  <relative_path>/src/file1.ts
+  A  <relative_path>/src/file2.ts
+
+Changes OUTSIDE this folder:
+  M  other-package/src/util.ts
+  M  shared/config.json
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+```
+
+**Then ask the user using AskUserQuestion:**
+
+- **Option 1: "This folder only"** - Only stage and commit changes within `<relative_path>/`
+- **Option 2: "Entire repo"** - Stage and commit all changes across the repository
+
+**If user selects "This folder only":**
+- In Phase 1-3, restrict `git add` and `git diff` commands to the current folder path
+- Example: `git add <relative_path>/` instead of `git add .`
+- Example: `git diff <relative_path>/` for analysis
+
+**If user selects "Entire repo":**
+- Proceed normally with all changes (standard behavior)
+
+**If NO changes exist outside current folder:**
+- Skip this prompt entirely and proceed normally (no need to ask)
 
 **If workspace detected (multiple repos found):**
 
@@ -579,6 +635,7 @@ This ensures technical debt is tracked and doesn't accumulate.
 
 ## Key Reminders
 
+- **Monorepo subfolder:** If working in a subfolder with changes outside it, ask user to scope commits (this folder vs entire repo)
 - **Workspace support:** If not in a git repo but directory contains repos, orchestrate commits across all
 - **Small changes:** Single commit with clear message
 - **Large changes:** Multiple logical commits, grouped by feature/type
