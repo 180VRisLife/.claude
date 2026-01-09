@@ -1,16 +1,4 @@
 {
   "version": 2,
-  "plugins": {
-    "swift-lsp@claude-plugins-official": [
-      {
-        "scope": "user",
-        "installPath": "/Users/chrisjamesbliss/.claude/plugins/cache/claude-plugins-official/swift-lsp/1.0.0",
-        "version": "1.0.0",
-        "installedAt": "2025-12-20T16:55:48.620Z",
-        "lastUpdated": "2025-12-20T16:55:48.620Z",
-        "gitCommitSha": "c2dc62b5ee9b179055060b89fd73e54bccf66834",
-        "isLocal": true
-      }
-    ]
-  }
+  "plugins": {}
 }
