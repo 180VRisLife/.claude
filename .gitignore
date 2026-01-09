@@ -66,3 +66,4 @@ plugins/known_marketplaces.json
 
 # Cache
 cache/
+paste-cache/
