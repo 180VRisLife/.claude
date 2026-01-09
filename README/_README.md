@@ -18,8 +18,8 @@ A comprehensive configuration system for Claude to build production-ready applic
 
 | Doc | Contents |
 |-----|----------|
-| [01 - Quick Start](README/01-quick-start.md) | Getting started guide |
-| [02 - Git & Worktrees](README/02-git-and-worktrees.md) | `/git`, `/worktree`, `/catchup` |
-| [03 - Agents](README/03-agents.md) | Base agents (code-finder, implementor, etc.) |
-| [04 - MCP Tools](README/04-mcp-tools.md) | MCP servers (apple-docs, context7) |
-| [05 - Architecture](README/05-architecture-reference.md) | System architecture, hooks, scripts |
+| [01 - Quick Start](01-quick-start.md) | Getting started guide |
+| [02 - Git & Worktrees](02-git-and-worktrees.md) | `/git`, `/worktree`, `/catchup` |
+| [03 - Agents](03-agents.md) | Base agents (code-finder, implementor, etc.) |
+| [04 - MCP Tools](04-mcp-tools.md) | MCP servers (apple-docs, context7) |
+| [05 - Architecture](05-architecture-reference.md) | System architecture, hooks, scripts |
