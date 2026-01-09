@@ -108,6 +108,7 @@
     ],
     "defaultMode": "acceptEdits"
   },
+  "model": "opus",
   "hooks": {
     "Notification": [
       {
@@ -135,12 +136,9 @@
     "type": "command",
     "command": "bash /Users/chrisjamesbliss/.claude/statusline/statusline.sh"
   },
-  "enabledPlugins": {
-    "swift-lsp@claude-plugins-official": true
-  },
+  "enabledPlugins": {},
   "sandbox": {
     "enabled": false,
     "autoAllowBashIfSandboxed": true
-  },
-  "model": "opus"
+  }
 }
