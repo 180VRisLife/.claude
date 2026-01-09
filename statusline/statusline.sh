@@ -9,6 +9,7 @@ INPUT=$(cat)
 CYAN='\033[36m'
 BLUE='\033[34m'
 GRAY='\033[90m'
+WHITE='\033[97m'
 GREEN='\033[32m'
 YELLOW='\033[33m'
 RED='\033[31m'
@@ -157,7 +158,7 @@ fi
 # === Output ===
 SEP="${GRAY} | ${RESET}"
 OUTPUT="${CYAN}${MODEL_ABBREV}${RESET}"
-[ -n "$DIR_NAME" ] && OUTPUT="${OUTPUT}${SEP}${GRAY}${DIR_NAME}${RESET}"
+[ -n "$DIR_NAME" ] && OUTPUT="${OUTPUT}${SEP}${WHITE}${DIR_NAME}${RESET}"
 [ -n "$CONTEXT_PART" ] && OUTPUT="${OUTPUT}${SEP}${CONTEXT_PART}"
 [ -n "$GIT_PART" ] && OUTPUT="${OUTPUT}${SEP}${GIT_PART}"
 
