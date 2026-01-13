@@ -5,14 +5,14 @@ set +x
 
 INPUT=$(cat)
 
-# Colors
-CYAN='\033[36m'
-BLUE='\033[34m'
-GRAY='\033[90m'
-WHITE='\033[97m'
-GREEN='\033[32m'
-YELLOW='\033[33m'
-RED='\033[31m'
+# Colors - muted 256-color palette (avoids Claude Code UI colors)
+MODEL_COLOR='\033[38;5;146m'    # Lavender - soft purple-gray
+FOLDER_COLOR='\033[38;5;109m'  # Slate teal - muted cyan-gray
+GIT_COLOR='\033[38;5;67m'      # Steel blue - muted blue-gray
+SEP_COLOR='\033[38;5;244m'     # Medium gray - subtle separator
+TOKEN_LOW='\033[38;5;108m'     # Sage - muted green
+TOKEN_MED='\033[38;5;179m'     # Gold - muted yellow
+TOKEN_HIGH='\033[38;5;167m'    # Terracotta - muted red
 RESET='\033[0m'
 
 # Abbreviate repo name
@@ -86,9 +86,9 @@ format_tokens() {
 # Get token color based on percentage
 get_token_color() {
     local percent="$1"
-    if [ "$percent" -lt 50 ]; then echo "$GREEN"
-    elif [ "$percent" -lt 80 ]; then echo "$YELLOW"
-    else echo "$RED"
+    if [ "$percent" -lt 50 ]; then echo "$TOKEN_LOW"
+    elif [ "$percent" -lt 80 ]; then echo "$TOKEN_MED"
+    else echo "$TOKEN_HIGH"
     fi
 }
 
@@ -117,19 +117,19 @@ if [ -n "$GIT_BRANCH" ]; then
         if [ "$GIT_BRANCH" != "$WORKTREE_NAME" ]; then
             # Branch differs from worktree - show ⎇ ABBREV:branch✓
             WORKTREE_ABBREV=$(abbreviate_repo_name "$WORKTREE_NAME")
-            GIT_PART="${BLUE}⎇ ${WORKTREE_ABBREV}:${GIT_BRANCH}${DIRTY}${RESET}"
+            GIT_PART="${GIT_COLOR}⎇ ${WORKTREE_ABBREV}:${GIT_BRANCH}${DIRTY}${RESET}"
         else
             # Branch matches worktree - show ⎇ branch✓
-            GIT_PART="${BLUE}⎇ ${GIT_BRANCH}${DIRTY}${RESET}"
+            GIT_PART="${GIT_COLOR}⎇ ${GIT_BRANCH}${DIRTY}${RESET}"
         fi
     else
         # Regular git repo - show ○ branch✓
-        GIT_PART="${BLUE}○ ${GIT_BRANCH}${DIRTY}${RESET}"
+        GIT_PART="${GIT_COLOR}○ ${GIT_BRANCH}${DIRTY}${RESET}"
     fi
 else
     scan_workspace_repos "$CWD"
     # Workspace with multiple repos - show ◆ prefix
-    [ "$WORKSPACE_REPO_COUNT" -gt 0 ] && GIT_PART="${BLUE}◆ ${WORKSPACE_DISPLAY}${RESET}"
+    [ "$WORKSPACE_REPO_COUNT" -gt 0 ] && GIT_PART="${GIT_COLOR}◆ ${WORKSPACE_DISPLAY}${RESET}"
 fi
 
 # === Context Window ===
@@ -156,9 +156,9 @@ if [ "$CONTEXT_SIZE" -gt 0 ]; then
 fi
 
 # === Output ===
-SEP="${GRAY} | ${RESET}"
-OUTPUT="${CYAN}${MODEL_ABBREV}${RESET}"
-[ -n "$DIR_NAME" ] && OUTPUT="${OUTPUT}${SEP}${WHITE}${DIR_NAME}${RESET}"
+SEP="${SEP_COLOR} | ${RESET}"
+OUTPUT="${MODEL_COLOR}${MODEL_ABBREV}${RESET}"
+[ -n "$DIR_NAME" ] && OUTPUT="${OUTPUT}${SEP}${FOLDER_COLOR}${DIR_NAME}${RESET}"
 [ -n "$CONTEXT_PART" ] && OUTPUT="${OUTPUT}${SEP}${CONTEXT_PART}"
 [ -n "$GIT_PART" ] && OUTPUT="${OUTPUT}${SEP}${GIT_PART}"
 
