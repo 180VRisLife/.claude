@@ -109,6 +109,9 @@
     "defaultMode": "acceptEdits"
   },
   "model": "opus",
+  "env": {
+    "ENABLE_TOOL_SEARCH": "true"
+  },
   "hooks": {
     "Notification": [
       {
