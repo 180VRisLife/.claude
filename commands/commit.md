@@ -40,3 +40,19 @@ Once checks pass, commit immediately (no confirmation needed).
 - **Large (3+ files):** Logical batches, multiple commits
 
 Run `git status` to verify. Show cleanup reminders if issues were bypassed.
+
+## Output Format
+
+When complete, list all commits created:
+
+```
+✅ Committed!
+
+1. abc1234 - feat(auth): add OAuth2 login flow
+2. def5678 - fix(api): resolve null pointer in user lookup
+3. 9a8b7c6 - refactor(utils): extract date formatting helpers
+4. 1f2e3d4 - chore(deps): update react to v19
+5. 5c6d7e8 - docs(readme): add installation instructions
+```
+
+Use `git log --oneline -n` (where n = number of commits created) to get the hash and message for each.
