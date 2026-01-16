@@ -1,22 +1,45 @@
 ---
-allowed-tools: Bash(git checkout --branch:*), Bash(git add:*), Bash(git status:*), Bash(git push:*), Bash(git commit:*), Bash(gh pr create:*)
+allowed-tools: Bash(git checkout:*), Bash(git add:*), Bash(git status:*), Bash(git push:*), Bash(git commit:*), Bash(gh pr create:*), Bash(rm:*)
 description: Commit, push, and open a PR
 ---
 
 ## Context
 
-- Current git status: !`git status`
-- Current git diff (staged and unstaged changes): !`git diff HEAD`
-- Current branch: !`git branch --show-current`
+- Git status: !`git status`
+- Diff: !`git diff HEAD`
+- Branch: !`git branch --show-current`
+- Recent commits: !`git log --oneline -30`
+- Last commit: !`git log -1 --format='%an <%ae> | %s'`
+- Push status: !`git status -sb | head -1`
+- Git root: !`git rev-parse --show-toplevel`
+- CWD: !`pwd`
 
-## Your task
+## Pre-Commit Checks
 
-Based on the above changes:
+1. **Monorepo:** If cwd ≠ git root AND outside changes exist, ask: "This folder only" vs "Entire repo"
 
-1. Create a new branch if on main
-2. Create commit(s) with appropriate messages:
-   - **Small changes:** Single commit
-   - **Large changes (multiple features, 3+ files):** Group into logical batches, create multiple commits
-3. Push the branch to origin
-4. Create a pull request using `gh pr create`
-5. You have the capability to call multiple tools in a single response. You MUST do all of the above in a single message. Do not use any other tools or do anything else. Do not send any other text or messages besides these tool calls.
+2. **Multi-repo:** If not in git repo but subdirs have `.git`, orchestrate across all repos
+
+3. **⛔️ Debug code (HARD STOP):** Scan changed files for `console.log`, `print()`, `NSLog`, `debugPrint`, `DEBUG = true`, `// TEMP`, `// TODO: remove`. Exceptions: Debug UI, DebugLogger. If found: list file:line, stop, ask if exception. If not, remove first.
+
+4. **Readiness:** Flag TODO/FIXME, commented-out blocks, credentials, junk files. Ask "Proceed anyway?" and track for cleanup reminders.
+
+5. **Amend:** If last commit is yours + not pushed + related changes → consider amending. Ask if unsure.
+
+## Commit Style
+
+**Tags:** `feat`, `fix`, `refactor`, `chore`, `docs`
+
+**Format:** `tag(scope): lowercase, no period, imperative` — add bullet list for 3+ files/complex changes
+
+## Execution
+
+Once checks pass, proceed immediately (no confirmation needed).
+
+1. Create branch if on main/master
+2. Commit: single for small changes, logical batches for large (3+ files)
+3. Push to origin
+4. Create PR with `gh pr create`
+5. Return PR URL
+
+Show cleanup reminders if issues were bypassed.
