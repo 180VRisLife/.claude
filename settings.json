@@ -109,7 +109,7 @@
       "Write(//etc/**)",
       "Write(//var/**)"
     ],
-    "defaultMode": "acceptEdits"
+    "defaultMode": "plan"
   },
   "model": "opus",
   "hooks": {
@@ -147,5 +147,7 @@
   "sandbox": {
     "enabled": false,
     "autoAllowBashIfSandboxed": true
-  }
+  },
+  "autoUpdatesChannel": "latest",
+  "minimumVersion": "2.1.6"
 }
