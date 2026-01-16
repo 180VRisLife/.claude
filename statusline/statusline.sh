@@ -15,6 +15,9 @@ TOKEN_MED='\033[38;5;179m'     # Gold - muted yellow
 TOKEN_HIGH='\033[38;5;167m'    # Terracotta - muted red
 RESET='\033[0m'
 
+# Workspaces path for multi-repo workspace detection
+WORKSPACES_PATH="$HOME/Developer/Workspaces"
+
 # Abbreviate repo name
 abbreviate_repo_name() {
     local name="$1"
@@ -127,9 +130,12 @@ if [ -n "$GIT_BRANCH" ]; then
         GIT_PART="${GIT_COLOR}○ ${GIT_BRANCH}${DIRTY}${RESET}"
     fi
 else
-    scan_workspace_repos "$CWD"
-    # Workspace with multiple repos - show ◆ prefix
-    [ "$WORKSPACE_REPO_COUNT" -gt 0 ] && GIT_PART="${GIT_COLOR}◆ ${WORKSPACE_DISPLAY}${RESET}"
+    # Only scan for workspace repos if under the Workspaces folder
+    if [[ "$CWD" == "$WORKSPACES_PATH"* ]]; then
+        scan_workspace_repos "$CWD"
+        # Workspace with multiple repos - show ◆ prefix
+        [ "$WORKSPACE_REPO_COUNT" -gt 0 ] && GIT_PART="${GIT_COLOR}◆ ${WORKSPACE_DISPLAY}${RESET}"
+    fi
 fi
 
 # === Context Window ===
