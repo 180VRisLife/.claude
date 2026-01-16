@@ -1,4 +1,7 @@
 {
+  "env": {
+    "ENABLE_TOOL_SEARCH": "true"
+  },
   "includeCoAuthoredBy": false,
   "permissions": {
     "allow": [
@@ -109,9 +112,6 @@
     "defaultMode": "acceptEdits"
   },
   "model": "opus",
-  "env": {
-    "ENABLE_TOOL_SEARCH": "true"
-  },
   "hooks": {
     "Notification": [
       {
@@ -139,7 +139,11 @@
     "type": "command",
     "command": "bash /Users/chrisjamesbliss/.claude/statusline/statusline.sh"
   },
-  "enabledPlugins": {},
+  "enabledPlugins": {
+    "swift-lsp@claude-plugins-official": true,
+    "pyright-lsp@claude-plugins-official": true,
+    "lua-lsp@claude-plugins-official": true
+  },
   "sandbox": {
     "enabled": false,
     "autoAllowBashIfSandboxed": true
