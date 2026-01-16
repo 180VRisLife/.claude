@@ -2,6 +2,8 @@
 description: Cleans up all git branches marked as [gone] (branches that have been deleted on the remote but still exist locally), including removing associated worktrees.
 ---
 
+# Clean Gone - Remove Stale Local Branches
+
 ## Your Task
 
 You need to execute the following bash commands to clean up stale local branches that have been deleted from the remote repository.
