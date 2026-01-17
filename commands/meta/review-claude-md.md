@@ -2,8 +2,6 @@
 description: Review and analyze CLAUDE.md files for bloat and optimization opportunities
 ---
 
-# Review Claude - Analyze CLAUDE.md for Optimization
-
 ## Context
 
 You are reviewing CLAUDE.md files for optimization based on context window efficiency principles.

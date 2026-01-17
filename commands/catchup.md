@@ -1,4 +1,6 @@
-# Catchup - Resume Work with Prompt-Driven Analysis
+---
+description: Resume work by understanding user's intent first, then analyzing changes through that lens
+---
 
 Resume work by understanding the user's intent first, then analyzing changes through that lens.
 
