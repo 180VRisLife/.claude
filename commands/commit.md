@@ -3,8 +3,6 @@ allowed-tools: Bash(git add:*), Bash(git status:*), Bash(git commit:*), Bash(rm:
 description: Create a git commit
 ---
 
-# Commit - Stage and Commit Changes
-
 ## Context
 
 - Git status: !`git status`
