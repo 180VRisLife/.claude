@@ -1,5 +1,5 @@
 ---
-allowed-tools: Bash(git add:*), Bash(git status:*), Bash(git commit:*), Bash(rm:*)
+allowed-tools: Bash(git add:*), Bash(git status:*), Bash(git commit:*), Bash(git push:*), Bash(rm:*)
 description: Create a git commit
 ---
 
@@ -40,6 +40,8 @@ Once checks pass, commit immediately (no confirmation needed).
 - **Large (3+ files):** Logical batches, multiple commits
 
 Run `git status` to verify. Show cleanup reminders if issues were bypassed.
+
+Push to remote after committing.
 
 ## Output Format
 
