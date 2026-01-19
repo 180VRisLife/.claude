@@ -1,5 +1,5 @@
 ---
-name: claude-md-reviewer
+name: instructions-auditor
 description: Reviews and analyzes CLAUDE.md files for bloat, over-specification, and accumulated cruft. Provides cleanup recommendations based on context window optimization principles.
 model: opus
 ---
