@@ -64,14 +64,14 @@ scan_workspace_repos() {
         if [ -d "$real_path/.git" ] || [ -f "$real_path/.git" ]; then
             local git_info=$(get_repo_git_info "$real_path")
             if [ -n "$git_info" ]; then
-                # For worktrees, use the actual repo name and 🌿 icon; otherwise use folder name and 🌱
+                # For worktrees, use the actual repo name and [w] icon; otherwise use folder name and [r]
                 local repo_name icon
                 if [ -f "$real_path/.git" ]; then
                     repo_name=$(get_worktree_repo_name "$real_path")
-                    icon="🌿"
+                    icon="[w]"
                 else
                     repo_name=$(basename "$item")
-                    icon="🌱"
+                    icon="[r]"
                 fi
                 local branch=$(echo "$git_info" | cut -d'|' -f1)
                 local dirty=$(echo "$git_info" | cut -d'|' -f2)
@@ -140,21 +140,21 @@ if [ -n "$GIT_BRANCH" ]; then
 
     # Check if in a worktree (.git is a file in worktrees, directory in main repos)
     if [ -f "$CWD/.git" ]; then
-        # Worktree: always show 🌿 name:branch✓
+        # Worktree: always show [w] name:branch✓
         WORKTREE_NAME=$(basename "$CWD")
-        GIT_PART="${GIT_COLOR}🌿 ${WORKTREE_NAME}:${GIT_BRANCH}${DIRTY}${RESET}"
+        GIT_PART="${GIT_COLOR}[w] ${WORKTREE_NAME}:${GIT_BRANCH}${DIRTY}${RESET}"
     else
-        # Regular git repo - show 🌱 repo:branch✓
+        # Regular git repo - show [r] repo:branch✓
         REPO_ROOT=$(cd "$CWD" && git rev-parse --show-toplevel 2>/dev/null)
         REPO_NAME=$(basename "$REPO_ROOT")
-        GIT_PART="${GIT_COLOR}🌱 ${REPO_NAME}:${GIT_BRANCH}${DIRTY}${RESET}"
+        GIT_PART="${GIT_COLOR}[r] ${REPO_NAME}:${GIT_BRANCH}${DIRTY}${RESET}"
     fi
 else
     # Only scan for workspace repos if under the Workspaces folder
     if [[ "$CWD" == "$WORKSPACES_PATH"* ]]; then
         scan_workspace_repos "$CWD"
-        # Workspace with multiple repos - show 🌳 prefix
-        [ "$WORKSPACE_REPO_COUNT" -gt 0 ] && GIT_PART="${GIT_COLOR}🌳 ${WORKSPACE_DISPLAY}${RESET}"
+        # Workspace with multiple repos - show [s] prefix
+        [ "$WORKSPACE_REPO_COUNT" -gt 0 ] && GIT_PART="${GIT_COLOR}[s] ${WORKSPACE_DISPLAY}${RESET}"
     fi
 fi
 
@@ -175,7 +175,7 @@ if [ "$CONTEXT_SIZE" -gt 0 ]; then
     fi
 
     TOKEN_DISPLAY=$(format_tokens "$TOTAL_TOKENS")
-    PERCENT_INT=$(awk "BEGIN {printf \"%.0f\", ($TOTAL_TOKENS / $CONTEXT_SIZE) * 100}")
+    PERCENT_INT=$(awk "BEGIN {printf \"%02.0f\", ($TOTAL_TOKENS / $CONTEXT_SIZE) * 100}")
     TOKEN_COLOR=$(get_token_color "$PERCENT_INT")
     WINDOW_DISPLAY=$(format_tokens "$CONTEXT_SIZE")
     CONTEXT_PART="${TOKEN_COLOR}${TOKEN_DISPLAY}/${WINDOW_DISPLAY} · ${PERCENT_INT}%${RESET}"
