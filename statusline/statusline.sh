@@ -18,16 +18,28 @@ RESET='\033[0m'
 # Workspaces path for multi-repo workspace detection
 WORKSPACES_PATH="$HOME/Developer/Workspaces"
 
-# Abbreviate repo name
+# Abbreviate repo name (skips symbols, uses first letter of each word)
 abbreviate_repo_name() {
     local name="$1"
-    echo "$name" | sed 's/\([A-Z]\)/ \1/g; s/[-_]/ /g' | awk '{
+    echo "$name" | sed 's/\([A-Z]\)/ \1/g; s/[-_.]/ /g' | awk '{
         result=""
         for(i=1; i<=NF; i++) {
-            if(length($i) > 0) { result = result toupper(substr($i, 1, 1)) }
+            # Skip to first alphabetic character
+            word = $i
+            gsub(/^[^a-zA-Z]+/, "", word)
+            if(length(word) > 0) { result = result toupper(substr(word, 1, 1)) }
         }
         print result
     }'
+}
+
+# Get the main repository name from a worktree
+get_worktree_repo_name() {
+    local worktree_path="$1"
+    local gitdir_line=$(cat "$worktree_path/.git" 2>/dev/null)
+    # Extract path: "gitdir: /path/to/repo/.git/worktrees/name" -> "/path/to/repo"
+    local repo_path=$(echo "$gitdir_line" | sed 's/gitdir: //; s/\/\.git\/worktrees\/.*//')
+    basename "$repo_path"
 }
 
 # Get git info for a repo
@@ -49,14 +61,22 @@ scan_workspace_repos() {
         local real_path="$item"
         [ -L "$item" ] && real_path=$(readlink -f "$item" 2>/dev/null || readlink "$item" 2>/dev/null)
         [ -d "$real_path" ] || continue
-        if [ -d "$real_path/.git" ] || (cd "$real_path" 2>/dev/null && git rev-parse --git-dir >/dev/null 2>&1); then
+        if [ -d "$real_path/.git" ] || [ -f "$real_path/.git" ]; then
             local git_info=$(get_repo_git_info "$real_path")
             if [ -n "$git_info" ]; then
-                local abbrev=$(abbreviate_repo_name "$(basename "$item")")
+                # For worktrees, use the actual repo name and 🌿 icon; otherwise use folder name and 🌱
+                local repo_name icon
+                if [ -f "$real_path/.git" ]; then
+                    repo_name=$(get_worktree_repo_name "$real_path")
+                    icon="🌿"
+                else
+                    repo_name=$(basename "$item")
+                    icon="🌱"
+                fi
                 local branch=$(echo "$git_info" | cut -d'|' -f1)
                 local dirty=$(echo "$git_info" | cut -d'|' -f2)
                 [ -n "$WORKSPACE_DISPLAY" ] && WORKSPACE_DISPLAY="${WORKSPACE_DISPLAY} "
-                WORKSPACE_DISPLAY="${WORKSPACE_DISPLAY}${abbrev}:${branch}${dirty}"
+                WORKSPACE_DISPLAY="${WORKSPACE_DISPLAY}${icon}${repo_name}:${branch}${dirty}"
                 WORKSPACE_REPO_COUNT=$((WORKSPACE_REPO_COUNT + 1))
             fi
         fi
@@ -103,7 +123,12 @@ CWD=$(echo "$INPUT" | jq -r '.cwd // ""')
 MODEL_ABBREV=$(abbreviate_model "$MODEL_NAME")
 
 # === Directory ===
-DIR_NAME=$(basename "$CWD")
+# For worktrees, show the main repo name instead of the worktree folder name
+if [ -f "$CWD/.git" ]; then
+    DIR_NAME=$(get_worktree_repo_name "$CWD")
+else
+    DIR_NAME=$(basename "$CWD")
+fi
 
 # === Git info ===
 GIT_BRANCH=$(cd "$CWD" 2>/dev/null && git branch --show-current 2>/dev/null || echo "")
@@ -113,28 +138,23 @@ if [ -n "$GIT_BRANCH" ]; then
     DIRTY="✓"
     [ -n "$(cd "$CWD" && git status --porcelain 2>/dev/null)" ] && DIRTY="*"
 
-    # Check if in a worktree
-    GIT_DIR=$(cd "$CWD" && git rev-parse --git-dir 2>/dev/null)
-    if [ -f "$GIT_DIR/commondir" ]; then
+    # Check if in a worktree (.git is a file in worktrees, directory in main repos)
+    if [ -f "$CWD/.git" ]; then
+        # Worktree: always show 🌿 name:branch✓
         WORKTREE_NAME=$(basename "$CWD")
-        if [ "$GIT_BRANCH" != "$WORKTREE_NAME" ]; then
-            # Branch differs from worktree - show ⎇ ABBREV:branch✓
-            WORKTREE_ABBREV=$(abbreviate_repo_name "$WORKTREE_NAME")
-            GIT_PART="${GIT_COLOR}⎇ ${WORKTREE_ABBREV}:${GIT_BRANCH}${DIRTY}${RESET}"
-        else
-            # Branch matches worktree - show ⎇ branch✓
-            GIT_PART="${GIT_COLOR}⎇ ${GIT_BRANCH}${DIRTY}${RESET}"
-        fi
+        GIT_PART="${GIT_COLOR}🌿 ${WORKTREE_NAME}:${GIT_BRANCH}${DIRTY}${RESET}"
     else
-        # Regular git repo - show ○ branch✓
-        GIT_PART="${GIT_COLOR}○ ${GIT_BRANCH}${DIRTY}${RESET}"
+        # Regular git repo - show 🌱 repo:branch✓
+        REPO_ROOT=$(cd "$CWD" && git rev-parse --show-toplevel 2>/dev/null)
+        REPO_NAME=$(basename "$REPO_ROOT")
+        GIT_PART="${GIT_COLOR}🌱 ${REPO_NAME}:${GIT_BRANCH}${DIRTY}${RESET}"
     fi
 else
     # Only scan for workspace repos if under the Workspaces folder
     if [[ "$CWD" == "$WORKSPACES_PATH"* ]]; then
         scan_workspace_repos "$CWD"
-        # Workspace with multiple repos - show ◆ prefix
-        [ "$WORKSPACE_REPO_COUNT" -gt 0 ] && GIT_PART="${GIT_COLOR}◆ ${WORKSPACE_DISPLAY}${RESET}"
+        # Workspace with multiple repos - show 🌳 prefix
+        [ "$WORKSPACE_REPO_COUNT" -gt 0 ] && GIT_PART="${GIT_COLOR}🌳 ${WORKSPACE_DISPLAY}${RESET}"
     fi
 fi
 
@@ -164,8 +184,8 @@ fi
 # === Output ===
 SEP="${SEP_COLOR} | ${RESET}"
 OUTPUT="${MODEL_COLOR}${MODEL_ABBREV}${RESET}"
-[ -n "$DIR_NAME" ] && OUTPUT="${OUTPUT}${SEP}${FOLDER_COLOR}${DIR_NAME}${RESET}"
 [ -n "$CONTEXT_PART" ] && OUTPUT="${OUTPUT}${SEP}${CONTEXT_PART}"
+[ -n "$DIR_NAME" ] && OUTPUT="${OUTPUT}${SEP}${FOLDER_COLOR}${DIR_NAME}${RESET}"
 [ -n "$GIT_PART" ] && OUTPUT="${OUTPUT}${SEP}${GIT_PART}"
 
 echo -e "$OUTPUT"
