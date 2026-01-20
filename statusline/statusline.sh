@@ -119,15 +119,27 @@ get_token_color() {
 MODEL_NAME=$(echo "$INPUT" | jq -r '.model.display_name // "Claude"')
 CWD=$(echo "$INPUT" | jq -r '.cwd // ""')
 
+# === Session path persistence - always show initial session path ===
+SESSION_FILE="/tmp/claude-session-cwd-$PPID"
+if [ ! -f "$SESSION_FILE" ]; then
+    # First invocation - save initial CWD
+    echo "$CWD" > "$SESSION_FILE"
+    INITIAL_CWD="$CWD"
+else
+    # Subsequent invocations - use saved path
+    INITIAL_CWD=$(cat "$SESSION_FILE")
+fi
+
 # === Model ===
 MODEL_ABBREV=$(abbreviate_model "$MODEL_NAME")
 
 # === Directory ===
 # For worktrees, show the main repo name instead of the worktree folder name
-if [ -f "$CWD/.git" ]; then
-    DIR_NAME=$(get_worktree_repo_name "$CWD")
+# Use INITIAL_CWD so folder name always shows where session was opened
+if [ -f "$INITIAL_CWD/.git" ]; then
+    DIR_NAME=$(get_worktree_repo_name "$INITIAL_CWD")
 else
-    DIR_NAME=$(basename "$CWD")
+    DIR_NAME=$(basename "$INITIAL_CWD")
 fi
 
 # === Git info ===
