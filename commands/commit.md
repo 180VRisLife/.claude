@@ -1,5 +1,5 @@
 ---
-allowed-tools: Bash(git add:*), Bash(git status:*), Bash(git commit:*), Bash(git push:*), Bash(rm:*)
+allowed-tools: Bash(git add:*), Bash(git status:*), Bash(git commit:*), Bash(git push:*), Bash(git branch:*), Bash(rm:*)
 description: Create a git commit
 ---
 
@@ -13,6 +13,20 @@ description: Create a git commit
 - Push status: !`git status -sb | head -1`
 - Git root: !`git rev-parse --show-toplevel`
 - CWD: !`pwd`
+
+## Branch Name Check (Worktrees Only)
+
+**Worktree detection:** `[ -f .git ]` or `git rev-parse --git-common-dir` ≠ `--git-dir`
+
+If in worktree + on feature branch (not main/master/develop):
+
+1. **Check:** Is branch generic (`feature[-/]\d{8}-\d{6}`) or mismatched with diff?
+
+2. **If rename needed:** Generate name from diff (haiku model), show `old → new`, ask "Rename? [Y/n/custom]"
+
+3. **On rename:** `git branch -m old new && git push origin :old && git push -u origin new`
+
+4. **Skip if:** Not worktree, on main/master/develop, or name already fits changes
 
 ## Pre-Commit Checks
 
