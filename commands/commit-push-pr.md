@@ -1,5 +1,5 @@
 ---
-allowed-tools: Bash(git checkout:*), Bash(git add:*), Bash(git status:*), Bash(git push:*), Bash(git commit:*), Bash(git branch:*), Bash(gh pr create:*), Bash(rm:*)
+allowed-tools: Bash(git checkout:*), Bash(git add:*), Bash(git status:*), Bash(git push:*), Bash(git commit:*), Bash(git branch:*), Bash(gh pr create:*), Bash(gh pr merge:*), Bash(rm:*)
 description: Commit, push, and open a PR
 ---
 
@@ -53,7 +53,7 @@ Once checks pass, proceed immediately (no confirmation needed).
 1. Create branch if on main/master
 2. Commit: single for small changes, logical batches for large (3+ files)
 3. Push to origin
-4. Create PR with `gh pr create`
+4. Create PR with `gh pr create`, then enable auto-merge with `gh pr merge --auto --merge`
 5. Return PR URL
 
 Show cleanup reminders if issues were bypassed.
