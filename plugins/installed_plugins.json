@@ -30,6 +30,16 @@
         "lastUpdated": "2026-01-16T04:12:10.182Z",
         "gitCommitSha": "f70b65538da094ff474a855e7a679fb2c2c8064f"
       }
+    ],
+    "mgrep@Mixedbread-Grep": [
+      {
+        "scope": "user",
+        "installPath": "/Users/chrisjamesbliss/.claude/plugins/cache/Mixedbread-Grep/mgrep/0.0.0",
+        "version": "0.0.0",
+        "installedAt": "2026-01-21T02:33:46.453Z",
+        "lastUpdated": "2026-01-21T02:33:46.453Z",
+        "gitCommitSha": "e2eeefab952bcdf86873686d41039064748f2365"
+      }
     ]
   }
 }
