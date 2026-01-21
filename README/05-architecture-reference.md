@@ -3,7 +3,7 @@
 ## Directory Structure
 
 | Location | Purpose |
-|----------|---------|
+| -------- | ------- |
 | `~/.claude/agents/` | Global agents (code-finder, implementor, etc.) |
 | `~/.claude/commands/` | Slash commands (/git, /worktree, /catchup) |
 | `~/.claude/hooks/` | System hooks (notification sounds) |
@@ -19,4 +19,5 @@ Notification hooks in `~/.claude/hooks/`:
 
 ## Scheduled Tasks
 
-- **cleanup-claude** - Runs daily at noon, deletes cache files >7 days old (debug, todos, shell-snapshots, plans, file-history)
+- **cleanup-claude** - Runs daily at noon, deletes cache files >7 days old
+  (debug, todos, shell-snapshots, plans, file-history)

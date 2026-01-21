@@ -1,6 +1,8 @@
 # MCP Tools
 
-MCP (Model Context Protocol) servers extend Claude with specialized capabilities. These tools are triggered automatically when relevant, or explicitly via commands.
+MCP (Model Context Protocol) servers extend Claude with specialized
+capabilities. These tools are triggered automatically when relevant,
+or explicitly via commands.
 
 ## Installed MCPs
 
@@ -35,7 +37,7 @@ Searches Apple Developer Documentation, WWDC content, and sample code.
 ## Triggering Behavior
 
 | Mode | Description |
-|------|-------------|
+| ---- | ----------- |
 | **Automatic** | Claude uses MCPs when queries match their domain |
 | **Direct request** | "Use context7 to look up..." or "Search Apple docs for..." |
 

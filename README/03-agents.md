@@ -1,8 +1,10 @@
 # Agents
 
-Claude automatically recognizes and selects appropriate agents based on the nature of your request.
+Claude automatically recognizes and selects appropriate agents based on the
+nature of your request.
 
-*Note: Base agents are global and located in `~/.claude/agents/`. They are available in all projects without needing to copy them locally.*
+*Note: Base agents are global and located in `~/.claude/agents/`. They are
+available in all projects without needing to copy them locally.*
 
 ## How to Request Agents
 
@@ -26,19 +28,22 @@ Available in all domains. Located in `~/.claude/agents/`
 @code-finder
 ```
 
-Quickly locates specific code files, functions, classes, or patterns across the codebase (uses Haiku).
+Quickly locates specific code files, functions, classes, or patterns across
+the codebase (uses Haiku).
 
 ```text
 @code-finder-advanced
 ```
 
-Deep investigation for complex relationships, cross-file analysis, and semantic understanding (uses Sonnet).
+Deep investigation for complex relationships, cross-file analysis,
+and semantic understanding (uses Sonnet).
 
 ```text
 @implementor
 ```
 
-Executes specific implementation tasks from parallel plans with strict adherence to requirements.
+Executes specific implementation tasks from parallel plans with strict
+adherence to requirements.
 
 ```text
 @root-cause-analyzer
@@ -50,4 +55,5 @@ Diagnoses why bugs are occurring through systematic investigation.
 @docs-fetcher
 ```
 
-Fetches and compresses external documentation into LLM-optimized format. Used by `/docs` command for parallel doc generation.
+Fetches and compresses external documentation into LLM-optimized format.
+Used by `/docs` command for parallel doc generation.

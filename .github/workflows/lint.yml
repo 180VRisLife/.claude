@@ -17,7 +17,9 @@ jobs:
       - name: Check for shell file changes
         id: changed
         run: |
-          if git diff --name-only origin/${{ github.base_ref }}...HEAD | grep -qE '^(hooks/|scripts/|statusline/)'; then
+          PATTERN='^(hooks/|scripts/|statusline/)'
+          if git diff --name-only origin/${{ github.base_ref }}...HEAD \
+              | grep -qE "$PATTERN"; then
             echo "changed=true" >> $GITHUB_OUTPUT
           else
             echo "changed=false" >> $GITHUB_OUTPUT
@@ -29,7 +31,7 @@ jobs:
         with:
           scandir: '.'
           additional_files: 'scripts/cleanup-claude scripts/global-scan'
-          severity: warning
+          severity: error
 
       - name: Skip notice
         if: steps.changed.outputs.changed == 'false'
@@ -46,7 +48,9 @@ jobs:
       - name: Check for YAML file changes
         id: changed
         run: |
-          if git diff --name-only origin/${{ github.base_ref }}...HEAD | grep -qE '^\.github/workflows/.*\.ya?ml$'; then
+          PATTERN='^\.github/workflows/.*\.ya?ml$'
+          if git diff --name-only origin/${{ github.base_ref }}...HEAD \
+              | grep -qE "$PATTERN"; then
             echo "changed=true" >> $GITHUB_OUTPUT
           else
             echo "changed=false" >> $GITHUB_OUTPUT
@@ -74,7 +78,8 @@ jobs:
       - name: Check for JSON file changes
         id: changed
         run: |
-          if git diff --name-only origin/${{ github.base_ref }}...HEAD | grep -qE '\.json$'; then
+          if git diff --name-only origin/${{ github.base_ref }}...HEAD \
+              | grep -qE '\.json$'; then
             echo "changed=true" >> $GITHUB_OUTPUT
           else
             echo "changed=false" >> $GITHUB_OUTPUT
@@ -127,7 +132,8 @@ jobs:
       - name: Check for Markdown file changes
         id: changed
         run: |
-          if git diff --name-only origin/${{ github.base_ref }}...HEAD | grep -qE '\.md$'; then
+          if git diff --name-only origin/${{ github.base_ref }}...HEAD \
+              | grep -qE '\.md$'; then
             echo "changed=true" >> $GITHUB_OUTPUT
           else
             echo "changed=false" >> $GITHUB_OUTPUT
@@ -146,3 +152,12 @@ jobs:
       - name: Skip notice
         if: steps.changed.outputs.changed == 'false'
         run: echo "No Markdown files changed, skipping lint"
+
+  actionlint:
+    name: Action Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run actionlint
+        uses: raven-actions/actionlint@v2

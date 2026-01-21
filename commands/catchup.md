@@ -1,8 +1,11 @@
 ---
-description: Resume work by understanding user's intent first, then analyzing changes through that lens
+description: >-
+  Resume work by understanding user's intent first, then analyzing changes
+  through that lens
 ---
 
-Resume work by understanding the user's intent first, then analyzing changes through that lens.
+Resume work by understanding the user's intent first, then analyzing changes
+through that lens.
 
 **Arguments:** `$ARGUMENTS` - What to focus on or accomplish (optional)
 
@@ -17,7 +20,9 @@ Resume work by understanding the user's intent first, then analyzing changes thr
 
 ## Multi-Repo Detection
 
-**If not in a git repo:** Check for repos in subdirectories. If found, analyze all repos and present combined summary. Focus on repo with changes, or ask if multiple have changes.
+**If not in a git repo:** Check for repos in subdirectories. If found, analyze
+all repos and present combined summary. Focus on repo with changes, or ask
+if multiple have changes.
 
 ## Intent-Aware Analysis
 
@@ -30,7 +35,7 @@ Read diffs through the lens of parsed intent:
 ## Execution
 
 | Intent Type | Action |
-|-------------|--------|
+| ----------- | ------ |
 | No args | Summarize changes, ask what to focus on |
 | "What's left?" | Summarize remaining work, ask if should continue |
 | Specific instruction | Execute using current state as context |

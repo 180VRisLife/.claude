@@ -14,10 +14,15 @@ on:
 jobs:
   claude:
     if: |
-      (github.event_name == 'issue_comment' && contains(github.event.comment.body, '@claude')) ||
-      (github.event_name == 'pull_request_review_comment' && contains(github.event.comment.body, '@claude')) ||
-      (github.event_name == 'pull_request_review' && contains(github.event.review.body, '@claude')) ||
-      (github.event_name == 'issues' && (contains(github.event.issue.body, '@claude') || contains(github.event.issue.title, '@claude')))
+      (github.event_name == 'issue_comment' &&
+        contains(github.event.comment.body, '@claude')) ||
+      (github.event_name == 'pull_request_review_comment' &&
+        contains(github.event.comment.body, '@claude')) ||
+      (github.event_name == 'pull_request_review' &&
+        contains(github.event.review.body, '@claude')) ||
+      (github.event_name == 'issues' &&
+        (contains(github.event.issue.body, '@claude') ||
+        contains(github.event.issue.title, '@claude')))
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -33,11 +38,15 @@ jobs:
 
       - name: Setup global Claude config
         run: |
-          git clone --depth 1 https://github.com/180VRisLife/.claude.git /tmp/claude-config
+          git clone --depth 1 \
+            https://github.com/180VRisLife/.claude.git /tmp/claude-config
           mkdir -p ~/.claude
-          [ -d /tmp/claude-config/agents ] && cp -r /tmp/claude-config/agents ~/.claude/
-          [ -d /tmp/claude-config/commands ] && cp -r /tmp/claude-config/commands ~/.claude/
-          [ -f /tmp/claude-config/CLAUDE.md ] && cp /tmp/claude-config/CLAUDE.md ~/.claude/
+          [ -d /tmp/claude-config/agents ] && \
+            cp -r /tmp/claude-config/agents ~/.claude/
+          [ -d /tmp/claude-config/commands ] && \
+            cp -r /tmp/claude-config/commands ~/.claude/
+          [ -f /tmp/claude-config/CLAUDE.md ] && \
+            cp /tmp/claude-config/CLAUDE.md ~/.claude/
           rm -rf /tmp/claude-config
           echo "=== Global Claude config loaded ==="
           ls -la ~/.claude/
@@ -48,12 +57,9 @@ jobs:
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
 
-          # This is an optional setting that allows Claude to read CI results on PRs
+          # Allow Claude to read CI results on PRs
           additional_permissions: |
             actions: read
-
-          # Optional: Give a custom prompt to Claude. If this is not specified, Claude will perform the instructions specified in the comment that tagged it.
-          # prompt: 'Update the pull request description to include a summary of changes.'
 
           # Use Opus model (shorthand auto-updates to latest version)
           claude_args: "--model opus"
@@ -63,7 +69,8 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const issueNumber = context.issue?.number || context.payload.issue?.number;
+            const issueNumber =
+              context.issue?.number || context.payload.issue?.number;
             if (!issueNumber) return;
 
             const runUrl = `${context.serverUrl}/${context.repo.owner}` +
@@ -72,7 +79,7 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: issueNumber,
-              body: `⚠️ **Claude workflow failed**\n\n` +
+              body: `**Claude workflow failed**\n\n` +
                 `This may indicate a model ID deprecation or API issue.\n\n` +
                 `[View workflow run](${runUrl})`
             });
