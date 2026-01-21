@@ -1,3 +1,4 @@
+---
 name: Lint & Security
 
 on:
@@ -29,8 +30,6 @@ jobs:
           scandir: '.'
           additional_files: 'scripts/cleanup-claude scripts/global-scan'
           severity: warning
-        env:
-          SHELLCHECK_OPTS: -e SC1091
 
       - name: Skip notice
         if: steps.changed.outputs.changed == 'false'
@@ -58,14 +57,7 @@ jobs:
         uses: ibiqlik/action-yamllint@v3
         with:
           file_or_dir: .github/workflows/
-          config_data: |
-            extends: default
-            rules:
-              line-length:
-                max: 200
-                level: warning
-              truthy:
-                check-keys: false
+          config_file: .yamllint.yml
 
       - name: Skip notice
         if: steps.changed.outputs.changed == 'false'
@@ -127,7 +119,6 @@ jobs:
   markdownlint:
     name: Markdown Lint
     runs-on: ubuntu-latest
-    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
         with:
@@ -150,9 +141,7 @@ jobs:
 
       - name: Run markdownlint
         if: steps.changed.outputs.changed == 'true'
-        run: |
-          echo '{"line-length": false, "no-inline-html": false, "no-duplicate-heading": false}' > .markdownlint.json
-          npx markdownlint-cli2 "**/*.md"
+        run: npx markdownlint-cli2 "**/*.md"
 
       - name: Skip notice
         if: steps.changed.outputs.changed == 'false'

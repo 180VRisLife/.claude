@@ -22,6 +22,7 @@ Resume work by understanding the user's intent first, then analyzing changes thr
 ## Intent-Aware Analysis
 
 Read diffs through the lens of parsed intent:
+
 - **Relevant**: Changes that matter for the user's request
 - **Completed**: What's done that the intent cares about
 - **Remaining**: What the intent needs that isn't done yet

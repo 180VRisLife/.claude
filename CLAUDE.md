@@ -13,4 +13,3 @@ Use project's DebugLogger utility for debug logging. Logs to `/tmp/{ProjectName}
 ## Build Verification
 
 Build/compile after non-trivial changes. Fix all errors and warnings.
-

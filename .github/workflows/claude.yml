@@ -1,3 +1,4 @@
+---
 name: Claude Code
 
 on:
@@ -65,9 +66,13 @@ jobs:
             const issueNumber = context.issue?.number || context.payload.issue?.number;
             if (!issueNumber) return;
 
+            const runUrl = `${context.serverUrl}/${context.repo.owner}` +
+              `/${context.repo.repo}/actions/runs/${context.runId}`;
             await github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: issueNumber,
-              body: `⚠️ **Claude workflow failed**\n\nThis may indicate a model ID deprecation or API issue.\n\n[View workflow run](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId})`
+              body: `⚠️ **Claude workflow failed**\n\n` +
+                `This may indicate a model ID deprecation or API issue.\n\n` +
+                `[View workflow run](${runUrl})`
             });

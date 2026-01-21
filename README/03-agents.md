@@ -7,11 +7,13 @@ Claude automatically recognizes and selects appropriate agents based on the natu
 ## How to Request Agents
 
 ### Implicit (Recommended)
+
 - "Find where authentication is implemented" → Claude selects @code-finder
 - "Build a new user profile feature" → Claude selects @implementor
 - "Debug why the API is failing" → Claude selects @root-cause-analyzer
 
 ### Explicit (When needed)
+
 - "Use @code-finder-advanced to investigate the data flow"
 - "Deploy @root-cause-analyzer to understand why this crashes"
 - "Have @implementor build the feature from the plan"
@@ -20,27 +22,32 @@ Claude automatically recognizes and selects appropriate agents based on the natu
 
 Available in all domains. Located in `~/.claude/agents/`
 
-```
+```text
 @code-finder
 ```
+
 Quickly locates specific code files, functions, classes, or patterns across the codebase (uses Haiku).
 
-```
+```text
 @code-finder-advanced
 ```
+
 Deep investigation for complex relationships, cross-file analysis, and semantic understanding (uses Sonnet).
 
-```
+```text
 @implementor
 ```
+
 Executes specific implementation tasks from parallel plans with strict adherence to requirements.
 
-```
+```text
 @root-cause-analyzer
 ```
+
 Diagnoses why bugs are occurring through systematic investigation.
 
-```
+```text
 @docs-fetcher
 ```
+
 Fetches and compresses external documentation into LLM-optimized format. Used by `/docs` command for parallel doc generation.

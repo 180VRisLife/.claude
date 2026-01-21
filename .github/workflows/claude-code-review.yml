@@ -1,3 +1,4 @@
+---
 name: Claude Code Review
 
 on:
@@ -47,8 +48,8 @@ jobs:
         uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          claude_args: |
-            --allowedTools "Bash(gh pr view:*),Bash(gh pr diff:*),Bash(gh pr comment:*),Bash(gh pr list:*),Bash(gh issue view:*),Bash(gh issue list:*),Bash(gh search:*),Bash(git diff:*),Bash(git show:*),Bash(git blame:*),Bash(git log:*),Read,Glob,Grep,Task"
+          # yamllint disable-line rule:line-length
+          claude_args: "--allowedTools \"Bash(gh pr view:*),Bash(gh pr diff:*),Bash(gh pr comment:*),Bash(gh pr list:*),Bash(gh issue view:*),Bash(gh issue list:*),Bash(gh search:*),Bash(git diff:*),Bash(git show:*),Bash(git blame:*),Bash(git log:*),Read,Glob,Grep,Task\""
           prompt: |
             # Code Review: PR #${{ github.event.pull_request.number }}
             **FAIL THRESHOLD:** Any category below 80% fails the check.
@@ -63,14 +64,22 @@ jobs:
             - STOP. Do not proceed.
 
             ## Phase 2: Context
-            Launch Task (haiku) to gather: CLAUDE.md files in modified dirs, PR diff, and if `.beads/` exists, newly-closed specs with acceptance criteria via `git diff origin/${{ github.base_ref }}...HEAD -- .beads/`.
+            Launch Task (haiku) to gather: CLAUDE.md files in modified dirs, PR diff,
+            and if `.beads/` exists, newly-closed specs with acceptance criteria via
+            `git diff origin/${{ github.base_ref }}...HEAD -- .beads/`.
 
             ## Phase 3: Parallel Review
             Launch 5 Tasks IN PARALLEL with `model="opus"`. Ignore: linter issues, formatting, type errors, pre-existing code, build/test.
 
-            **Agent 1 - Compliance:** Check changes against CLAUDE.md and inline comments (// WARNING, // Do not modify). Note specific guideline violations. Review previous PRs that touched these files for recurring feedback.
-            **Agent 2 - Bug Detection:** Focus on changed code, use git blame for context. Identify bugs where code was changed without understanding original intent. Target: null refs, off-by-one, races, leaks. Avoid false positives and nitpicks.
-            **Agent 3 - Spec Review:** If `.beads/` exists, verify newly-closed specs fulfilled acceptance criteria. Check if requirements were removed or weakened. Otherwise N/A.
+            **Agent 1 - Compliance:** Check changes against CLAUDE.md and inline
+            comments (// WARNING, // Do not modify). Note specific guideline violations.
+            Review previous PRs that touched these files for recurring feedback.
+            **Agent 2 - Bug Detection:** Focus on changed code, use git blame for context.
+            Identify bugs where code was changed without understanding original intent.
+            Target: null refs, off-by-one, races, leaks. Avoid false positives.
+            **Agent 3 - Spec Review:** If `.beads/` exists, verify newly-closed specs
+            fulfilled acceptance criteria. Check if requirements were removed or weakened.
+            Otherwise N/A.
             **Agent 4 - Simplification:** Find duplicate patterns and obvious simplification opportunities. Focus on actionable suggestions, not style preferences.
             **Agent 5 - Security:** OWASP Top 10: injection (SQL, command, XSS), auth/authz issues, secrets/API keys, input validation, insecure configs.
 
@@ -135,9 +144,13 @@ jobs:
             const prNumber = context.payload.pull_request?.number;
             if (!prNumber) return;
 
+            const runUrl = `${context.serverUrl}/${context.repo.owner}` +
+              `/${context.repo.repo}/actions/runs/${context.runId}`;
             await github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: prNumber,
-              body: `⚠️ **Claude Code Review workflow failed**\n\nThis may indicate a configuration or API issue.\n\n[View workflow run](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId})`
+              body: `⚠️ **Claude Code Review workflow failed**\n\n` +
+                `This may indicate a configuration or API issue.\n\n` +
+                `[View workflow run](${runUrl})`
             });

@@ -9,6 +9,7 @@ MCP (Model Context Protocol) servers extend Claude with specialized capabilities
 Fetches up-to-date documentation for any library (npm, pip, crates, etc.).
 
 **Automatic triggers:**
+
 - Questions about library APIs
 - "How do I use X in [library]?"
 - Requests for current documentation
@@ -18,11 +19,13 @@ Fetches up-to-date documentation for any library (npm, pip, crates, etc.).
 Searches Apple Developer Documentation, WWDC content, and sample code.
 
 **Automatic triggers:**
+
 - Questions about Apple frameworks (SwiftUI, UIKit, etc.)
 - iOS/macOS/visionOS development queries
 - Requests for Apple API references
 
 **Additional capabilities:**
+
 - `list_technologies` - Browse all Apple frameworks
 - `search_framework_symbols` - Find symbols within a framework
 - `get_sample_code` - Browse complete sample projects
@@ -39,6 +42,7 @@ Searches Apple Developer Documentation, WWDC content, and sample code.
 ## When to Request Explicitly
 
 Ask Claude to use MCP tools when you want to:
+
 - Guarantee fresh documentation (not from Claude's training data)
 - Force a lookup even for topics Claude might know
 - Get the most current API references

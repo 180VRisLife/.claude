@@ -36,16 +36,19 @@ abbreviate_repo_name() {
 # Get the main repository name from a worktree
 get_worktree_repo_name() {
     local worktree_path="$1"
-    local gitdir_line=$(cat "$worktree_path/.git" 2>/dev/null)
+    local gitdir_line
+    gitdir_line=$(cat "$worktree_path/.git" 2>/dev/null)
     # Extract path: "gitdir: /path/to/repo/.git/worktrees/name" -> "/path/to/repo"
-    local repo_path=$(echo "$gitdir_line" | sed 's/gitdir: //; s/\/\.git\/worktrees\/.*//')
+    local repo_path
+    repo_path=$(echo "$gitdir_line" | sed 's/gitdir: //; s/\/\.git\/worktrees\/.*//')
     basename "$repo_path"
 }
 
 # Get git info for a repo
 get_repo_git_info() {
     local repo_path="$1"
-    local branch=$(cd "$repo_path" 2>/dev/null && git branch --show-current 2>/dev/null || echo "")
+    local branch
+    branch=$(cd "$repo_path" 2>/dev/null && git branch --show-current 2>/dev/null || echo "")
     [ -z "$branch" ] && return
     local dirty="✓"
     [ -n "$(cd "$repo_path" && git status --porcelain 2>/dev/null)" ] && dirty="*"
@@ -62,7 +65,8 @@ scan_workspace_repos() {
         [ -L "$item" ] && real_path=$(readlink -f "$item" 2>/dev/null || readlink "$item" 2>/dev/null)
         [ -d "$real_path" ] || continue
         if [ -d "$real_path/.git" ] || [ -f "$real_path/.git" ]; then
-            local git_info=$(get_repo_git_info "$real_path")
+            local git_info
+            git_info=$(get_repo_git_info "$real_path")
             if [ -n "$git_info" ]; then
                 # For worktrees, use the actual repo name and [w] icon; otherwise use folder name and [r]
                 local repo_name icon
@@ -73,8 +77,10 @@ scan_workspace_repos() {
                     repo_name=$(basename "$item")
                     icon="[r]"
                 fi
-                local branch=$(echo "$git_info" | cut -d'|' -f1)
-                local dirty=$(echo "$git_info" | cut -d'|' -f2)
+                local branch
+                branch=$(echo "$git_info" | cut -d'|' -f1)
+                local dirty
+                dirty=$(echo "$git_info" | cut -d'|' -f2)
                 [ -n "$WORKSPACE_DISPLAY" ] && WORKSPACE_DISPLAY="${WORKSPACE_DISPLAY} "
                 WORKSPACE_DISPLAY="${WORKSPACE_DISPLAY}${icon}${repo_name}:${branch}${dirty}"
                 WORKSPACE_REPO_COUNT=$((WORKSPACE_REPO_COUNT + 1))
