@@ -1,5 +1,5 @@
 ---
-allowed-tools: Bash(git checkout:*), Bash(git add:*), Bash(git status:*), Bash(git push:*), Bash(git commit:*), Bash(git branch:*), Bash(gh pr create:*), Bash(rm:*)
+allowed-tools: Bash(git checkout:*), Bash(git add:*), Bash(git status:*), Bash(git push:*), Bash(git commit:*), Bash(git branch:*), Bash(gh pr create:*), Bash(gh pr merge:*), Bash(rm:*)
 description: Commit, push, and open a PR
 ---
 
@@ -54,7 +54,8 @@ Once checks pass, proceed immediately (no confirmation needed).
 2. Commit: single for small changes, logical batches for large (3+ files)
 3. Push to origin
 4. Create PR with `gh pr create`
-5. Return PR URL
+5. Enable automerge: `gh pr merge <PR_NUMBER> --auto --merge`
+6. Return PR URL
 
 Show cleanup reminders if issues were bypassed.
 
@@ -63,7 +64,7 @@ Show cleanup reminders if issues were bypassed.
 When complete, list all commits created and the PR URL:
 
 ```
-✅ Committed and PR created!
+✅ Committed and PR created (automerge enabled)
 
 Commits:
 1. abc1234 - feat(auth): add OAuth2 login flow
