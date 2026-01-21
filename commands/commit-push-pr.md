@@ -1,5 +1,5 @@
 ---
-allowed-tools: Bash(git checkout:*), Bash(git add:*), Bash(git status:*), Bash(git push:*), Bash(git commit:*), Bash(git branch:*), Bash(gh pr create:*), Bash(gh pr merge:*), Bash(rm:*)
+allowed-tools: Bash(git checkout:*), Bash(git add:*), Bash(git status:*), Bash(git push:*), Bash(git commit:*), Bash(git branch:*), Bash(git merge:*), Bash(git pull:*), Bash(git diff:*), Bash(gh pr create:*), Bash(gh pr merge:*), Bash(rm:*), Bash(cd:*), Bash(wq:*)
 description: Commit, push, and open a PR
 ---
 
@@ -13,67 +13,39 @@ description: Commit, push, and open a PR
 - Push status: !`git status -sb | head -1`
 - Git root: !`git rev-parse --show-toplevel`
 - CWD: !`pwd`
+- Base diff stats: !`git diff main...HEAD --stat 2>/dev/null || git diff develop...HEAD --stat 2>/dev/null || echo "N/A"`
 
 ## Branch Name Check (Worktrees Only)
 
-**Worktree detection:** `[ -f .git ]` or `git rev-parse --git-common-dir` ≠ `--git-dir`
+**Worktree:** `[ -f .git ]` or `git rev-parse --git-common-dir` ≠ `--git-dir`. Skip if not worktree or on main/master/develop.
 
-If in worktree + on feature branch (not main/master/develop):
+If on feature branch with generic name (`feature[-/]\d{8}-\d{6}`) or name mismatches diff: generate name (haiku), show `old → new`, ask "Rename? [Y/n/custom]". On rename: `git branch -m old new && git push origin :old && git push -u origin new`
 
-1. **Check:** Is branch generic (`feature[-/]\d{8}-\d{6}`) or mismatched with diff?
+## Trivial Change Shortcut (Feature Branches Only)
 
-2. **If rename needed:** Generate name from diff (haiku model), show `old → new`, ask "Rename? [Y/n/custom]"
+Skip if on main/master/develop. Check total diff: `git diff main...HEAD --stat`
 
-3. **On rename:** `git branch -m old new && git push origin :old && git push -u origin new`
-
-4. **Skip if:** Not worktree, on main/master/develop, or name already fits changes
+**Trivial:** ≤3 files, <20 LOC, docs/config/comments or single function fix. Ask "Small change. Merge directly to main? [Y/n]"
+- **Yes:** `git checkout main && git pull && git merge --no-ff <branch> && git push && git push origin --delete <branch>`. Ask "Clean up worktree? [Y/n]" → `cd .. && wq`
+- **No:** Continue with PR workflow
 
 ## Pre-Commit Checks
 
-1. **Monorepo:** If cwd ≠ git root AND outside changes exist, ask: "This folder only" vs "Entire repo"
-
-2. **Multi-repo:** If not in git repo but subdirs have `.git`, orchestrate across all repos
-
-3. **⛔️ Debug code (HARD STOP):** Scan changed files for `console.log`, `print()`, `NSLog`, `debugPrint`, `DEBUG = true`, `// TEMP`, `// TODO: remove`. Exceptions: Debug UI, DebugLogger. If found: list file:line, stop, ask if exception. If not, remove first.
-
-4. **Readiness:** Flag TODO/FIXME, commented-out blocks, credentials, junk files. Ask "Proceed anyway?" and track for cleanup reminders.
-
-5. **Amend:** If last commit is yours + not pushed + related changes → consider amending. Ask if unsure.
+1. **Monorepo:** cwd ≠ git root + outside changes → ask "This folder only" vs "Entire repo"
+2. **Multi-repo:** Not in git but subdirs have `.git` → orchestrate across all
+3. **⛔️ Debug code:** Scan for `console.log`, `print()`, `NSLog`, `debugPrint`, `DEBUG = true`, `// TEMP`. Stop + list file:line. Exception: Debug UI, DebugLogger
+4. **Readiness:** Flag TODO/FIXME, commented blocks, credentials → "Proceed anyway?" + track reminders
+5. **Amend:** Last commit yours + not pushed + related → consider amend, ask if unsure
 
 ## Commit Style
 
 **Tags:** `feat`, `fix`, `refactor`, `chore`, `docs`
-
-**Format:** `tag(scope): lowercase, no period, imperative` — add bullet list for 3+ files/complex changes
+**Format:** `tag(scope): lowercase, no period, imperative` — bullet list for 3+ files
 
 ## Execution
 
-Once checks pass, proceed immediately (no confirmation needed).
+Once checks pass, proceed immediately. Create branch if on main/master. Commit (single for small, batches for large 3+ files). Push to origin. Create PR via `gh pr create`. Enable automerge: `gh pr merge <PR> --auto --merge`. Show cleanup reminders if issues bypassed.
 
-1. Create branch if on main/master
-2. Commit: single for small changes, logical batches for large (3+ files)
-3. Push to origin
-4. Create PR with `gh pr create`
-5. Enable automerge: `gh pr merge <PR_NUMBER> --auto --merge`
-6. Return PR URL
+## Output
 
-Show cleanup reminders if issues were bypassed.
-
-## Output Format
-
-When complete, list all commits created and the PR URL:
-
-```
-✅ Committed and PR created (automerge enabled)
-
-Commits:
-1. abc1234 - feat(auth): add OAuth2 login flow
-2. def5678 - fix(api): resolve null pointer in user lookup
-3. 9a8b7c6 - refactor(utils): extract date formatting helpers
-4. 1f2e3d4 - chore(deps): update react to v19
-5. 5c6d7e8 - docs(readme): add installation instructions
-
-PR: https://github.com/org/repo/pull/123
-```
-
-Use `git log --oneline -n` (where n = number of commits created) to get the hash and message for each.
+When complete: `git log --oneline -n` (n = commits created), then show commits list and PR URL.
