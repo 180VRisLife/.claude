@@ -62,6 +62,9 @@ image-cache/
 
 # Telemetry data
 telemetry/
+
+# Task tracking (ephemeral)
+tasks/
 plugins/known_marketplaces.json
 
 # Cache

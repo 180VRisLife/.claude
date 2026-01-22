@@ -1,0 +1,137 @@
+#!/bin/bash
+# Local linter runner - mirrors CI workflow
+set -eo pipefail
+
+cd "$(git rev-parse --show-toplevel)"
+
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+BOLD='\033[1m'
+NC='\033[0m'
+
+pass() { echo -e "${GREEN}✓${NC} $1"; }
+fail() { echo -e "${RED}✗${NC} $1"; }
+header() { echo -e "\n${BOLD}$1${NC}"; }
+
+errors=0
+
+lint_json() {
+    header "JSON Validation (jq)"
+    if ! command -v jq &>/dev/null; then
+        fail "jq not installed (brew install jq)"
+        return 1
+    fi
+    local count=0
+    local failed=0
+    while IFS= read -r file; do
+        if ! jq empty "$file" 2>/dev/null; then
+            fail "$file: invalid JSON"
+            ((failed++))
+        else
+            ((count++))
+        fi
+    done < <(git ls-files '*.json')
+    if [ $failed -gt 0 ]; then
+        fail "$failed JSON file(s) invalid"
+        return 1
+    fi
+    pass "$count JSON files valid"
+}
+
+lint_markdown() {
+    header "Markdown Lint (markdownlint-cli2)"
+    if npx markdownlint-cli2 "**/*.md" 2>&1; then
+        pass "Markdown files valid"
+    else
+        fail "Markdown lint failed"
+        return 1
+    fi
+}
+
+lint_yaml() {
+    header "YAML Lint (yamllint)"
+    if ! command -v yamllint &>/dev/null; then
+        fail "yamllint not installed (pip install yamllint)"
+        return 1
+    fi
+    if yamllint -c .yamllint.yml .github/workflows/; then
+        pass "YAML files valid"
+    else
+        fail "YAML lint failed"
+        return 1
+    fi
+}
+
+lint_shell() {
+    header "ShellCheck"
+    if ! command -v shellcheck &>/dev/null; then
+        fail "shellcheck not installed (brew install shellcheck)"
+        return 1
+    fi
+    local files=()
+    while IFS= read -r file; do
+        files+=("$file")
+    done < <(git ls-files 'hooks/*' 'scripts/*' 'statusline/*' | xargs -I{} sh -c 'file "{}" | grep -q "shell script" && echo "{}"' 2>/dev/null || true)
+    if [ ${#files[@]} -eq 0 ]; then
+        pass "No shell files to check"
+        return 0
+    fi
+    if shellcheck --severity=error "${files[@]}"; then
+        pass "${#files[@]} shell files valid"
+    else
+        fail "ShellCheck failed"
+        return 1
+    fi
+}
+
+lint_actions() {
+    header "Action Lint (actionlint)"
+    if ! command -v actionlint &>/dev/null; then
+        echo -e "${YELLOW}!${NC} actionlint not installed (brew install actionlint) - skipping"
+        return 0
+    fi
+    if actionlint; then
+        pass "GitHub Actions valid"
+    else
+        fail "Action lint failed"
+        return 1
+    fi
+}
+
+run_linter() {
+    if "$1"; then
+        return 0
+    else
+        ((errors++))
+        return 1
+    fi
+}
+
+case "${1:-all}" in
+    json)     run_linter lint_json ;;
+    md)       run_linter lint_markdown ;;
+    yaml)     run_linter lint_yaml ;;
+    shell)    run_linter lint_shell ;;
+    actions)  run_linter lint_actions ;;
+    all)
+        run_linter lint_json || true
+        run_linter lint_markdown || true
+        run_linter lint_yaml || true
+        run_linter lint_shell || true
+        run_linter lint_actions || true
+        ;;
+    *)
+        echo "Usage: $0 [json|md|yaml|shell|actions|all]"
+        exit 1
+        ;;
+esac
+
+header "Summary"
+if [ $errors -eq 0 ]; then
+    pass "All linters passed"
+    exit 0
+else
+    fail "$errors linter(s) failed"
+    exit 1
+fi
