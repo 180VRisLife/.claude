@@ -5,6 +5,9 @@ set +x
 
 INPUT=$(cat)
 
+# Cleanup temp file when parent shell exits
+trap 'rm -f "/tmp/claude-session-cwd-${PPID}" 2>/dev/null' EXIT
+
 # Colors - muted 256-color palette (avoids Claude Code UI colors)
 MODEL_COLOR='\033[38;5;146m'    # Lavender - soft purple-gray
 FOLDER_COLOR='\033[38;5;109m'  # Slate teal - muted cyan-gray
@@ -128,12 +131,16 @@ CWD=$(echo "${INPUT}" | jq -r '.cwd // ""')
 # === Session path persistence - always show initial session path ===
 SESSION_FILE="/tmp/claude-session-cwd-${PPID}"
 if [ ! -f "${SESSION_FILE}" ]; then
-    # First invocation - save initial CWD
-    echo "${CWD}" > "${SESSION_FILE}"
+    # First invocation - save initial CWD atomically
+    TEMP_FILE="${SESSION_FILE}.$$"
+    if echo "${CWD}" > "${TEMP_FILE}" 2>/dev/null; then
+        mv "${TEMP_FILE}" "${SESSION_FILE}" 2>/dev/null || rm -f "${TEMP_FILE}"
+    fi
     INITIAL_CWD="${CWD}"
 else
-    # Subsequent invocations - use saved path
-    INITIAL_CWD=$(cat "${SESSION_FILE}")
+    # Subsequent invocations - use saved path, fallback to CWD if invalid
+    INITIAL_CWD=$(cat "${SESSION_FILE}" 2>/dev/null)
+    [ ! -d "${INITIAL_CWD}" ] && INITIAL_CWD="${CWD}"
 fi
 
 # === Model ===
