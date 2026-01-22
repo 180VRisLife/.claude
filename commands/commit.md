@@ -26,7 +26,8 @@ Skip if not worktree or on main/master/develop.
 If on feature branch with generic name (`feature[-/]\d{8}-\d{6}`) or name
 mismatches diff: generate name (haiku), show `old → new`,
 ask "Rename? [Y/n/custom]".
-On rename: `git branch -m old new && git push origin :old && git push -u origin new`
+On rename: `git branch -m old new && git push origin :old` then
+`git push -u origin new`
 
 ## Protected Branch Smart Defaults
 
@@ -36,7 +37,7 @@ Check triviality via `git diff --stat HEAD`.
 - **Trivial** (≤3 files, <20 LOC, docs/config only) → direct push
 - **Not trivial** (4+ files, >50 LOC, core logic/API/deps) →
   Ask "Create PR? [y/N]". If yes: branch → commit → push → `gh pr create` →
-  `gh pr merge --auto --squash` → return
+  `gh pr merge --auto --merge` → return
 
 ## Pre-Commit Checks
 
@@ -59,8 +60,8 @@ for 3+ files
 
 ## Execution
 
-Once checks pass, commit immediately. Small: single commit. Large (3+ files):
-logical batches. Run `git status` to verify. Push to remote.
+Once checks pass, commit immediately. Single commit or logical batches as
+appropriate. Run `git status` to verify. Push to remote.
 Show cleanup reminders if issues bypassed.
 
 ## Output

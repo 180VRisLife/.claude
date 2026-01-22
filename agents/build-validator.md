@@ -40,6 +40,7 @@ be introduced. Repeat until the build is genuinely clean.
 
 - **Warnings matter**: A build with warnings is not clean
 - **Re-validate after fixes**: Always re-run — fixes can introduce new issues
-- **Compilation only**: Don't run tests or verify behavior — that's verify-app's job
+- **Compilation only**: Don't run tests or verify behavior — that's
+  verify-app's job
 - **Track everything**: Use todos so no issue is skipped
 - **Be specific**: Exact file paths and line numbers

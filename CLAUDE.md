@@ -1,10 +1,12 @@
 # CLAUDE.md
 
-This repository contains Claude CLI configuration: global instructions (CLAUDE.md), agents, and skills.
+This repository contains Claude CLI configuration: global instructions
+(CLAUDE.md), agents, and skills.
 
 ## Git Policy
 
-**ABSOLUTE RULE: Claude NEVER commits without the `/commit` or `/commit-push-pr` skill.**
+**ABSOLUTE RULE: Claude NEVER commits without `/commit` or
+`/commit-push-pr`.**
 
 ## DebugLogger
 

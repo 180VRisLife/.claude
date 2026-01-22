@@ -4,7 +4,8 @@ description: Review and analyze CLAUDE.md files for bloat and optimization oppor
 
 ## Context
 
-You are reviewing CLAUDE.md files for optimization based on context window efficiency principles.
+You are reviewing CLAUDE.md files for optimization based on context window
+efficiency principles.
 
 **Target file(s) to review:**
 
@@ -35,7 +36,8 @@ For each file, provide:
 Focus on actionable recommendations that will improve context window efficiency.
 ```
 
-After the agent completes, summarize the key findings and ask if the user wants to:
+After the agent completes, summarize the key findings and ask if the user
+wants to:
 
 1. See the full detailed report
 2. Apply the suggested cleanups
