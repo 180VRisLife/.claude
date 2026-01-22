@@ -141,13 +141,15 @@ jobs:
           fi
 
           # Check for FAIL verdict
-          if echo "$COMMENTS" | grep -q "Result: ✗ FAIL"; then
+          FAIL_PAT='\*\*Result: FAIL\*\*|Result:.*FAIL'
+          if echo "$COMMENTS" | grep -qE "$FAIL_PAT"; then
             echo "::error::Claude code review failed. See PR comment."
             exit 1
           fi
 
           # Check for PASS verdict (validation)
-          if echo "$COMMENTS" | grep -q "Result: ✓ PASS"; then
+          PASS_PAT='\*\*Result: PASS\*\*|Result:.*PASS'
+          if echo "$COMMENTS" | grep -qE "$PASS_PAT"; then
             echo "Review passed"
             exit 0
           fi
