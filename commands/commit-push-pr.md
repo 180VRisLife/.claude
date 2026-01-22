@@ -44,7 +44,10 @@ Skip if on main/master/develop. Check total diff: `git diff main...HEAD --stat`
 
 ## Execution
 
-Once checks pass, proceed immediately. Create branch if on main/master. Commit (single for small, batches for large 3+ files). Push to origin. Create PR via `gh pr create`. Enable automerge: `gh pr merge <PR> --auto --merge`. Show cleanup reminders if issues bypassed.
+Once checks pass, proceed immediately. Create branch if on main/develop/staging.
+Group changes into logical commits—one or multiple as appropriate. Push to origin.
+Create PR via `gh pr create`. Enable automerge: `gh pr merge <PR> --auto --merge`.
+Show cleanup reminders if issues bypassed.
 
 ## Output
 

@@ -42,7 +42,9 @@ If on feature branch with generic name (`feature[-/]\d{8}-\d{6}`) or name mismat
 
 ## Execution
 
-Once checks pass, commit immediately. Small: single commit. Large (3+ files): logical batches. Run `git status` to verify. Push to remote. Show cleanup reminders if issues bypassed.
+Once checks pass, commit immediately. Group changes into logical commits—one
+commit for tightly coupled changes, multiple commits when changes are distinct. Run `git status` to verify. Push to remote.
+Show cleanup reminders if issues bypassed.
 
 ## Output
 
