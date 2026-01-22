@@ -66,7 +66,7 @@ for 3+ files
 ## Execution
 
 Once checks pass, proceed immediately. Create branch if on main/develop/staging.
-Commit (single or logical batches as appropriate). Push to origin.
+Group changes into logical commits—one or multiple as appropriate. Push to origin.
 Create PR via `gh pr create`. Enable automerge: `gh pr merge <PR> --auto --merge`.
 Show cleanup reminders if issues bypassed.
 

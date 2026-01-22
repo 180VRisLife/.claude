@@ -60,8 +60,8 @@ for 3+ files
 
 ## Execution
 
-Once checks pass, commit immediately. Single commit or logical batches as
-appropriate. Run `git status` to verify. Push to remote.
+Once checks pass, commit immediately. Group changes into logical commits—one
+commit for tightly coupled changes, multiple commits when changes are distinct. Run `git status` to verify. Push to remote.
 Show cleanup reminders if issues bypassed.
 
 ## Output
