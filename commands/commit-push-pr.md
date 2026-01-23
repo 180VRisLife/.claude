@@ -1,6 +1,6 @@
 ---
 allowed-tools: >-
-  Bash(git:*), Bash(gh:*), Bash(rm:*), Bash(find:*), Bash(cd:*), Bash(wq:*)
+  Bash(git:*), Bash(gh:*), Bash(grep:*), Bash(rm:*), Bash(find:*), Bash(cd:*), Bash(wq:*)
 description: Commit, push, and open a PR
 ---
 
