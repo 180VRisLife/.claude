@@ -1,6 +1,6 @@
 ---
 allowed-tools: >-
-  Bash(git:*), Bash(gh:*), Bash(rm:*), Bash(find:*)
+  Bash(git:*), Bash(gh:*), Bash(grep:*), Bash(rm:*), Bash(find:*)
 description: Create a git commit
 ---
 
