@@ -5,9 +5,6 @@ set +x
 
 INPUT=$(cat)
 
-# Cleanup temp file when parent shell exits
-trap 'rm -f "/tmp/claude-session-cwd-${PPID}" 2>/dev/null' EXIT
-
 # Colors - muted 256-color palette (avoids Claude Code UI colors)
 MODEL_COLOR='\033[38;5;146m'    # Lavender - soft purple-gray
 FOLDER_COLOR='\033[38;5;109m'  # Slate teal - muted cyan-gray
@@ -17,6 +14,15 @@ TOKEN_LOW='\033[38;5;108m'     # Sage - muted green
 TOKEN_MED='\033[38;5;179m'     # Gold - muted yellow
 TOKEN_HIGH='\033[38;5;167m'    # Terracotta - muted red
 RESET='\033[0m'
+
+# Clean up stale session files (PIDs that no longer exist)
+cleanup_stale_sessions() {
+    for f in /tmp/claude-session-cwd-*; do
+        [ -f "$f" ] || continue
+        pid="${f##*-}"
+        ps -p "$pid" > /dev/null 2>&1 || rm -f "$f"
+    done
+}
 
 # Workspaces path for multi-repo workspace detection
 WORKSPACES_PATH="${HOME}/Developer/Workspaces"
@@ -129,6 +135,7 @@ MODEL_NAME=$(echo "${INPUT}" | jq -r '.model.display_name // "Claude"')
 CWD=$(echo "${INPUT}" | jq -r '.cwd // ""')
 
 # === Session path persistence - always show initial session path ===
+cleanup_stale_sessions
 SESSION_FILE="/tmp/claude-session-cwd-${PPID}"
 if [ ! -f "${SESSION_FILE}" ]; then
     # First invocation - save initial CWD atomically
