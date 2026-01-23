@@ -1,18 +1,29 @@
 ---
-allowed-tools: Bash(git add:*), Bash(git status:*), Bash(git commit:*), Bash(git push:*), Bash(git branch:*), Bash(rm:*), Bash(git checkout:*), Bash(gh pr create:*), Bash(gh pr merge:*), Bash(git diff:*)
+allowed-tools: >-
+  Bash(git:*), Bash(gh:*), Bash(rm:*), Bash(find:*)
 description: Create a git commit
 ---
 
 ## Context
 
-- Git status: !`git status`
-- Diff: !`git diff HEAD`
-- Branch: !`git branch --show-current`
-- Recent commits: !`git log --oneline -30`
-- Last commit: !`git log -1 --format='%an <%ae> | %s'`
-- Push status: !`git status -sb | head -1`
-- Git root: !`git rev-parse --show-toplevel`
+- Git status: !`git status 2>/dev/null || echo "Not in git repo"`
+- Diff: !`git diff HEAD 2>/dev/null || echo ""`
+- Branch: !`git branch --show-current 2>/dev/null || echo ""`
+- Recent commits: !`git log --oneline -30 2>/dev/null || echo ""`
+- Last commit: !`git log -1 --format='%an <%ae> | %s' 2>/dev/null || echo ""`
+- Push status: !`git status -sb 2>/dev/null | head -1 || echo ""`
+- Git root: !`git rev-parse --show-toplevel 2>/dev/null || echo "Not in git repo"`
 - CWD: !`pwd`
+- Workspace repos: !`find . -maxdepth 2 -name ".git" -type d 2>/dev/null | sed 's|/\.git$||' | sed 's|^\./||'`
+
+## Workspace Mode
+
+**Detection:** Git root = "Not in git repo" + workspace repos found.
+
+1. **Check repos:** `git -C <repo> status --porcelain` for each
+2. **No changes** → "No uncommitted changes in workspace"
+3. **Has changes** → commit all sequentially: "→ RepoName" + workflow + result
+4. **Summary:** list all commits made across repos
 
 ## Branch Name Check (Worktrees Only)
 
