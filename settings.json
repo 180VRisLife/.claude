@@ -5,8 +5,6 @@
   "includeCoAuthoredBy": false,
   "permissions": {
     "allow": [
-      "Read(./**)",
-      "Read(~/**)",
       "Read(//**)",
       "Edit(./**)",
       "Write(./**)",
@@ -19,14 +17,8 @@
       "Bash(cp:*)",
       "Bash(mv:*)",
       "Bash(ln:*)",
-      "Bash(cat:*)",
-      "Bash(grep:*)",
-      "Bash(find:*)",
-      "Bash(tree:*)",
       "Bash(chmod:*)",
       "Bash(touch:*)",
-      "Bash(head:*)",
-      "Bash(tail:*)",
       "Bash(wc:*)",
       "Bash(sort:*)",
       "Bash(uniq:*)",
@@ -147,8 +139,7 @@
     "lua-lsp@claude-plugins-official": true
   },
   "sandbox": {
-    "enabled": false,
-    "autoAllowBashIfSandboxed": true
+    "enabled": false
   },
   "autoUpdatesChannel": "latest",
   "minimumVersion": "2.1.6"
