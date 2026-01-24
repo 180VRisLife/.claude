@@ -2,7 +2,13 @@
 allowed-tools: >-
   Bash(git:*), Bash(gh:*), Bash(grep:*), Bash(rm:*), Bash(find:*), Bash(cd:*)
 description: Commit, push, and open a PR
+requires-mode: edit
+exit-plan-mode: auto
 ---
+
+## Mode Check
+
+If plan mode is active, call ExitPlanMode now before proceeding.
 
 ## Context
 
