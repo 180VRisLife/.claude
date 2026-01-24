@@ -1,19 +1,17 @@
 #!/bin/bash
 # Compact status: Model|64k 45%|main✓
 
-set +x
-
 INPUT=$(cat)
 
 # Colors - muted 256-color palette (avoids Claude Code UI colors)
-MODEL_COLOR='\033[38;5;146m'    # Lavender - soft purple-gray
-FOLDER_COLOR='\033[38;5;109m'  # Slate teal - muted cyan-gray
-GIT_COLOR='\033[38;5;67m'      # Steel blue - muted blue-gray
-SEP_COLOR='\033[38;5;244m'     # Medium gray - subtle separator
-TOKEN_LOW='\033[38;5;108m'     # Sage - muted green
-TOKEN_MED='\033[38;5;179m'     # Gold - muted yellow
-TOKEN_HIGH='\033[38;5;167m'    # Terracotta - muted red
-RESET='\033[0m'
+readonly MODEL_COLOR='\033[38;5;146m'    # Lavender - soft purple-gray
+readonly FOLDER_COLOR='\033[38;5;109m'   # Slate teal - muted cyan-gray
+readonly GIT_COLOR='\033[38;5;67m'       # Steel blue - muted blue-gray
+readonly SEP_COLOR='\033[38;5;244m'      # Medium gray - subtle separator
+readonly TOKEN_LOW='\033[38;5;108m'      # Sage - muted green
+readonly TOKEN_MED='\033[38;5;179m'      # Gold - muted yellow
+readonly TOKEN_HIGH='\033[38;5;167m'     # Terracotta - muted red
+readonly RESET='\033[0m'
 
 # Clean up stale session files (PIDs that no longer exist)
 cleanup_stale_sessions() {
@@ -27,21 +25,6 @@ cleanup_stale_sessions() {
 # Workspaces path for multi-repo workspace detection
 WORKSPACES_PATH="${HOME}/Developer/Workspaces"
 
-# Abbreviate repo name (skips symbols, uses first letter of each word)
-abbreviate_repo_name() {
-    local name="$1"
-    echo "${name}" | sed 's/\([A-Z]\)/ \1/g; s/[-_.]/ /g' | awk '{
-        result=""
-        for(i=1; i<=NF; i++) {
-            # Skip to first alphabetic character
-            word = $i
-            gsub(/^[^a-zA-Z]+/, "", word)
-            if(length(word) > 0) { result = result toupper(substr(word, 1, 1)) }
-        }
-        print result
-    }'
-}
-
 # Get the main repository name from a worktree
 get_worktree_repo_name() {
     local worktree_path="$1"
@@ -49,19 +32,24 @@ get_worktree_repo_name() {
     gitdir_line=$(cat "${worktree_path}/.git" 2>/dev/null)
     # Extract path: "gitdir: /path/to/repo/.git/worktrees/name" -> "/path/to/repo"
     local repo_path
-    repo_path=$(echo "${gitdir_line}" | sed 's/gitdir: //; s/\/\.git\/worktrees\/.*//')
+    repo_path="${gitdir_line#gitdir: }"
+    repo_path="${repo_path%%/.git/worktrees/*}"
     basename "${repo_path}"
+}
+
+# Get git info for a repo
+# Get dirty marker for a repo path
+get_dirty_marker() {
+    [ -n "$(git -C "$1" status --porcelain 2>/dev/null)" ] && echo "*" || echo "✓"
 }
 
 # Get git info for a repo
 get_repo_git_info() {
     local repo_path="$1"
     local branch
-    branch=$(cd "${repo_path}" 2>/dev/null && git branch --show-current 2>/dev/null || echo "")
+    branch=$(git -C "${repo_path}" branch --show-current 2>/dev/null)
     [ -z "${branch}" ] && return
-    local dirty="✓"
-    [ -n "$(cd "${repo_path}" && git status --porcelain 2>/dev/null || true)" ] && dirty="*"
-    echo "${branch}|${dirty}"
+    echo "${branch}|$(get_dirty_marker "${repo_path}")"
 }
 
 # Scan workspace for git repos
@@ -86,10 +74,8 @@ scan_workspace_repos() {
                     repo_name=$(basename "${item}")
                     icon="[r]"
                 fi
-                local branch
-                branch=$(echo "${git_info}" | cut -d'|' -f1)
-                local dirty
-                dirty=$(echo "${git_info}" | cut -d'|' -f2)
+                local branch="${git_info%%|*}"
+                local dirty="${git_info##*|}"
                 [ -n "${WORKSPACE_DISPLAY}" ] && WORKSPACE_DISPLAY="${WORKSPACE_DISPLAY} "
                 WORKSPACE_DISPLAY="${WORKSPACE_DISPLAY}${icon}${repo_name}:${branch}${dirty}"
                 WORKSPACE_REPO_COUNT=$((WORKSPACE_REPO_COUNT + 1))
@@ -130,9 +116,17 @@ get_token_color() {
     fi
 }
 
-# === Extract data ===
-MODEL_NAME=$(echo "${INPUT}" | jq -r '.model.display_name // "Claude"')
-CWD=$(echo "${INPUT}" | jq -r '.cwd // ""')
+# === Extract data (single jq call) ===
+IFS=$'\t' read -r MODEL_NAME CWD CONTEXT_SIZE INPUT_TOKENS CACHE_CREATE CACHE_READ < <(
+    echo "${INPUT}" | jq -r '[
+        .model.display_name // "Claude",
+        .cwd // "",
+        .context_window.context_window_size // 0,
+        (.context_window.current_usage.input_tokens // 0),
+        (.context_window.current_usage.cache_creation_input_tokens // 0),
+        (.context_window.current_usage.cache_read_input_tokens // 0)
+    ] | @tsv'
+)
 
 # === Session path persistence - always show initial session path ===
 cleanup_stale_sessions
@@ -163,12 +157,11 @@ else
 fi
 
 # === Git info ===
-GIT_BRANCH=$(cd "${CWD}" 2>/dev/null && git branch --show-current 2>/dev/null || echo "")
+GIT_BRANCH=$(git -C "${CWD}" branch --show-current 2>/dev/null || echo "")
 GIT_PART=""
 
 if [ -n "${GIT_BRANCH}" ]; then
-    DIRTY="✓"
-    [ -n "$(cd "${CWD}" && git status --porcelain 2>/dev/null || true)" ] && DIRTY="*"
+    DIRTY=$(get_dirty_marker "${CWD}")
 
     # Check if in a worktree (.git is a file in worktrees, directory in main repos)
     if [ -f "${CWD}/.git" ]; then
@@ -177,7 +170,7 @@ if [ -n "${GIT_BRANCH}" ]; then
         GIT_PART="${GIT_COLOR}[w] ${WORKTREE_NAME}:${GIT_BRANCH}${DIRTY}${RESET}"
     else
         # Regular git repo - show [r] repo:branch✓
-        REPO_ROOT=$(cd "${CWD}" && git rev-parse --show-toplevel 2>/dev/null)
+        REPO_ROOT=$(git -C "${CWD}" rev-parse --show-toplevel 2>/dev/null)
         REPO_NAME=$(basename "${REPO_ROOT}")
         GIT_PART="${GIT_COLOR}[r] ${REPO_NAME}:${GIT_BRANCH}${DIRTY}${RESET}"
     fi
@@ -192,20 +185,8 @@ fi
 
 # === Context Window ===
 CONTEXT_PART=""
-CONTEXT_SIZE=$(echo "${INPUT}" | jq -r '.context_window.context_window_size // 0')
-CURRENT_USAGE=$(echo "${INPUT}" | jq '.context_window.current_usage // null')
-
 if [ "${CONTEXT_SIZE}" -gt 0 ]; then
-    # If no usage yet, default to 0 tokens
-    if [ "${CURRENT_USAGE}" != "null" ]; then
-        INPUT_TOKENS=$(echo "${CURRENT_USAGE}" | jq -r '.input_tokens // 0')
-        CACHE_CREATE=$(echo "${CURRENT_USAGE}" | jq -r '.cache_creation_input_tokens // 0')
-        CACHE_READ=$(echo "${CURRENT_USAGE}" | jq -r '.cache_read_input_tokens // 0')
-        TOTAL_TOKENS=$((INPUT_TOKENS + CACHE_CREATE + CACHE_READ))
-    else
-        TOTAL_TOKENS=0
-    fi
-
+    TOTAL_TOKENS=$((INPUT_TOKENS + CACHE_CREATE + CACHE_READ))
     TOKEN_DISPLAY=$(format_tokens "${TOTAL_TOKENS}")
     PERCENT_INT=$(awk "BEGIN {printf \"%02.0f\", (${TOTAL_TOKENS} / ${CONTEXT_SIZE}) * 100}")
     TOKEN_COLOR=$(get_token_color "${PERCENT_INT}")
