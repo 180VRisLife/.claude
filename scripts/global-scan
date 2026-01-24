@@ -24,6 +24,17 @@ declare -a SYMLINKS_UNAVAILABLE=()
 declare -a SYMLINKS_BROKEN=()
 declare -a NON_GIT_DIRS=()
 
+# Output array helper - reduces repeated pattern
+output_array() {
+    local label="$1" prefix="$2"
+    shift 2
+    local arr=("$@")
+    echo "${label}:${#arr[@]}"
+    for item in "${arr[@]}"; do
+        echo "${prefix}:${item}"
+    done
+}
+
 # Discover all git repositories and check symlinks
 # This function modifies global arrays directly (no subshell)
 discover_repos_and_symlinks() {
@@ -63,24 +74,19 @@ discover_repos_and_symlinks() {
     fi
   done
 
-  # Deduplicate repos
-  local seen=()
+  # Deduplicate repos (sort-based O(n log n), bash 3 compatible)
   local unique_repos=()
+  local seen_file
+  seen_file=$(mktemp)
   for repo in "${ALL_REPOS[@]}"; do
     local canonical
     canonical=$(cd "${repo}" 2>/dev/null && pwd -P || echo "${repo}")
-    local is_dup=0
-    for s in "${seen[@]}"; do
-      if [ "${s}" = "${canonical}" ]; then
-        is_dup=1
-        break
-      fi
-    done
-    if [ "${is_dup}" -eq 0 ]; then
-      seen+=("${canonical}")
+    if ! grep -qxF "${canonical}" "${seen_file}" 2>/dev/null; then
+      echo "${canonical}" >> "${seen_file}"
       unique_repos+=("${repo}")
     fi
   done
+  rm -f "${seen_file}"
   ALL_REPOS=("${unique_repos[@]}")
 }
 
@@ -177,26 +183,9 @@ main() {
   discover_repos_and_symlinks
 
   # Output symlink status
-  echo "SYMLINKS_VALID:${#SYMLINKS_VALID[@]}"
-  if [ ${#SYMLINKS_VALID[@]} -gt 0 ]; then
-    for item in "${SYMLINKS_VALID[@]}"; do
-      echo "SYM_OK:${item}"
-    done
-  fi
-
-  echo "SYMLINKS_UNAVAILABLE:${#SYMLINKS_UNAVAILABLE[@]}"
-  if [ ${#SYMLINKS_UNAVAILABLE[@]} -gt 0 ]; then
-    for item in "${SYMLINKS_UNAVAILABLE[@]}"; do
-      echo "SYM_NA:${item}"
-    done
-  fi
-
-  echo "SYMLINKS_BROKEN:${#SYMLINKS_BROKEN[@]}"
-  if [ ${#SYMLINKS_BROKEN[@]} -gt 0 ]; then
-    for item in "${SYMLINKS_BROKEN[@]}"; do
-      echo "SYM_BROKEN:${item}"
-    done
-  fi
+  output_array "SYMLINKS_VALID" "SYM_OK" "${SYMLINKS_VALID[@]}"
+  output_array "SYMLINKS_UNAVAILABLE" "SYM_NA" "${SYMLINKS_UNAVAILABLE[@]}"
+  output_array "SYMLINKS_BROKEN" "SYM_BROKEN" "${SYMLINKS_BROKEN[@]}"
 
   # Git analysis
   if [ "${MODE}" = "git" ] || [ "${MODE}" = "both" ]; then
@@ -210,19 +199,8 @@ main() {
       fi
     done
 
-    echo "GIT_NEEDS:${#REPOS_NEEDING_GIT[@]}"
-    if [ ${#REPOS_NEEDING_GIT[@]} -gt 0 ]; then
-      for item in "${REPOS_NEEDING_GIT[@]}"; do
-        echo "GIT:${item}"
-      done
-    fi
-
-    echo "GIT_CLEAN:${#REPOS_CLEAN[@]}"
-    if [ ${#REPOS_CLEAN[@]} -gt 0 ]; then
-      for item in "${REPOS_CLEAN[@]}"; do
-        echo "CLEAN:${item}"
-      done
-    fi
+    output_array "GIT_NEEDS" "GIT" "${REPOS_NEEDING_GIT[@]}"
+    output_array "GIT_CLEAN" "CLEAN" "${REPOS_CLEAN[@]}"
   fi
 
   # CLAUDE.md analysis
@@ -235,22 +213,12 @@ main() {
       fi
     done
 
-    echo "INIT_NEEDS:${#REPOS_NEEDING_INIT[@]}"
-    if [ ${#REPOS_NEEDING_INIT[@]} -gt 0 ]; then
-      for item in "${REPOS_NEEDING_INIT[@]}"; do
-        echo "INIT:${item}"
-      done
-    fi
+    output_array "INIT_NEEDS" "INIT" "${REPOS_NEEDING_INIT[@]}"
   fi
 
   # Check for non-git directories
   check_non_git_dirs
-  echo "NON_GIT:${#NON_GIT_DIRS[@]}"
-  if [ ${#NON_GIT_DIRS[@]} -gt 0 ]; then
-    for item in "${NON_GIT_DIRS[@]}"; do
-      echo "NOGIT:${item}"
-    done
-  fi
+  output_array "NON_GIT" "NOGIT" "${NON_GIT_DIRS[@]}"
 
   echo "SCAN_END"
 }

@@ -13,15 +13,16 @@ NC='\033[0m'
 pass() { echo -e "${GREEN}✓${NC} $1"; }
 fail() { echo -e "${RED}✗${NC} $1"; }
 header() { echo -e "\n${BOLD}$1${NC}"; }
+require_cmd() {
+    local cmd="$1" hint="$2"
+    command -v "$cmd" &>/dev/null || { fail "$cmd not installed ($hint)"; return 1; }
+}
 
 errors=0
 
 lint_json() {
     header "JSON Validation (jq)"
-    if ! command -v jq &>/dev/null; then
-        fail "jq not installed (brew install jq)"
-        return 1
-    fi
+    require_cmd jq "brew install jq" || return 1
     local count=0
     local failed=0
     while IFS= read -r file; do
@@ -51,10 +52,7 @@ lint_markdown() {
 
 lint_yaml() {
     header "YAML Lint (yamllint)"
-    if ! command -v yamllint &>/dev/null; then
-        fail "yamllint not installed (pip install yamllint)"
-        return 1
-    fi
+    require_cmd yamllint "pip install yamllint" || return 1
     if yamllint -c .yamllint.yml .github/workflows/; then
         pass "YAML files valid"
     else
@@ -65,10 +63,7 @@ lint_yaml() {
 
 lint_shell() {
     header "ShellCheck"
-    if ! command -v shellcheck &>/dev/null; then
-        fail "shellcheck not installed (brew install shellcheck)"
-        return 1
-    fi
+    require_cmd shellcheck "brew install shellcheck" || return 1
     local files=()
     while IFS= read -r file; do
         files+=("$file")
@@ -99,14 +94,7 @@ lint_actions() {
     fi
 }
 
-run_linter() {
-    if "$1"; then
-        return 0
-    else
-        ((errors++))
-        return 1
-    fi
-}
+run_linter() { "$1" || ((errors++)); }
 
 case "${1:-all}" in
     json)     run_linter lint_json ;;
@@ -115,11 +103,11 @@ case "${1:-all}" in
     shell)    run_linter lint_shell ;;
     actions)  run_linter lint_actions ;;
     all)
-        run_linter lint_json || true
-        run_linter lint_markdown || true
-        run_linter lint_yaml || true
-        run_linter lint_shell || true
-        run_linter lint_actions || true
+        run_linter lint_json
+        run_linter lint_markdown
+        run_linter lint_yaml
+        run_linter lint_shell
+        run_linter lint_actions
         ;;
     *)
         echo "Usage: $0 [json|md|yaml|shell|actions|all]"
