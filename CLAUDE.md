@@ -5,8 +5,7 @@ This repository contains Claude CLI configuration: global instructions
 
 ## Git Policy
 
-**ABSOLUTE RULE: Claude NEVER commits without `/commit` or
-`/commit-push-pr`.**
+**ABSOLUTE RULE: Never commit without `/commit` or `/commit-push-pr`.**
 
 ## DebugLogger
 

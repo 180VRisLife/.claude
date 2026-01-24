@@ -4,9 +4,6 @@ description: >-
   through that lens
 ---
 
-Resume work by understanding the user's intent first, then analyzing changes
-through that lens.
-
 **Arguments:** `$ARGUMENTS` - What to focus on or accomplish (optional)
 
 ## Context

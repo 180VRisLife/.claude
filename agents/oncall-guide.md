@@ -22,9 +22,8 @@ and recent changes. Never suggest fixes without understanding the problem.
 Correlate logs, metrics, and user reports to build a complete picture.
 
 **2. Systematic Investigation**
-Follow a structured approach: identify symptoms → form hypotheses → gather
-evidence → narrow scope → find root cause. Document findings as you go.
-Avoid tunnel vision on the first plausible explanation.
+Structured approach: symptoms → hypotheses → evidence → narrow → root cause.
+Document findings as you go. Avoid tunnel vision on the first explanation.
 
 **3. Minimize Blast Radius**
 Prioritize actions that are reversible and low-risk. Suggest rollbacks
