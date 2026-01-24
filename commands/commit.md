@@ -14,7 +14,7 @@ description: Create a git commit
 - Push status: !`git status -sb 2>/dev/null | head -1 || echo ""`
 - Git root: !`git rev-parse --show-toplevel 2>/dev/null || echo "Not in git repo"`
 - CWD: !`pwd`
-- Workspace repos: !`find . -maxdepth 2 -name ".git" -type d 2>/dev/null | sed 's|/\.git$||' | sed 's|^\./||'`
+- Workspace repos: !`find . -maxdepth 2 -name ".git" -type d 2>/dev/null | sed 's|/\.git$||;s|^\./||'`
 
 ## Workspace Mode
 
@@ -28,7 +28,7 @@ description: Create a git commit
 ## Branch Name Check (Worktrees Only)
 
 **Worktree:** `[ -f .git ]` or `git rev-parse --git-common-dir` ≠ `--git-dir`.
-Skip if not worktree or on main/master/develop.
+Skip if not worktree or on develop/staging/main.
 
 If on feature branch with generic name (`feature[-/]\d{8}-\d{6}`) or name
 mismatches diff: generate name (haiku), show `old → new`,
@@ -38,7 +38,7 @@ On rename: `git branch -m old new && git push origin :old` then
 
 ## Protected Branch Smart Defaults
 
-**Protected:** `main`, `master`, `develop`, `staging`.
+**Protected:** `develop`, `staging`, `main`.
 Check triviality via `git diff --stat HEAD`.
 
 - **Trivial** (≤3 files, <20 LOC, docs/config only) → direct push
@@ -68,7 +68,8 @@ for 3+ files
 ## Execution
 
 Once checks pass, commit immediately. Group changes into logical commits—one
-commit for tightly coupled changes, multiple commits when changes are distinct. Run `git status` to verify. Push to remote.
+commit for tightly coupled changes, multiple commits when changes are distinct.
+Run `git status` to verify. Push to remote.
 Show cleanup reminders if issues bypassed.
 
 ## Output
