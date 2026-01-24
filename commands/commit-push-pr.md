@@ -1,6 +1,6 @@
 ---
 allowed-tools: >-
-  Bash(git:*), Bash(gh:*), Bash(grep:*), Bash(rm:*), Bash(find:*), Bash(cd:*), Bash(wq:*)
+  Bash(git:*), Bash(gh:*), Bash(grep:*), Bash(rm:*), Bash(find:*), Bash(cd:*)
 description: Commit, push, and open a PR
 ---
 
@@ -14,9 +14,9 @@ description: Commit, push, and open a PR
 - Push status: !`git status -sb 2>/dev/null | head -1 || echo ""`
 - Git root: !`git rev-parse --show-toplevel 2>/dev/null || echo "Not in git repo"`
 - CWD: !`pwd`
-- Base diff stats: !`git diff main...HEAD --stat 2>/dev/null ||
+- Base diff: !`git diff main...HEAD --stat 2>/dev/null ||
   git diff develop...HEAD --stat 2>/dev/null || echo "N/A"`
-- Workspace repos: !`find . -maxdepth 2 -name ".git" -type d 2>/dev/null | sed 's|/\.git$||' | sed 's|^\./||'`
+- Workspace repos: !`find . -maxdepth 2 -name ".git" -type d 2>/dev/null | sed 's|/\.git$||;s|^\./||'`
 
 ## Workspace Mode
 
@@ -29,13 +29,14 @@ description: Commit, push, and open a PR
 
 ## Branch Name Check (Worktrees Only)
 
-**Worktree:** `[ -f .git ]` or `git rev-parse --git-common-dir` ≠ `--git-dir`. Skip if not worktree or on main/master/develop.
+**Worktree:** `[ -f .git ]` or `git rev-parse --git-common-dir` ≠ `--git-dir`.
+Skip if not worktree or on develop/staging/main.
 
 If on feature branch with generic name (`feature[-/]\d{8}-\d{6}`) or name mismatches diff: generate name (haiku), show `old → new`, ask "Rename? [Y/n/custom]". On rename: `git branch -m old new && git push origin :old && git push -u origin new`
 
 ## Trivial Change Shortcut (Feature Branches Only)
 
-Skip if on main/master/develop. Check total diff: `git diff main...HEAD --stat`
+Skip if on develop/staging/main. Check total diff: `git diff main...HEAD --stat`
 
 **Trivial:** ≤3 files, <20 LOC, docs/config/comments or single function fix. Ask "Small change. Merge directly to main? [Y/n]"
 - **Yes:** `git checkout main && git pull && git merge --no-ff <branch> && git push && git push origin --delete <branch>`. Ask "Clean up worktree? [Y/n]" → `cd .. && wq`
