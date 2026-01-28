@@ -71,3 +71,6 @@ plugins/known_marketplaces.json
 cache/
 paste-cache/
 plugins/install-counts-cache.json
+
+# Chrome native host (auto-generated)
+chrome/
