@@ -5,6 +5,8 @@
   "includeCoAuthoredBy": false,
   "permissions": {
     "allow": [
+      "Read(./**)",
+      "Read(~/**)",
       "Read(//**)",
       "Edit(./**)",
       "Write(./**)",
@@ -21,10 +23,10 @@
       "Bash(grep:*)",
       "Bash(find:*)",
       "Bash(tree:*)",
-      "Bash(head:*)",
-      "Bash(tail:*)",
       "Bash(chmod:*)",
       "Bash(touch:*)",
+      "Bash(head:*)",
+      "Bash(tail:*)",
       "Bash(wc:*)",
       "Bash(sort:*)",
       "Bash(uniq:*)",
@@ -89,10 +91,8 @@
       "Bash(openssl:*)",
       "Bash(systemctl:*)",
       "Bash(journalctl:*)",
-      "Bash(mgrep:*)",
       "WebSearch",
-      "WebFetch",
-      "Skill"
+      "WebFetch"
     ],
     "deny": [],
     "ask": [
@@ -145,7 +145,8 @@
     "lua-lsp@claude-plugins-official": true
   },
   "sandbox": {
-    "enabled": false
+    "enabled": false,
+    "autoAllowBashIfSandboxed": true
   },
   "autoUpdatesChannel": "latest",
   "minimumVersion": "2.1.6"

@@ -62,15 +62,9 @@ image-cache/
 
 # Telemetry data
 telemetry/
-
-# Task tracking (ephemeral)
-tasks/
 plugins/known_marketplaces.json
 
 # Cache
 cache/
 paste-cache/
 plugins/install-counts-cache.json
-
-# Chrome native host (auto-generated)
-chrome/
