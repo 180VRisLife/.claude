@@ -15,7 +15,7 @@ readonly RESET='\033[0m'
 
 # Clean up stale session files (PIDs that no longer exist)
 cleanup_stale_sessions() {
-    for f in /tmp/claude-session-cwd-*; do
+    for f in /tmp/claude-session-cwd-* /tmp/claude-session-tokens-*; do
         [ -f "$f" ] || continue
         pid="${f##*-}"
         ps -p "$pid" > /dev/null 2>&1 || rm -f "$f"
@@ -124,6 +124,21 @@ IFS=$'\t' read -r MODEL_NAME CWD CONTEXT_SIZE INPUT_TOKENS CACHE_CREATE CACHE_RE
         (.context_window.current_usage.cache_read_input_tokens // 0)
     ] | @tsv'
 )
+
+# === Token data caching - prevent flashing during permission transitions ===
+TOKEN_CACHE_FILE="/tmp/claude-session-tokens-${PPID}"
+if [ "${CONTEXT_SIZE}" -gt 0 ]; then
+    # Valid data - cache atomically
+    TOKEN_TEMP="${TOKEN_CACHE_FILE}.$$"
+    if printf '%s\t%s\t%s\t%s' "${CONTEXT_SIZE}" "${INPUT_TOKENS}" "${CACHE_CREATE}" "${CACHE_READ}" > "${TOKEN_TEMP}" 2>/dev/null; then
+        mv "${TOKEN_TEMP}" "${TOKEN_CACHE_FILE}" 2>/dev/null || rm -f "${TOKEN_TEMP}"
+    fi
+else
+    # Invalid data - restore from cache
+    if [ -f "${TOKEN_CACHE_FILE}" ]; then
+        IFS=$'\t' read -r CONTEXT_SIZE INPUT_TOKENS CACHE_CREATE CACHE_READ < "${TOKEN_CACHE_FILE}"
+    fi
+fi
 
 # === Session path persistence - always show initial session path ===
 cleanup_stale_sessions
