@@ -142,7 +142,10 @@
   "enabledPlugins": {
     "swift-lsp@claude-plugins-official": true,
     "pyright-lsp@claude-plugins-official": true,
-    "lua-lsp@claude-plugins-official": true
+    "lua-lsp@claude-plugins-official": true,
+    "typescript-lsp@claude-plugins-official": true,
+    "php-lsp@claude-plugins-official": true,
+    "playground@claude-plugins-official": true
   },
   "sandbox": {
     "enabled": false

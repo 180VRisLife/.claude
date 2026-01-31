@@ -40,6 +40,36 @@
         "lastUpdated": "2026-01-21T02:33:46.453Z",
         "gitCommitSha": "e2eeefab952bcdf86873686d41039064748f2365"
       }
+    ],
+    "typescript-lsp@claude-plugins-official": [
+      {
+        "scope": "user",
+        "installPath": "/Users/chrisjamesbliss/.claude/plugins/cache/claude-plugins-official/typescript-lsp/1.0.0",
+        "version": "1.0.0",
+        "installedAt": "2026-01-31T22:01:38.175Z",
+        "lastUpdated": "2026-01-31T22:01:38.175Z",
+        "gitCommitSha": "27d2b86d72da27c64585150857cee8472ad47abb"
+      }
+    ],
+    "php-lsp@claude-plugins-official": [
+      {
+        "scope": "user",
+        "installPath": "/Users/chrisjamesbliss/.claude/plugins/cache/claude-plugins-official/php-lsp/1.0.0",
+        "version": "1.0.0",
+        "installedAt": "2026-01-31T22:01:38.175Z",
+        "lastUpdated": "2026-01-31T22:01:38.175Z",
+        "gitCommitSha": "27d2b86d72da27c64585150857cee8472ad47abb"
+      }
+    ],
+    "playground@claude-plugins-official": [
+      {
+        "scope": "user",
+        "installPath": "/Users/chrisjamesbliss/.claude/plugins/cache/claude-plugins-official/playground/27d2b86d72da",
+        "version": "27d2b86d72da",
+        "installedAt": "2026-01-31T22:59:57.891Z",
+        "lastUpdated": "2026-01-31T22:59:57.891Z",
+        "gitCommitSha": "27d2b86d72da27c64585150857cee8472ad47abb"
+      }
     ]
   }
 }
