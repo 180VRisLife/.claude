@@ -36,7 +36,8 @@ If plan mode is active, call ExitPlanMode now before proceeding.
 **Worktree:** `[ -f .git ]` or `git rev-parse --git-common-dir` ≠ `--git-dir`.
 Skip if not worktree or on develop/staging/main.
 
-If on feature branch with generic name (`feature[-/]\d{8}-\d{6}`) or name mismatches diff: generate name (haiku), show `old → new`, ask "Rename? [Y/n/custom]". On rename: `git branch -m old new && git push origin :old && git push -u origin new`
+If on feature branch with generic name (`feature[-/]\d{8}-\d{6}`) or name mismatches diff: generate name (haiku), show `old → new`, ask "Rename? [Y/n/custom]". 
+On rename: `git branch -m old new && git push origin :old && git push -u origin new`
 
 ## Protected Branch Smart Defaults
 
