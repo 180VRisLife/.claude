@@ -1,7 +1,9 @@
 ---
+name: commit
+description: Create a git commit
+user-invocable: true
 allowed-tools: >-
-  Bash(git:*), Bash(gh:*), Bash(grep:*), Bash(rm:*), Bash(find:*), Bash(cd:*)
-description: Commit, push, and open a PR
+  Bash(git:*), Bash(gh:*), Bash(grep:*), Bash(rm:*), Bash(find:*)
 requires-mode: edit
 exit-plan-mode: auto
 ---
@@ -20,8 +22,6 @@ If plan mode is active, call ExitPlanMode now before proceeding.
 - Push status: !`git status -sb 2>/dev/null | head -1 || echo ""`
 - Git root: !`git rev-parse --show-toplevel 2>/dev/null || echo "Not in git repo"`
 - CWD: !`pwd`
-- Base diff: !`git diff main...HEAD --stat 2>/dev/null ||
-  git diff develop...HEAD --stat 2>/dev/null || echo "N/A"`
 - Workspace repos: !`find . -maxdepth 2 -name ".git" -type d 2>/dev/null | sed 's|/\.git$||;s|^\./||'`
 
 ## Workspace Mode
@@ -38,15 +38,16 @@ If plan mode is active, call ExitPlanMode now before proceeding.
 **Worktree:** `[ -f .git ]` or `git rev-parse --git-common-dir` ≠ `--git-dir`.
 Skip if not worktree or on develop/staging/main.
 
-If on feature branch with generic name (`feature[-/]\d{8}-\d{6}`) or name mismatches diff: generate name (haiku), show `old → new`, ask "Rename? [Y/n/custom]". On rename: `git branch -m old new && git push origin :old && git push -u origin new`
+If on feature branch with generic name (`feature[-/]\d{8}-\d{6}`) or name mismatches diff: generate name (haiku), show `old → new`, ask "Rename? [Y/n/custom]".
+On rename: `git branch -m old new && git push origin :old && git push -u origin new`
 
-## Trivial Change Shortcut (Feature Branches Only)
+## Protected Branch Smart Defaults
 
-Skip if on develop/staging/main. Check total diff: `git diff main...HEAD --stat`
+**Protected:** `develop`, `staging`, `main`.
+Check triviality via `git diff --stat HEAD`.
 
-**Trivial:** ≤3 files, <20 LOC, docs/config/comments or single function fix. Ask "Small change. Merge directly to main? [Y/n]"
-- **Yes:** `git checkout main && git pull && git merge --no-ff <branch> && git push && git push origin --delete <branch>`. Ask "Clean up worktree? [Y/n]" → `cd .. && wq`
-- **No:** Continue with PR workflow
+- **Trivial** (≤3 files, <20 LOC, docs/config only) → direct push
+- **Not trivial** (4+ files, >50 LOC, core logic/API/deps) → Ask "Create PR? [y/N]". If yes: branch → commit → push → `gh pr create` → `gh pr merge --auto --squash` → return
 
 ## Pre-Commit Checks
 
@@ -63,11 +64,11 @@ Skip if on develop/staging/main. Check total diff: `git diff main...HEAD --stat`
 
 ## Execution
 
-Once checks pass, proceed immediately. Create branch if on main/develop/staging.
-Group changes into logical commits—one or multiple as appropriate. Push to origin.
-Create PR via `gh pr create`. Enable automerge: `gh pr merge <PR> --auto --merge`.
+Once checks pass, commit immediately. Group changes into logical commits—one
+commit for tightly coupled changes, multiple commits when changes are distinct.
+Run `git status` to verify. Push to remote.
 Show cleanup reminders if issues bypassed.
 
 ## Output
 
-When complete: `git log --oneline -n` (n = commits created), then show commits list and PR URL.
+When complete: `git log --oneline -n` (n = commits created), then show commits list.

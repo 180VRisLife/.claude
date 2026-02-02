@@ -1,5 +1,7 @@
 ---
+name: meta:instructions-auditor
 description: Review agent context files (CLAUDE.md, agents, prompts) for bloat and optimization
+user-invocable: true
 ---
 
 ## Context

@@ -1,5 +1,7 @@
 ---
+name: catchup
 description: Resume work by understanding user's intent first, then analyzing changes through that lens
+user-invocable: true
 ---
 
 **Arguments:** `$ARGUMENTS` - What to focus on or accomplish (optional)
