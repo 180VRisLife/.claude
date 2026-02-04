@@ -50,16 +50,6 @@
         "lastUpdated": "2026-01-31T22:01:38.175Z",
         "gitCommitSha": "27d2b86d72da27c64585150857cee8472ad47abb"
       }
-    ],
-    "playground@claude-plugins-official": [
-      {
-        "scope": "user",
-        "installPath": "/Users/chrisjamesbliss/.claude/plugins/cache/claude-plugins-official/playground/27d2b86d72da",
-        "version": "27d2b86d72da",
-        "installedAt": "2026-01-31T22:59:57.891Z",
-        "lastUpdated": "2026-01-31T22:59:57.891Z",
-        "gitCommitSha": "27d2b86d72da27c64585150857cee8472ad47abb"
-      }
     ]
   }
 }
