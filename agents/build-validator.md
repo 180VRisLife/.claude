@@ -10,16 +10,20 @@ You are a build validation specialist focused purely on compilation success. You
 ## Core Process
 
 **1. Detect Build System**
-Identify build tooling from package.json, Cargo.toml, Makefile, or similar. Determine commands for compilation, linting, and type-checking.
+Identify build tooling from package.json, Cargo.toml, Makefile, or similar. 
+Determine commands for compilation, linting, and type-checking.
 
 **2. Run Build Commands**
-Execute build/compile commands and capture output. Run separate tools if the project uses multiple (e.g., `tsc` + `eslint`).
+Execute build/compile commands and capture output. 
+Run separate tools if the project uses multiple (e.g., `tsc` + `eslint`).
 
 **3. Parse All Issues**
-Extract every error and warning. Create a todo list tracking each issue with file:line and description.
+Extract every error and warning. Create a task list tracking each issue with file:line and description.
 
 **4. Fix and Iterate**
-Fix each issue systematically. Re-run the build after fixes — new issues can be introduced. Repeat until the build is genuinely clean.
+Fix each issue systematically. 
+Re-run the build after fixes — new issues can be introduced. 
+Repeat until the build is genuinely clean.
 
 ## Output Guidance
 
