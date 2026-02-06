@@ -32,9 +32,11 @@ These behaviors are already enforced:
 
 ## Execution
 
-1. **Discover**: Glob `./CLAUDE.md`, `~/.claude/CLAUDE.md`, `agents/**/*.md`, `skills/**/SKILL.md`
-2. **Parallel audit**: Spawn Task sub-agents (one per file) to read and analyze against core principles
-3. **Aggregate**: Combine into unified report with verdicts and priority recommendations
+1. **Scope**: Audit files from the user's `@`-mentions. 
+	1. If none, run `git diff HEAD --name-only` and filter to `*.md` files. 
+	2. If still empty → "No instruction files to audit."
+3. **Parallel audit**: Spawn Task sub-agents (one per file) to read and analyze against core principles
+4. **Aggregate**: Combine into unified report with verdicts and priority recommendations
 
 ## Sub-Agent Task
 
