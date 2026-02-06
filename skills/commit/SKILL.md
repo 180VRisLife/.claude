@@ -46,4 +46,6 @@ Split unrelated changes into separate atomic commits. Each commit = one logical 
 
 ## Output
 
-Show `git log --oneline -n` (n = commits). PR mode: show URL.
+Show `git log --oneline -n` (n = number of commits created this execution). 
+
+PR mode: Include URL with all commits.
