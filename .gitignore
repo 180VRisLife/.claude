@@ -74,3 +74,4 @@ plugins/install-counts-cache.json
 
 # Chrome native host (auto-generated)
 chrome/
+settings.local.json
