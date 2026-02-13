@@ -8,16 +8,16 @@ user-invocable: true
 
 ## Context
 
-- Git status: !`git status`
-- Diff: !`git diff HEAD`
-- Branch: !`git branch --show-current`
-- Recent commits: !`git log --oneline -10`
+- Git status: !`git status -sb 2>/dev/null || echo "Not in git repo"`
+- Diff: !`git diff HEAD --stat 2>/dev/null || echo ""`
+- Branch: !`git branch --show-current 2>/dev/null || echo ""`
+- Recent commits: !`git log --oneline -10 2>/dev/null || echo ""`
 - Git root: !`git rev-parse --show-toplevel 2>/dev/null || echo "Not a git repo"`
 - CWD: !`pwd`
 
 ## Multi-Repo Detection
 
-**If not in a git repo:** Check for repos in subdirectories. If found, analyze all repos and present combined summary. Focus on repo with changes, or ask if multiple have changes.
+**If not in a git repo:** Find repos via `find . -maxdepth 3 -name .git -type d`. For each repo found, gather status/diff/log. Present combined summary focusing on repos with uncommitted changes. If multiple repos have changes, ask which to focus on.
 
 ## Intent-Aware Analysis
 
