@@ -150,5 +150,6 @@
     "enabled": false
   },
   "autoUpdatesChannel": "latest",
-  "minimumVersion": "2.1.6"
+  "minimumVersion": "2.1.6",
+  "skipDangerousModePermissionPrompt": true
 }
