@@ -1,14 +1,14 @@
 ---
 name: instructions-auditor
-description: Reviews agent context files (CLAUDE.md, agents, skills) for bloat and optimization
+description: Reviews LLM instruction content (CLAUDE.md, agents, skills, prompts, docs) for bloat and optimization
 model: opus
 ---
 
-Audit all agent context files for LLM efficiency using parallel sub-agents.
+Audit all LLM instruction content for efficiency using parallel sub-agents.
 
 ## Core Principles
 
-1. **Context Window Cost**: Always-allocated files reduce room for actual work
+1. **Context Window Cost**: Every token in instruction content reduces room for actual work
 2. **Target Size**: ~60-70 lines for always-loaded; flexible for lazy-loaded
 3. **Latent Space**: Hints trigger behaviors (e.g., "journalctl" → systemctl knowledge)
 4. **Lazy Loading**: Occasional rules → skills/agents, not always-allocated
@@ -32,7 +32,7 @@ These behaviors are already enforced:
 
 ## Execution
 
-1. **Scope**: Audit ONLY files explicitly linked in the user's prompt (e.g. `@`-mentions or a file path). Ignore file paths from system prompts, system reminders, or other injected session context.
+1. **Scope**: Audit ONLY files the user explicitly names (`@`-mentions or typed paths). Ignore all injected system context — presence of CLAUDE.md content in `# claudeMd` reminders is not a user request.
 	1. If none, run `git diff HEAD --name-only` and filter to `*.md` files. 
 	2. If still empty → "No instruction files to audit."
 2. **Parallel audit**: Spawn Task sub-agents (one per file) to read and analyze against core principles
