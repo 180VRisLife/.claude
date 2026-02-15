@@ -2,6 +2,7 @@
 name: commit
 description: Create a git commit, optionally with PR workflow (--pr flag)
 user-invocable: true
+disable-model-invocation: true
 allowed-tools: >-
   Bash(git:*), Bash(gh:*), Bash(grep:*), Bash(rm:*), Bash(find:*), Bash(cd:*)
 requires-mode: edit
