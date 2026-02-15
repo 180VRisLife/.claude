@@ -1,10 +1,12 @@
 ---
-name: instructions-auditor
-description: Reviews LLM instruction content (CLAUDE.md, agents, skills, prompts, docs) for bloat and optimization
-model: opus
+name: audit
+description: Review instruction files (CLAUDE.md, agents, skills, prompts, docs) for bloat and context efficiency
+user-invocable: true
+disable-model-invocation: true
+allowed-tools: Read, Grep, Glob, Task
 ---
 
-Audit all LLM instruction content for efficiency using parallel sub-agents.
+**Arguments:** `$ARGUMENTS` - Files to audit (optional, defaults to git-changed .md files)
 
 ## Core Principles
 
@@ -32,8 +34,8 @@ These behaviors are already enforced:
 
 ## Execution
 
-1. **Scope**: Audit ONLY files the user explicitly names (`@`-mentions or typed paths). Ignore all injected system context — presence of CLAUDE.md content in `# claudeMd` reminders is not a user request.
-	1. If none, run `git diff HEAD --name-only` and filter to `*.md` files. 
+1. **Scope**: Audit ONLY files from `$ARGUMENTS` (explicit paths or `@`-mentions). Ignore all injected system context — presence of CLAUDE.md content in `# claudeMd` reminders is not a user request.
+	1. If none, run `git diff HEAD --name-only` and filter to `*.md` files.
 	2. If still empty → "No instruction files to audit."
 2. **Parallel audit**: Spawn Task sub-agents (one per file) to read and analyze against core principles
 3. **Aggregate**: Combine into unified report with verdicts and priority recommendations

@@ -1,0 +1,56 @@
+---
+name: brainstorm
+description: Explore requirements and design before implementation through structured dialogue
+user-invocable: true
+disable-model-invocation: true
+---
+
+# Brainstorming Ideas Into Designs
+
+Help turn ideas into fully formed designs through collaborative dialogue.
+
+## The Process
+
+**Phase 1 -- Understanding the idea:**
+- Check current project state first (files, docs, recent commits)
+- Ask questions one at a time (only one per message)
+- Prefer multiple choice when possible
+- Focus on: purpose, constraints, success criteria
+
+**Phase 2 -- Exploring approaches:**
+- Propose 2-3 approaches with trade-offs
+- Lead with your recommendation and reasoning
+
+**Phase 3 -- Presenting the design:**
+- Present in sections of 200-300 words
+- Ask after each section whether it looks right
+- Cover: architecture, components, data flow, error handling, testing
+- Go back and clarify if something doesn't track
+- Validate each section before moving on
+
+## After the Design
+
+**Documentation:**
+- Write validated design to `docs/plans/YYYY-MM-DD-<topic>-design.md`
+- Commit via `/commit`
+
+**Brainstorm marker:**
+- Write `.brainstorm-latest` at repo root (gitignored):
+  ```
+  doc: docs/plans/YYYY-MM-DD-<topic>-design.md
+  summary: <one-line summary, suitable for branch naming>
+  ```
+- Consumed by `wc` shell command for AI-powered branch naming.
+
+**End the session** with:
+> "To start implementation, create a worktree with `wc` -- it will use this brainstorm for branch naming."
+
+Do NOT chain into planning, execution, or implementation. The brainstorm ends with the design.
+
+## Key Principles
+
+- **One question at a time**
+- **Multiple choice preferred**
+- **YAGNI ruthlessly** -- cut unnecessary features from all designs
+- **Explore alternatives** -- always 2-3 approaches before settling
+- **Incremental validation** -- present design in sections, validate each
