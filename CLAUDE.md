@@ -1,10 +1,14 @@
 # Git Policy
 
-**ABSOLUTE RULE: Never commit without `/commit` (use `--pr` flag for PR workflow).**
+**ABSOLUTE RULE:**
+
+Never commit without `/commit` (use `--pr` flag for PR workflow).
 
 # DebugLogger
 
-Use project's DebugLogger utility for debug logging. Logs to `/tmp/{ProjectName}-Debug.log`.
+Use project's DebugLogger utility for debug logging. 
+
+Logs to `/tmp/{ProjectName}-Debug.log`.
 
 # Build Verification
 
