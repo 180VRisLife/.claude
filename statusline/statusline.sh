@@ -62,14 +62,14 @@ scan_workspace_repos() {
         if [ -d "$real_path/.git" ] || [ -f "$real_path/.git" ]; then
             local git_info=$(get_repo_git_info "$real_path")
             if [ -n "$git_info" ]; then
-                # For worktrees, use the actual repo name and [w] icon; otherwise use folder name and [r]
+                # For worktrees, use the actual repo name and [wt] icon; otherwise use folder name and [rp]
                 local repo_name icon
                 if [ -f "$real_path/.git" ]; then
                     repo_name=$(get_worktree_repo_name "$real_path")
-                    icon="[w]"
+                    icon="[wt]"
                 else
                     repo_name=$(basename "$item")
-                    icon="[r]"
+                    icon="[rp]"
                 fi
                 local branch="${git_info%%|*}"
                 local dirty="${git_info##*|}"
@@ -177,21 +177,21 @@ if [ -n "${GIT_BRANCH}" ]; then
 
     # Check if in a worktree (.git is a file in worktrees, directory in main repos)
     if [ -f "$CWD/.git" ]; then
-        # Worktree: always show [w] name:branch✓
+        # Worktree: always show [wt] name:branch✓
         WORKTREE_NAME=$(basename "$CWD")
-        GIT_PART="${GIT_COLOR}[w] ${WORKTREE_NAME}:${GIT_BRANCH}${DIRTY}${RESET}"
+        GIT_PART="${GIT_COLOR}[wt] ${WORKTREE_NAME}:${GIT_BRANCH}${DIRTY}${RESET}"
     else
-        # Regular git repo - show [r] repo:branch✓
+        # Regular git repo - show [rp] repo:branch✓
         REPO_ROOT=$(git -C "${CWD}" rev-parse --show-toplevel 2>/dev/null)
         REPO_NAME=$(basename "${REPO_ROOT}")
-        GIT_PART="${GIT_COLOR}[r] ${REPO_NAME}:${GIT_BRANCH}${DIRTY}${RESET}"
+        GIT_PART="${GIT_COLOR}[rp] ${REPO_NAME}:${GIT_BRANCH}${DIRTY}${RESET}"
     fi
 else
     # Only scan for workspace repos if under the Workspaces folder
     if [[ "$CWD" == "$WORKSPACES_PATH"* ]]; then
         scan_workspace_repos "$CWD"
-        # Workspace with multiple repos - show [s] prefix
-        [ "$WORKSPACE_REPO_COUNT" -gt 0 ] && GIT_PART="${GIT_COLOR}[s] ${WORKSPACE_DISPLAY}${RESET}"
+        # Workspace with multiple repos - show [ws] prefix
+        [ "$WORKSPACE_REPO_COUNT" -gt 0 ] && GIT_PART="${GIT_COLOR}[ws] ${WORKSPACE_DISPLAY}${RESET}"
     fi
 fi
 
@@ -208,7 +208,16 @@ fi
 
 # === Output ===
 SEP="${SEP_COLOR} | ${RESET}"
-OUTPUT="${MODEL_COLOR}${MODEL_ABBREV}${RESET}"
+
+# Server prefix (shown when running over SSH)
+SERVER_PREFIX=""
+if [ -n "$SSH_CONNECTION" ]; then
+    SERVER_PREFIX="\033[1;38;5;167mremote${RESET}${SEP}"
+else
+    SERVER_PREFIX="\033[1;38;5;108mlocal${RESET}${SEP}"
+fi
+
+OUTPUT="${SERVER_PREFIX}${MODEL_COLOR}${MODEL_ABBREV}${RESET}"
 [ -n "$CONTEXT_PART" ] && OUTPUT="${OUTPUT}${SEP}${CONTEXT_PART}"
 [ -n "$DIR_NAME" ] && OUTPUT="${OUTPUT}${SEP}${FOLDER_COLOR}${DIR_NAME}${RESET}"
 [ -n "$GIT_PART" ] && OUTPUT="${OUTPUT}${SEP}${GIT_PART}"
