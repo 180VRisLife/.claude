@@ -9,5 +9,11 @@ if grep -q '"agent_id"'; then
     exit 0
 fi
 
+# Remote: write event to log for local Mac to pick up
+if [[ -n "${SSH_CONNECTION:-}" ]]; then
+    printf 'stop\t%s\n' "$(basename "$PWD")" >> /tmp/devkit-hook-events.log
+    exit 0
+fi
+
 # Play a sound when main Claude Code session stops
 afplay /System/Library/Sounds/Glass.aiff

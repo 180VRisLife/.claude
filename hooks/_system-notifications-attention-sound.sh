@@ -3,6 +3,12 @@
 
 [[ -n "${CLAUDE_SILENT_HOOK:-}" ]] && exit 0
 
+# Remote: write event to log for local Mac to pick up
+if [[ -n "${SSH_CONNECTION:-}" ]]; then
+    printf 'attention\t%s\n' "$(basename "$PWD")" >> /tmp/devkit-hook-events.log
+    exit 0
+fi
+
 SOUND=/System/Library/Sounds/Tink.aiff
 afplay "${SOUND}" -v 8 &
 sleep 0.03
