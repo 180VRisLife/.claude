@@ -71,6 +71,7 @@ Abort with error if any required file is missing (instruct user to run the prere
    - Reference spec section `[Spec X.Y]` or use markers: `[Gap]`, `[Ambiguity]`, `[Conflict]`, `[Assumption]`
    - >=80% of items must include traceability references
    - Soft cap: prioritize by risk/impact if >40 candidates; merge near-duplicates; batch low-impact edge cases
+   - After generating items, scan for blind spots: are there relevant dimensions with zero items? (Functional Scope, Integration, Edge Cases, Non-Functional, Completion Signals). Add at least one item per uncovered dimension that applies.
 
    **Prohibited**:
    Items starting with "Verify/Test/Confirm/Check" + implementation behavior/details, references to code execution or system behavior.
