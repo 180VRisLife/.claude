@@ -82,6 +82,8 @@ Limit to 50 findings total; summarize overflow.
 - **MEDIUM**: Terminology drift, missing non-functional task coverage, underspecified edge case
 - **LOW**: Style/wording improvements, minor redundancy
 
+**Before finalizing severity, challenge each finding:** Could this "gap" be intentionally deferred or out-of-scope? Check spec assumptions and out-of-scope sections. Could this "inconsistency" be intentional evolution (blueprint refining a vague spec term)? Could this "duplication" be two distinct requirements using similar language? Downgrade or remove findings that don't survive. Prefer fewer accurate findings over comprehensive noisy ones.
+
 ### 5. Analysis Report
 
 Output Markdown report (no file writes):
