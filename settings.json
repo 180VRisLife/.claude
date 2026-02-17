@@ -162,6 +162,7 @@
     "typescript-lsp@claude-plugins-official": true,
     "php-lsp@claude-plugins-official": true
   },
+  "prefersReducedMotion": true,
   "autoUpdatesChannel": "latest",
   "minimumVersion": "2.1.6"
 }
