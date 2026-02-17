@@ -32,6 +32,10 @@ Scan for patterns in these categories:
 - Weak cryptography (MD5/SHA1 for security, ECB mode, weak keys)
 - GitHub Actions injection (`${{ github.event.* }}` in run blocks)
 
+## Challenge Each Finding
+
+Before reporting, test each finding against: (1) Context check — is there sanitization/validation within 5-10 lines or in the call chain? (2) Reachability — can untrusted input actually reach this code path? (3) Framework protection — does the framework handle this by default (e.g. ORM parameterization, React JSX escaping)? (4) Test vs prod — could this be test/example code? Downgrade or drop findings that fail these checks. If uncertain, keep but note the uncertainty.
+
 ## Rules
 
 - Only report >= 75% confidence findings
