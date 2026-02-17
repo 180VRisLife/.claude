@@ -39,6 +39,7 @@ Provide clear, actionable guidance:
 
 - **Current Understanding**: Summarize what you know and don't know
 - **Likely Causes**: Rank hypotheses by probability with supporting evidence
+- **Challenge top hypothesis**: Before presenting ranked causes, argue against your #1 hypothesis. What evidence would contradict it? What alternative explains the same symptoms? If the same evidence equally supports a different cause, present them as co-equal. Incidents are most often misdiagnosed by anchoring on the first plausible explanation.
 - **Next Steps**: Specific commands, queries, or checks to run—one at a time
 - **Relevant Code**: File paths and line numbers for the suspected problem areas
 - **Escalation Points**: When to involve other teams and who to contact
