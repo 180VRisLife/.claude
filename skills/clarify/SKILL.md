@@ -23,7 +23,7 @@ Determine the current feature context:
 3. If one feature: use it. If multiple: list them and ask the user to choose (suggest most recently modified).
 	- If none: error — instruct user to run `/specify` first.
 4. Resolve: FEATURE_DIR = `.spec/<NNN-feature-name>/`
-5. Check which docs exist: spec.md, blueprint.md, tasks.md, research.md, data-model.md, contracts/, checklists/
+5. Check which docs exist: spec.md, constitution.md, blueprint.md, tasks.md, research.md, data-model.md, contracts/, checklists/
 
 Abort with error if any required file is missing (instruct user to run the prerequisite command).
 
@@ -31,7 +31,6 @@ Abort with error if any required file is missing (instruct user to run the prere
 
 Goal: Detect and reduce ambiguity in the active feature spec. Record clarifications directly in the spec file.
 
-This workflow runs BEFORE `/blueprint`.
 If user explicitly skips clarification (e.g., exploratory spike), warn that downstream rework risk increases.
 
 ## Execution
@@ -57,7 +56,7 @@ If user explicitly skips clarification (e.g., exploratory spike), warn that down
    For Partial/Missing categories...
    Add candidate questions unless clarification wouldn't materially change implementation.
 
-3. Generate prioritized queue of up to 5 clarification questions (max 10 across session). Constraints:
+3. Generate prioritized queue of up to 5 clarification questions (max 10 across session). Before finalizing your question queue: verify you haven't over-indexed on one taxonomy category at the expense of others. A single missed category can matter more than depth in an already-covered one. Constraints:
    - Each answerable via multiple-choice (2-5 options) OR short answer (<=5 words)
    - Only questions whose answers impact...
 	   - Architecture, data modeling, task decomposition, test design, UX, ops readiness, or compliance
