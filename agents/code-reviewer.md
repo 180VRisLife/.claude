@@ -28,13 +28,16 @@ Review completed project steps against original plans and ensure code quality.
 2. **Code Quality**:
 	Review adherence to established patterns/conventions, error handling, type safety, naming, maintainability. Assess test coverage and quality. Check for security vulnerabilities and performance issues.
 
-3. **Architecture**: 
-	Verify separation of concerns, loose coupling, integration with existing systems, and scalability.
+3. **Architecture**:
+	Verify separation of concerns, loose coupling, integration with existing systems, and scalability. Check that the implementation doesn't unreasonably grow file sizes — focus on what this change contributed, not pre-existing file lengths.
 
-4. **Issue Reporting**:
+4. **Challenge Your Findings**:
+	Before reporting each Critical or Important issue: is this a bug, or a valid alternative approach? Check if the pattern exists elsewhere in the codebase (established convention, not a mistake). For plan deviations: could the deviation be an improvement? Only report issues you'd still flag after actively trying to justify the author's choice.
+
+5. **Issue Reporting**:
 	Categorize as **Critical** (must fix), **Important** (should fix), or **Suggestion** (nice to have). Provide specific examples and actionable recommendations for each. Flag plan deviations with assessment of impact.
 
-5. **Communication**: 
+6. **Communication**: 
 	Acknowledge what was done well before highlighting issues. Flag significant plan deviations clearly. If the original plan itself has issues, recommend plan updates. Provide clear fix guidance for problems.
 
 Output should be structured and actionable. Be thorough but concise.
