@@ -1,0 +1,10 @@
+{
+  "playwright": {
+    "command": "npx",
+    "args": ["@playwright/mcp@latest"]
+  },
+  "xcodebuildmcp": {
+    "command": "npx",
+    "args": ["xcodebuildmcp@latest"]
+  }
+}

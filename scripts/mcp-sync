@@ -1,0 +1,225 @@
+#!/bin/bash
+# MCP Toggle Sync — generates .mcp.json from per-project toggle + central library
+# Usage: mcp-sync [--status] [--all]
+#
+# Reads .claude/mcps.local.json in a project, pulls configs from
+# ~/.claude/mcp-library.json, and writes/merges .mcp.json.
+# Projects without mcps.local.json get .mcp.json removed (clean slate).
+
+set -eo pipefail
+
+LIBRARY="$HOME/.claude/mcp-library.json"
+
+# --- Colors ---
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+CYAN='\033[0;36m'
+BOLD='\033[1m'
+DIM='\033[2m'
+RESET='\033[0m'
+
+# --- Helpers ---
+info()  { echo -e "${CYAN}$*${RESET}"; }
+ok()    { echo -e "${GREEN}$*${RESET}"; }
+warn()  { echo -e "${YELLOW}$*${RESET}"; }
+err()   { echo -e "${RED}$*${RESET}" >&2; }
+
+# --- Find project root ---
+# Walk up looking for .git/ or .claude/
+find_project_root() {
+  local dir="$1"
+  while [ "$dir" != "/" ]; do
+    if [ -d "$dir/.git" ] || [ -d "$dir/.claude" ]; then
+      echo "$dir"
+      return 0
+    fi
+    dir=$(dirname "$dir")
+  done
+  return 1
+}
+
+# --- Sync a single project ---
+sync_project() {
+  local project_root="$1"
+  local status_only="$2"
+  local toggle_file="$project_root/.claude/mcps.local.json"
+  local mcp_file="$project_root/.mcp.json"
+  local project_name
+  project_name=$(basename "$project_root")
+
+  # No toggle file → remove .mcp.json (only library-managed servers)
+  if [ ! -f "$toggle_file" ]; then
+    if [ "$status_only" = "true" ]; then
+      echo -e "  ${DIM}${project_name}: no mcps.local.json — MCPs off${RESET}"
+      return 0
+    fi
+    if [ -f "$mcp_file" ]; then
+      # Check if .mcp.json has non-library servers before removing
+      local library_keys
+      library_keys=$(jq -r 'keys[]' "$LIBRARY" 2>/dev/null)
+      local has_external=false
+      if [ -f "$mcp_file" ]; then
+        local existing_keys
+        existing_keys=$(jq -r '.mcpServers // {} | keys[]' "$mcp_file" 2>/dev/null)
+        for key in $existing_keys; do
+          if ! echo "$library_keys" | grep -qxF "$key"; then
+            has_external=true
+            break
+          fi
+        done
+      fi
+
+      if [ "$has_external" = "true" ]; then
+        # Strip only library-managed servers, keep the rest
+        local filter
+        filter=$(jq -r 'keys | map("del(.mcpServers[\"" + . + "\"])") | join(" | ")' "$LIBRARY")
+        jq "$filter" "$mcp_file" > "$mcp_file.tmp" && mv "$mcp_file.tmp" "$mcp_file"
+        ok "  ${project_name}: removed library MCPs, preserved external servers"
+      else
+        rm -f "$mcp_file"
+        ok "  ${project_name}: removed .mcp.json (no MCPs enabled)"
+      fi
+    else
+      echo -e "  ${DIM}${project_name}: already clean${RESET}"
+    fi
+    return 0
+  fi
+
+  # Validate toggle file
+  if ! jq empty "$toggle_file" 2>/dev/null; then
+    err "  ${project_name}: invalid JSON in mcps.local.json"
+    return 1
+  fi
+
+  # Read enabled list
+  local enabled
+  enabled=$(jq -r '.enabled[]? // empty' "$toggle_file" 2>/dev/null)
+  if [ -z "$enabled" ]; then
+    if [ "$status_only" = "true" ]; then
+      echo -e "  ${DIM}${project_name}: empty enabled list${RESET}"
+    else
+      warn "  ${project_name}: mcps.local.json has no enabled MCPs"
+    fi
+    return 0
+  fi
+
+  # Status-only mode
+  if [ "$status_only" = "true" ]; then
+    echo -e "  ${BOLD}${project_name}${RESET}:"
+    for name in $enabled; do
+      if jq -e --arg n "$name" '.[$n]' "$LIBRARY" >/dev/null 2>&1; then
+        echo -e "    ${GREEN}●${RESET} $name"
+      else
+        echo -e "    ${YELLOW}●${RESET} $name ${DIM}(not in library)${RESET}"
+      fi
+    done
+    return 0
+  fi
+
+  # Build the mcpServers object from enabled list
+  local servers="{}"
+  local enabled_names=()
+  local skipped_names=()
+  for name in $enabled; do
+    local config
+    config=$(jq -e --arg n "$name" '.[$n]' "$LIBRARY" 2>/dev/null) || {
+      skipped_names+=("$name")
+      continue
+    }
+    servers=$(echo "$servers" | jq --arg n "$name" --argjson c "$config" '.[$n] = $c')
+    enabled_names+=("$name")
+  done
+
+  # Merge with existing .mcp.json (preserve non-library servers)
+  local result
+  if [ -f "$mcp_file" ]; then
+    local library_keys
+    library_keys=$(jq -r 'keys[]' "$LIBRARY" 2>/dev/null)
+
+    # Extract existing non-library servers
+    local external_servers
+    external_servers=$(jq -r '.mcpServers // {}' "$mcp_file")
+    for key in $library_keys; do
+      external_servers=$(echo "$external_servers" | jq --arg k "$key" 'del(.[$k])')
+    done
+
+    # Merge: external + newly enabled library servers
+    result=$(jq -n --argjson ext "$external_servers" --argjson lib "$servers" \
+      '{ mcpServers: ($ext * $lib) }')
+  else
+    result=$(jq -n --argjson s "$servers" '{ mcpServers: $s }')
+  fi
+
+  # Write .mcp.json
+  echo "$result" | jq '.' > "$mcp_file"
+
+  # Summary
+  ok "  ${project_name}: synced .mcp.json"
+  for name in "${enabled_names[@]}"; do
+    echo -e "    ${GREEN}●${RESET} $name"
+  done
+  for name in "${skipped_names[@]}"; do
+    echo -e "    ${YELLOW}⚠${RESET} $name ${DIM}(not in library — skipped)${RESET}"
+  done
+}
+
+# --- Main ---
+main() {
+  local mode="sync"
+  local status_only="false"
+
+  for arg in "$@"; do
+    case "$arg" in
+      --status) status_only="true" ;;
+      --all)    mode="all" ;;
+      -h|--help)
+        echo "Usage: mcp-sync [--status] [--all]"
+        echo ""
+        echo "  (no flags)  Sync current project"
+        echo "  --status    Show what's enabled without writing"
+        echo "  --all       Sync all projects in ~/Developer/ with mcps.local.json"
+        exit 0
+        ;;
+      *) err "Unknown flag: $arg"; exit 1 ;;
+    esac
+  done
+
+  # Validate library exists
+  if [ ! -f "$LIBRARY" ]; then
+    err "MCP library not found: $LIBRARY"
+    exit 1
+  fi
+  if ! jq empty "$LIBRARY" 2>/dev/null; then
+    err "Invalid JSON in MCP library: $LIBRARY"
+    exit 1
+  fi
+
+  info "${BOLD}MCP Sync${RESET}"
+  echo ""
+
+  if [ "$mode" = "all" ]; then
+    local found=0
+    while IFS= read -r toggle_file; do
+      local project_root
+      project_root=$(dirname "$(dirname "$toggle_file")")
+      sync_project "$project_root" "$status_only"
+      found=$((found + 1))
+    done < <(find "$HOME/Developer" -maxdepth 4 -name "mcps.local.json" -path "*/.claude/*" 2>/dev/null)
+
+    if [ "$found" -eq 0 ]; then
+      echo -e "  ${DIM}No projects with mcps.local.json found in ~/Developer/${RESET}"
+    fi
+  else
+    local project_root
+    project_root=$(find_project_root "$(pwd)") || {
+      err "Not in a project (no .git/ or .claude/ found)"
+      exit 1
+    }
+    sync_project "$project_root" "$status_only"
+  fi
+
+  echo ""
+}
+
+main "$@"
