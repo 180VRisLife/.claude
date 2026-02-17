@@ -29,6 +29,7 @@ Deliver a decisive, complete architecture blueprint that provides everything nee
 
 - **Patterns & Conventions Found**: Existing patterns with file:line references, similar features, key abstractions
 - **Architecture Decision**: Your chosen approach with rationale and trade-offs
+  - Include one sentence on what would make you reconsider this approach — the key assumption that, if wrong, invalidates the design
 - **Component Design**: Each component with file path, responsibilities, dependencies, and interfaces
 - **Implementation Map**: Specific files to create/modify with detailed change descriptions
 - **Data Flow**: Complete flow from entry points through transformations to outputs
