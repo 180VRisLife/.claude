@@ -20,9 +20,11 @@ Help turn ideas into fully formed designs through collaborative dialogue.
 **Phase 2 -- Exploring approaches:**
 - Propose 2-3 approaches with trade-offs
 - Lead with your recommendation and reasoning
+- Favor designs with isolated units and clean boundaries. In brownfield projects, explore existing codebase patterns before proposing new ones. Extend what's there rather than inventing parallel structures.
 
 **Phase 3 -- Presenting the design:**
 - Present in sections of 200-300 words
+- Scale detail to section complexity: a simple CRUD endpoint gets a short section, a novel algorithm or tricky state machine gets a thorough one. Don't spread detail uniformly.
 - Ask after each section whether it looks right
 - Cover: architecture, components, data flow, error handling, testing
 - Go back and clarify if something doesn't track
