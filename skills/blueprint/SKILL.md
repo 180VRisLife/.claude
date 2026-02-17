@@ -49,7 +49,7 @@ Abort with error if any required file is missing (instruct user to run the prere
 	Incorporate whatever the user provides as established decisions.
 	Don't re-derive app-level choices that are already settled — reference them and note only feature-specific additions or deviations.
 
-3. Research and resolve each unknown given feature context. For each technology choice, find best practices for the domain.
+3. Research and resolve each unknown given feature context. For each technology choice, find best practices for the domain. For each technology choice, consider whether the recommendation is driven by familiarity bias rather than fit for this feature's constraints. If a simpler alternative equally satisfies the spec, prefer it.
 
 4. Consolidate in `FEATURE_DIR/research.md`:
    - Decision | Rationale | Alternatives considered
