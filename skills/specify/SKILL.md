@@ -23,7 +23,7 @@ Determine the current feature context:
 3. If one feature: use it. If multiple: list them and ask the user to choose (suggest most recently modified).
 	- If none: proceed (this is expected for new features).
 4. Resolve: FEATURE_DIR = `.spec/<NNN-feature-name>/` (will be created in step 2 of Outline)
-5. Check which docs exist: spec.md, blueprint.md, tasks.md, research.md, data-model.md, contracts/, checklists/
+5. Check which docs exist: spec.md, constitution.md, blueprint.md, tasks.md, research.md, data-model.md, contracts/, checklists/
 
 ## Outline
 
@@ -54,6 +54,7 @@ The text after `/specify` is the feature description. If empty: ERROR "No featur
    - Replace `[FEATURE_DESCRIPTION]` in the template's Input field with the user's actual feature description
    - Extract actors, actions, data, constraints from the description
    - Make informed guesses using context and industry standards
+   - For each assumption made instead of marking NEEDS CLARIFICATION: would a different reasonable assumption change scope, data model, or UX significantly? If yes, mark it NEEDS CLARIFICATION instead.
    - Mark with `[NEEDS CLARIFICATION: question]` ONLY when:
 	   - choice significantly impacts scope/UX, multiple reasonable interpretations exist, and no default exists
    - **Maximum 3 `[NEEDS CLARIFICATION]` markers** -- prioritize: scope > security > UX > technical
