@@ -6,13 +6,37 @@
   "includeCoAuthoredBy": false,
   "statusLine": {
     "type": "command",
-    "command": "bash /home/claude/.claude/statusline/statusline.sh"
+    "command": "bash $HOME/.claude/statusline/statusline.sh"
   },
   "enabledPlugins": {
     "pyright-lsp@claude-plugins-official": true,
     "lua-lsp@claude-plugins-official": true,
     "typescript-lsp@claude-plugins-official": true,
-    "php-lsp@claude-plugins-official": true
+    "php-lsp@claude-plugins-official": true,
+    "swift-lsp@claude-plugins-official": true
+  },
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash $HOME/.claude/hooks/_system-notifications-play-sound.sh"
+          }
+        ]
+      }
+    ],
+    "Notification": [
+      {
+        "matcher": "permission_prompt|elicitation_dialog",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash $HOME/.claude/hooks/_system-notifications-attention-sound.sh"
+          }
+        ]
+      }
+    ]
   },
   "autoUpdatesChannel": "latest",
   "minimumVersion": "2.1.6",
