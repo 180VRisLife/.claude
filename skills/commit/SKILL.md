@@ -36,13 +36,15 @@ $ARGUMENTS: `--pr` = commit + push + PR with automerge. No flag = commit + push.
 
 **Protected branches:** `develop`, `staging`, `main`
 
+**RULE: Never create, offer, or suggest a PR unless `--pr` is explicitly passed.**
+
 Split unrelated changes into separate atomic commits. Each commit = one logical change.
 
 | Context                      | Action                                                                   |
 | ---------------------------- | ------------------------------------------------------------------------ |
-| Commit mode                  | Push. Verify `git status`.                                               |
+| Commit mode                  | Push to current branch. Verify `git status`. **Never create a PR.**      |
+| Commit mode on protected     | Push directly. **Never create or offer a PR.**                           |
 | PR mode                      | Branch if protected. Push. `gh pr create`. `gh pr merge --auto --merge`. |
-| Trivial on protected         | Direct push or offer PR                                                  |
 | Trivial on feature + PR mode | Offer direct merge to base                                               |
 
 ## Output
