@@ -75,3 +75,9 @@ plugins/install-counts-cache.json
 # Chrome native host (auto-generated)
 chrome/
 settings.local.json
+
+# Backups
+backups/
+
+# Plugin blocklist
+plugins/blocklist.json
