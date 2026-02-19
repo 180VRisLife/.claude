@@ -381,6 +381,20 @@ h() {
   print "  ${b}tkd${r}     Kill all detached"
   print "  ${b}tkill${r}   Kill all"
   print ""
+  print "${t}TOOLS${r}"
+  print "$rule"
+  print "  ${g}navigation${r}"
+  print "  ${b}z${r}       Jump to directory        ${g}learned from cd history${r}"
+  print "  ${b}Ctrl+T${r}  Find file                ${g}fuzzy search, preview${r}"
+  print "  ${b}Ctrl+R${r}  Search history           ${g}fuzzy shell history${r}"
+  print ""
+  print "  ${g}files${r}"
+  print "  ${b}cat${r}     View file                ${g}syntax highlighted (bat)${r}"
+  print "  ${b}rg${r}      Search code              ${g}fast regex search (ripgrep)${r}"
+  print ""
+  print "  ${g}reference${r}"
+  print "  ${b}tldr${r}    Quick help               ${g}simplified man pages${r}"
+  print ""
 }
 
 # =============================================================================
