@@ -10,6 +10,14 @@ exit-plan-mode: auto
 argument-hint: [--pr]
 ---
 
+## CRITICAL RULE — NO PRs WITHOUT `--pr` FLAG
+
+DO NOT CREATE A PULL REQUEST. DO NOT OFFER TO CREATE A PULL REQUEST. DO NOT SUGGEST CREATING A PULL REQUEST. DO NOT RUN `gh pr create`. DO NOT RUN ANY `gh pr` COMMAND.
+
+THE ONLY EXCEPTION: the user passed `--pr` in $ARGUMENTS. If `--pr` is not present, PR behavior is **FORBIDDEN**.
+
+This applies regardless of branch, context, or how "helpful" a PR might seem. No exceptions. No suggestions. No "would you like me to…?" offers. Commit. Push. Stop.
+
 ## Context
 
 - Status: !`git status -sb 2>/dev/null || echo "Not in git repo"`
@@ -36,16 +44,23 @@ $ARGUMENTS: `--pr` = commit + push + PR with automerge. No flag = commit + push.
 
 **Protected branches:** `develop`, `staging`, `main`
 
-**RULE: Never create, offer, or suggest a PR unless `--pr` is explicitly passed.**
-
 Split unrelated changes into separate atomic commits. Each commit = one logical change.
+
+### Default flow (no `--pr`)
+
+Stage changes → commit → push → verify with `git status` → stop.
+
+**FORBIDDEN** (see CRITICAL RULE above): No `gh pr` commands, no PR creation, no PR offers or suggestions. Even on protected branches — push directly.
+
+### PR flow (`--pr` passed)
+
+Only when `$ARGUMENTS` contains `--pr`:
 
 | Context                      | Action                                                                   |
 | ---------------------------- | ------------------------------------------------------------------------ |
-| Commit mode                  | Push to current branch. Verify `git status`. **Never create a PR.**      |
-| Commit mode on protected     | Push directly. **Never create or offer a PR.**                           |
-| PR mode                      | Branch if protected. Push. `gh pr create`. `gh pr merge --auto --merge`. |
-| Trivial on feature + PR mode | Offer direct merge to base                                               |
+| On protected branch          | Create feature branch. Push. `gh pr create`. `gh pr merge --auto --merge`. |
+| On feature branch            | Push. `gh pr create`. `gh pr merge --auto --merge`.                      |
+| Trivial on feature branch    | Offer direct merge to base                                               |
 
 ## Output
 
