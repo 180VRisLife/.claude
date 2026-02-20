@@ -50,6 +50,16 @@
         "lastUpdated": "2026-01-31T22:01:38.175Z",
         "gitCommitSha": "27d2b86d72da27c64585150857cee8472ad47abb"
       }
+    ],
+    "clangd-lsp@claude-plugins-official": [
+      {
+        "scope": "user",
+        "installPath": "/Users/chrisjamesbliss/.claude/plugins/cache/claude-plugins-official/clangd-lsp/1.0.0",
+        "version": "1.0.0",
+        "installedAt": "2026-02-20T21:12:35.596Z",
+        "lastUpdated": "2026-02-20T21:12:35.596Z",
+        "gitCommitSha": "aa296ec81e8ccb49c9784f167c2c0aa625a86cec"
+      }
     ]
   }
 }
