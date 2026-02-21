@@ -175,10 +175,6 @@
           {
             "type": "command",
             "command": "bash $HOME/.claude/hooks/_system-notifications-play-sound.sh"
-          },
-          {
-            "type": "command",
-            "command": "bash $HOME/.claude/hooks/greenlight.sh --stop"
           }
         ]
       }

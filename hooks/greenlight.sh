@@ -50,16 +50,5 @@ GREENLIGHT_DEVICE_ID="${GREENLIGHT_DEVICE_ID:-}"
 git_root=$(git rev-parse --show-toplevel 2>/dev/null || true)
 project=$(basename "${git_root:-${PWD}}")
 
-# --- Stop notification (Claude finished) ---
-if [[ "${1:-}" == "--stop" ]]; then
-  payload=$(jq -n \
-    --arg did "${GREENLIGHT_DEVICE_ID}" \
-    --arg proj "${project}" \
-    '{device_id: $did, tool_name: "stop", tool_input: {notification_type: "stop", message: "Claude finished responding", title: "Done"}, project: $proj, agent: "claude-code"}')
-  curl -s --max-time 10 -X POST -H "Content-Type: application/json" \
-    -d "${payload}" "https://permit.dnmfarrell.com/request" >/dev/null 2>&1 &
-  exit 0
-fi
-
 # --- Forward to official hook ---
 exec bash "${HOOK_SCRIPT}" --device-id "${GREENLIGHT_DEVICE_ID}" --project "${project}" "$@"
