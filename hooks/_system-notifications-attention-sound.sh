@@ -3,6 +3,9 @@
 
 [[ -n "${CLAUDE_SILENT_HOOK:-}" ]] && exit 0
 
+# Suppress sound when user is not at the Mac (screen locked or SSH sessions)
+source "${HOME}/.claude/hooks/_guard-local-sound.sh"
+
 # Remote: write event to log for local Mac to pick up
 if [[ -n "${SSH_CONNECTION:-}" ]]; then
     printf 'attention\t%s\n' "$(basename "$PWD")" >> /tmp/devkit-hook-events.log

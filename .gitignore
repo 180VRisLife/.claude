@@ -1,6 +1,7 @@
 # Environment variables
 .env
 hooks/.env
+hooks/.greenlight-mode
 
 # OS files
 .DS_Store

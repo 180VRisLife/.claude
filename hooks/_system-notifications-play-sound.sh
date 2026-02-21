@@ -3,6 +3,9 @@
 # Skip sound for utility/silent Claude calls
 [[ -n "$CLAUDE_SILENT_HOOK" ]] && exit 0
 
+# Suppress sound when user is not at the Mac (screen locked or SSH sessions)
+source "${HOME}/.claude/hooks/_guard-local-sound.sh"
+
 # Only play sound for main agent stops (not subagents)
 # SubagentStop events include agent_id field, Stop events don't
 if grep -q '"agent_id"'; then

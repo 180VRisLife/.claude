@@ -129,13 +129,42 @@
     "defaultMode": "plan"
   },
   "hooks": {
+    "PermissionRequest": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash $HOME/.claude/hooks/greenlight.sh"
+          }
+        ]
+      }
+    ],
     "Notification": [
       {
         "matcher": "permission_prompt|elicitation_dialog",
         "hooks": [
           {
             "type": "command",
-            "command": "bash /Users/chrisjamesbliss/.claude/hooks/_system-notifications-attention-sound.sh"
+            "command": "bash $HOME/.claude/hooks/_system-notifications-attention-sound.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "idle_prompt",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash $HOME/.claude/hooks/greenlight.sh"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash $HOME/.claude/hooks/greenlight.sh --activity"
           }
         ]
       }
@@ -145,7 +174,11 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash /Users/chrisjamesbliss/.claude/hooks/_system-notifications-play-sound.sh"
+            "command": "bash $HOME/.claude/hooks/_system-notifications-play-sound.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash $HOME/.claude/hooks/greenlight.sh --stop"
           }
         ]
       }

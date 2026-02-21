@@ -17,12 +17,12 @@
     "clangd-lsp@claude-plugins-official": true
   },
   "hooks": {
-    "Stop": [
+    "PermissionRequest": [
       {
         "hooks": [
           {
             "type": "command",
-            "command": "bash $HOME/.claude/hooks/_system-notifications-play-sound.sh"
+            "command": "bash $HOME/.claude/hooks/greenlight.sh"
           }
         ]
       }
@@ -34,6 +34,39 @@
           {
             "type": "command",
             "command": "bash $HOME/.claude/hooks/_system-notifications-attention-sound.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "idle_prompt",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash $HOME/.claude/hooks/greenlight.sh"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash $HOME/.claude/hooks/greenlight.sh --activity"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash $HOME/.claude/hooks/_system-notifications-play-sound.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash $HOME/.claude/hooks/greenlight.sh --stop"
           }
         ]
       }

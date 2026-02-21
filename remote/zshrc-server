@@ -55,6 +55,21 @@ cr() { command claude --resume; }
 cc() { command claude --continue; }
 ct() { command claude --teammate-mode tmux; }
 
+# Greenlight phone notification toggle
+greenlight() {
+  local mode_file="$HOME/.claude/hooks/.greenlight-mode"
+  case "${1:-status}" in
+    on|off|auto)
+      echo "$1" > "$mode_file"
+      echo "Greenlight: $1"
+      ;;
+    status)
+      echo "Greenlight: $(cat "$mode_file" 2>/dev/null || echo auto)"
+      ;;
+    *) echo "Usage: greenlight [on|off|auto|status]" ;;
+  esac
+}
+
 # =============================================================================
 # TMUX (from 20-tmux.zsh, date -d @ for GNU/Linux)
 # =============================================================================
@@ -362,6 +377,7 @@ h() {
   print "  ${b}cr${r}      Claude --resume"
   print "  ${b}cc${r}      Claude --continue"
   print "  ${b}ct${r}      Claude team mode"
+  print "  ${b}greenlight${r}               ${g}on / off / auto / status${r}"
   print ""
   print "${t}TMUX${r}"
   print "$rule"
