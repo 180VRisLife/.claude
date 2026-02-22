@@ -55,20 +55,42 @@ cr() { command claude --resume; }
 cc() { command claude --continue; }
 ct() { command claude --teammate-mode tmux; }
 
-# Greenlight phone notification toggle
-greenlight() {
-  local mode_file="$HOME/.claude/hooks/.greenlight-mode"
+# Beacon phone notification toggle
+beacon() {
+  local mode_file="$HOME/.beacon/mode"
   case "${1:-status}" in
     on|off|auto)
       echo "$1" > "$mode_file"
-      echo "Greenlight: $1"
+      echo "Beacon: $1"
       ;;
     status)
-      echo "Greenlight: $(cat "$mode_file" 2>/dev/null || echo auto)"
+      echo "Beacon: $(cat "$mode_file" 2>/dev/null || echo auto)"
       ;;
-    *) echo "Usage: greenlight [on|off|auto|status]" ;;
+    *) echo "Usage: beacon [on|off|auto|status]" ;;
   esac
 }
+
+# Beacon SSH auto-attach (remote server)
+if [[ -n "$SSH_CONNECTION" && -z "$TMUX" ]]; then
+  _beacon_auto_attach() {
+    setopt local_options NULL_GLOB
+    local target_dir="$HOME/.beacon/targets"
+    [[ -d "$target_dir" ]] || return
+
+    local -a targets
+    for f in "$target_dir"/*(Om); do  # Om = sort by mtime, newest first
+      [[ -f "$f" ]] && targets+=("$f")
+    done
+
+    if (( ${#targets[@]} >= 1 )); then
+      local session=$(<"${targets[1]}")
+      rm -f "${targets[1]}"
+      exec tmux attach -t "$session" 2>/dev/null || exec tmux attach
+    fi
+  }
+  _beacon_auto_attach
+  unfunction _beacon_auto_attach
+fi
 
 # =============================================================================
 # TMUX (from 20-tmux.zsh, date -d @ for GNU/Linux)
@@ -377,7 +399,7 @@ h() {
   print "  ${b}cr${r}      Claude --resume"
   print "  ${b}cc${r}      Claude --continue"
   print "  ${b}ct${r}      Claude team mode"
-  print "  ${b}greenlight${r}               ${g}on / off / auto / status${r}"
+  print "  ${b}beacon${r}                   ${g}on / off / auto / status${r}"
   print ""
   print "${t}TMUX${r}"
   print "$rule"

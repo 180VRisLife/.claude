@@ -17,16 +17,6 @@
     "clangd-lsp@claude-plugins-official": true
   },
   "hooks": {
-    "PermissionRequest": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash $HOME/.claude/hooks/greenlight.sh"
-          }
-        ]
-      }
-    ],
     "Notification": [
       {
         "matcher": "permission_prompt|elicitation_dialog",
@@ -34,6 +24,10 @@
           {
             "type": "command",
             "command": "bash $HOME/.claude/hooks/_system-notifications-attention-sound.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash $HOME/.claude/hooks/beacon.sh"
           }
         ]
       },
@@ -42,17 +36,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash $HOME/.claude/hooks/greenlight.sh"
-          }
-        ]
-      }
-    ],
-    "UserPromptSubmit": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash $HOME/.claude/hooks/greenlight.sh --activity"
+            "command": "bash $HOME/.claude/hooks/beacon.sh"
           }
         ]
       }
@@ -63,6 +47,10 @@
           {
             "type": "command",
             "command": "bash $HOME/.claude/hooks/_system-notifications-play-sound.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash $HOME/.claude/hooks/beacon.sh"
           }
         ]
       }
