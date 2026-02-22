@@ -7,7 +7,13 @@ disable-model-invocation: true
 
 # Brainstorming Ideas Into Designs
 
-Help turn ideas into fully formed designs through collaborative dialogue.
+Help turn ideas into fully formed designs through collaborative dialogue. Scale effort to the task — a link in a header needs a different process than a new subsystem — but always confirm you understand what the user wants before you build anything.
+
+Do NOT start implementation, write code, or scaffold anything until you have stated your understanding and the user has confirmed it. This applies to every task regardless of size.
+
+## Anti-Pattern: Skipping Understanding
+
+Simple tasks are where unchecked assumptions cause the most damage. You think you know the *what* and miss preferences about the *how*. Even when the task seems obvious, confirm before building.
 
 ## The Process
 
@@ -16,6 +22,7 @@ Help turn ideas into fully formed designs through collaborative dialogue.
 - Ask questions one at a time (only one per message)
 - Prefer multiple choice when possible
 - Focus on: purpose, constraints, success criteria
+- State your understanding and get user confirmation before moving on
 
 **Phase 2 -- Exploring approaches:**
 - Propose 2-3 approaches with trade-offs
@@ -29,6 +36,8 @@ Help turn ideas into fully formed designs through collaborative dialogue.
 - Cover: architecture, components, data flow, error handling, testing
 - Go back and clarify if something doesn't track
 - Validate each section before moving on
+
+Steps 1-2 always happen. Step 3 scales to the task — for small changes, ask the user if a full design walkthrough is needed rather than skipping it silently.
 
 ## After the Design
 
