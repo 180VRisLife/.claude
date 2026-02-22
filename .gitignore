@@ -82,3 +82,6 @@ backups/
 
 # Plugin blocklist
 plugins/blocklist.json
+
+# Unignore skills subdirectories matched by broad patterns above
+!skills/**/
