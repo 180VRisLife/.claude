@@ -23,7 +23,7 @@ cleanup_stale_sessions() {
 }
 
 # Workspaces path for multi-repo workspace detection
-WORKSPACES_PATH="$HOME/Developer/Workspaces"
+WORKSPACES_PATH="$HOME/Developer/1. Workspaces"
 
 # Get the main repository name from a worktree
 get_worktree_repo_name() {
@@ -34,6 +34,16 @@ get_worktree_repo_name() {
     repo_path="${gitdir_line#gitdir: }"
     repo_path="${repo_path%%/.git/worktrees/*}"
     basename "${repo_path}"
+}
+
+# Abbreviate branch: main/master→M, develop→D, staging→S, else→F
+abbreviate_branch() {
+    case "$1" in
+        main|master) echo "M" ;;
+        develop) echo "D" ;;
+        staging) echo "S" ;;
+        *) echo "F" ;;
+    esac
 }
 
 # Get dirty marker for a repo path
@@ -62,16 +72,16 @@ scan_workspace_repos() {
         if [ -d "$real_path/.git" ] || [ -f "$real_path/.git" ]; then
             local git_info=$(get_repo_git_info "$real_path")
             if [ -n "$git_info" ]; then
-                # For worktrees, use the actual repo name and [wt] icon; otherwise use folder name and [rp]
+                # For worktrees, use the actual repo name and [wt] icon; otherwise use folder name
                 local repo_name icon
                 if [ -f "$real_path/.git" ]; then
                     repo_name=$(get_worktree_repo_name "$real_path")
                     icon="[wt]"
                 else
                     repo_name=$(basename "$item")
-                    icon="[rp]"
+                    icon=""
                 fi
-                local branch="${git_info%%|*}"
+                local branch=$(abbreviate_branch "${git_info%%|*}")
                 local dirty="${git_info##*|}"
                 [ -n "${WORKSPACE_DISPLAY}" ] && WORKSPACE_DISPLAY="${WORKSPACE_DISPLAY} "
                 WORKSPACE_DISPLAY="${WORKSPACE_DISPLAY}${icon}${repo_name}:${branch}${dirty}"
@@ -179,12 +189,12 @@ if [ -n "${GIT_BRANCH}" ]; then
     if [ -f "$CWD/.git" ]; then
         # Worktree: always show [wt] name:branch✓
         WORKTREE_NAME=$(basename "$CWD")
-        GIT_PART="${GIT_COLOR}[wt] ${WORKTREE_NAME}:${GIT_BRANCH}${DIRTY}${RESET}"
+        GIT_PART="${GIT_COLOR}[wt] ${WORKTREE_NAME}:$(abbreviate_branch "${GIT_BRANCH}")${DIRTY}${RESET}"
     else
-        # Regular git repo - show [rp] repo:branch✓
+        # Regular git repo - show repo:branch✓
         REPO_ROOT=$(git -C "${CWD}" rev-parse --show-toplevel 2>/dev/null)
         REPO_NAME=$(basename "${REPO_ROOT}")
-        GIT_PART="${GIT_COLOR}[rp] ${REPO_NAME}:${GIT_BRANCH}${DIRTY}${RESET}"
+        GIT_PART="${GIT_COLOR}${REPO_NAME}:$(abbreviate_branch "${GIT_BRANCH}")${DIRTY}${RESET}"
     fi
 else
     # Only scan for workspace repos if under the Workspaces folder

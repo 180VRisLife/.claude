@@ -12,7 +12,17 @@ alias pip='python3 -m pip'
 # Editor (nano on server, was "open -e -W -n" on macOS)
 export EDITOR="nano"
 
-# Prompt git info (mirrors statusline format: [rp] repo:branch✓ in steel blue)
+# Abbreviate branch: main/master→M, develop→D, staging→S, else→F
+_abbrev_branch() {
+  case "$1" in
+    main|master) echo "M" ;;
+    develop) echo "D" ;;
+    staging) echo "S" ;;
+    *) echo "F" ;;
+  esac
+}
+
+# Prompt git info (mirrors statusline format: repo:branch✓ in steel blue)
 # No workspace [ws] detection (workspaces not on server)
 _prompt_git_info() {
   _git_prompt=""
@@ -24,12 +34,12 @@ _prompt_git_info() {
     if [[ -f "$(git rev-parse --show-toplevel 2>/dev/null)/.git" ]]; then
       # Worktree: .git is a file
       local folder=$(basename "$PWD")
-      _git_prompt=" %F{244}|%f %F{67}[wt] ${folder}:${branch}${dirty}%f"
+      _git_prompt=" %F{244}|%f %F{67}[wt] ${folder}:$(_abbrev_branch "$branch")${dirty}%f"
     else
       # Regular repo
       local repo_root=$(git rev-parse --show-toplevel 2>/dev/null)
       local repo_name=$(basename "$repo_root")
-      _git_prompt=" %F{244}|%f %F{67}[rp] ${repo_name}:${branch}${dirty}%f"
+      _git_prompt=" %F{244}|%f %F{67}${repo_name}:$(_abbrev_branch "$branch")${dirty}%f"
     fi
   fi
 }
