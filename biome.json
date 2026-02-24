@@ -11,9 +11,9 @@
       "**/*.css",
       "**/*.json",
       "**/*.jsonc",
-      "!**/node_modules/**",
-      "!**/dist/**",
-      "!**/coverage/**",
+      "!**/node_modules",
+      "!**/dist",
+      "!**/coverage",
       "!**/package-lock.json"
     ]
   },

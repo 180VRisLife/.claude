@@ -2,10 +2,5 @@
   "config": {
     "first-line-heading": false
   },
-  "ignores": [
-    "cache/**",
-    "plans/**",
-    "plugins/**",
-    "node_modules/**"
-  ]
+  "ignores": ["cache/**", "plans/**", "plugins/**", "node_modules/**"]
 }
