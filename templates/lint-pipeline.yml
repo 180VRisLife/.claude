@@ -34,7 +34,7 @@ jobs:
         if: hashFiles('**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx', '**/*.css', '**/*.json') != ''
         run: |
           npm install -g @biomejs/biome
-          cp .github/lint-config/biome.json biome.json
+          mv .github/lint-config/biome.json biome.json
           biome check .
 
       # 5. Bash lint (shellcheck + shfmt)
