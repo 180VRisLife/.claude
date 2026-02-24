@@ -1,0 +1,105 @@
+name: Lint Pipeline
+
+on:
+  push:
+    branches: ['*']
+  pull_request:
+    branches: ['*']
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      # 1. Checkout project repo
+      - uses: actions/checkout@v4
+
+      # 2. Checkout centralized lint configs
+      - uses: actions/checkout@v4
+        with:
+          repository: 180VRisLife/.claude
+          path: .lint-config
+          sparse-checkout: |
+            ruff.toml
+            biome.json
+            .swiftlint.yml
+            stylua.toml
+            .prettierrc
+            .gitleaks.toml
+            .shellcheckrc
+            .yamllint.yml
+            .markdownlint-cli2.jsonc
+
+      # 3. Secret detection (gitleaks)
+      - name: Secret detection (gitleaks)
+        if: always()
+        run: |
+          GITLEAKS_VERSION=$(curl -sSf https://api.github.com/repos/gitleaks/gitleaks/releases/latest | jq -r '.tag_name' | tr -d 'v')
+          curl -sSfL "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" | tar xz -C /usr/local/bin gitleaks
+          gitleaks detect --source . --config .lint-config/.gitleaks.toml --verbose
+
+      # 4. Python lint (ruff)
+      - name: Python lint (ruff)
+        if: hashFiles('**/*.py') != ''
+        run: |
+          pip install ruff
+          ruff check --config .lint-config/ruff.toml .
+          ruff format --check --config .lint-config/ruff.toml .
+
+      # 5. TS/JS/CSS/JSON lint (biome)
+      - name: TS/JS/CSS/JSON lint (biome)
+        if: hashFiles('**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx', '**/*.css', '**/*.json') != ''
+        run: |
+          npm install -g @biomejs/biome
+          biome check --config-path .lint-config/ .
+
+      # 6. Bash lint (shellcheck + shfmt)
+      - name: Bash lint (shellcheck + shfmt)
+        if: hashFiles('**/*.sh', '**/*.bash') != ''
+        run: |
+          apt-get update && apt-get install -y shellcheck
+          SHFMT_VERSION=$(curl -sSf https://api.github.com/repos/mvdan/sh/releases/latest | jq -r '.tag_name')
+          curl -sSfL "https://github.com/mvdan/sh/releases/download/${SHFMT_VERSION}/shfmt_${SHFMT_VERSION}_linux_amd64" -o /usr/local/bin/shfmt && chmod +x /usr/local/bin/shfmt
+          find . \( -name '*.sh' -o -name '*.bash' \) -not -path '*/node_modules/*' -not -path '*/.git/*' -print0 | xargs -0 shellcheck
+          shfmt -d -i 4 -bn -ci -sr .
+
+      # 7. Swift lint (swiftlint)
+      - name: Swift lint (swiftlint)
+        if: hashFiles('**/*.swift') != ''
+        run: |
+          curl -sSfL https://github.com/realm/SwiftLint/releases/latest/download/swiftlint_linux.zip -o /tmp/swiftlint.zip
+          unzip -o /tmp/swiftlint.zip -d /usr/local/bin
+          chmod +x /usr/local/bin/swiftlint
+          swiftlint lint --strict --config .lint-config/.swiftlint.yml
+
+      # 8. Lua lint (stylua + luacheck)
+      - name: Lua lint (stylua + luacheck)
+        if: hashFiles('**/*.lua') != ''
+        run: |
+          curl -sSfL https://github.com/JohnnyMorganz/StyLua/releases/latest/download/stylua-linux-x86_64.zip -o /tmp/stylua.zip
+          unzip -o /tmp/stylua.zip -d /usr/local/bin && chmod +x /usr/local/bin/stylua
+          apt-get update && apt-get install -y luarocks
+          luarocks install luacheck
+          stylua --check --config-path .lint-config/stylua.toml .
+          luacheck .
+
+      # 9. YAML lint
+      - name: YAML lint
+        if: hashFiles('**/*.yaml', '**/*.yml') != ''
+        run: |
+          pip install yamllint
+          yamllint -c .lint-config/.yamllint.yml .
+
+      # 10. Markdown lint
+      - name: Markdown lint
+        if: hashFiles('**/*.md') != ''
+        run: |
+          npm install -g markdownlint-cli2
+          cp .lint-config/.markdownlint-cli2.jsonc .markdownlint-cli2.jsonc
+          markdownlint-cli2 "**/*.md"
+
+      # 11. Prettier format check
+      - name: Prettier format check
+        if: hashFiles('**/*.html', '**/*.md', '**/*.yaml', '**/*.yml') != ''
+        run: |
+          npm install -g prettier
+          prettier --check --config .lint-config/.prettierrc "**/*.{html,md,yaml,yml}"
