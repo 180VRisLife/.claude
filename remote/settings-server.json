@@ -54,6 +54,23 @@
           }
         ]
       }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash $HOME/.claude/hooks/auto-format.sh",
+            "async": true
+          },
+          {
+            "type": "command",
+            "command": "bash $HOME/.claude/hooks/sync-ci-lint.sh",
+            "async": true
+          }
+        ]
+      }
     ]
   },
   "autoUpdatesChannel": "latest",

@@ -1,0 +1,153 @@
+#!/usr/bin/env bash
+# Global git pre-commit hook
+# Three stages: secret detection, auto-format, linting
+set -uo pipefail
+
+EXIT_CODE=0
+
+# ─────────────────────────────────────────────────────────────
+# STAGE 1 — Secret Detection (hard block)
+# ─────────────────────────────────────────────────────────────
+if command -v gitleaks &>/dev/null; then
+    gitleaks protect --staged --config "$HOME/.claude/.gitleaks.toml" --verbose
+    if [ $? -ne 0 ]; then
+        echo "❌ Gitleaks: secrets detected. Commit blocked."
+        exit 1
+    fi
+fi
+
+# ─────────────────────────────────────────────────────────────
+# STAGE 2 — Auto-fix Formatting + Re-stage
+# ─────────────────────────────────────────────────────────────
+FORMATTED_FILES=()
+
+while IFS= read -r -d '' file; do
+    # Skip files that no longer exist on disk
+    [[ -f "$file" ]] || continue
+
+    ext="${file##*.}"
+    ext="$(printf '%s' "$ext" | tr '[:upper:]' '[:lower:]')"
+
+    case ".$ext" in
+        .py | .pyi)
+            if command -v ruff >/dev/null 2>&1; then
+                ruff format --config ~/.claude/ruff.toml "$file" >/dev/null 2>&1
+                FORMATTED_FILES+=("$file")
+            fi
+            ;;
+        .ts | .tsx | .js | .jsx | .mjs | .cjs | .css | .json | .jsonc)
+            if command -v biome >/dev/null 2>&1; then
+                _btmp=$(mktemp -d) && cp ~/.claude/biome.json "$_btmp/"
+                biome format --write --config-path "$_btmp/biome.json" "$file" >/dev/null 2>&1
+                rm -rf "$_btmp"
+                FORMATTED_FILES+=("$file")
+            fi
+            ;;
+        .sh | .bash)
+            if command -v shfmt >/dev/null 2>&1; then
+                shfmt -w -i 4 -bn -ci -sr "$file" >/dev/null 2>&1
+                FORMATTED_FILES+=("$file")
+            fi
+            ;;
+        .swift)
+            if command -v swiftlint >/dev/null 2>&1; then
+                swiftlint fix --quiet --config ~/.claude/.swiftlint.yml --path "$file" >/dev/null 2>&1
+                FORMATTED_FILES+=("$file")
+            fi
+            ;;
+        .lua)
+            if command -v stylua >/dev/null 2>&1; then
+                stylua --config-path ~/.claude/stylua.toml "$file" >/dev/null 2>&1
+                FORMATTED_FILES+=("$file")
+            fi
+            ;;
+        .html | .md | .yaml | .yml)
+            if command -v prettier >/dev/null 2>&1; then
+                prettier --write --config ~/.claude/.prettierrc "$file" >/dev/null 2>&1
+                FORMATTED_FILES+=("$file")
+            fi
+            ;;
+    esac
+done < <(git diff --cached --name-only --diff-filter=ACMR -z)
+
+# Re-stage any formatted files
+for f in "${FORMATTED_FILES[@]+${FORMATTED_FILES[@]}}"; do
+    [[ -n "$f" ]] && git add "$f"
+done
+
+# ─────────────────────────────────────────────────────────────
+# STAGE 3 — Linting (errors block, warnings pass)
+# ─────────────────────────────────────────────────────────────
+PY_FILES=()
+WEB_FILES=()
+SH_FILES=()
+SWIFT_FILES=()
+YAML_FILES=()
+MD_FILES=()
+
+while IFS= read -r -d '' file; do
+    [[ -f "$file" ]] || continue
+
+    ext="${file##*.}"
+    ext="$(printf '%s' "$ext" | tr '[:upper:]' '[:lower:]')"
+
+    case ".$ext" in
+        .py | .pyi)       PY_FILES+=("$file") ;;
+        .ts | .tsx | .js | .jsx | .mjs | .cjs | .css | .json | .jsonc)
+                          WEB_FILES+=("$file") ;;
+        .sh | .bash)      SH_FILES+=("$file") ;;
+        .swift)           SWIFT_FILES+=("$file") ;;
+        .yaml | .yml)     YAML_FILES+=("$file") ;;
+        .md)              MD_FILES+=("$file") ;;
+    esac
+done < <(git diff --cached --name-only --diff-filter=ACMR -z)
+
+# Python — ruff (blocks on error)
+if [[ ${#PY_FILES[@]} -gt 0 ]] && command -v ruff >/dev/null 2>&1; then
+    if ! ruff check --config ~/.claude/ruff.toml "${PY_FILES[@]}"; then
+        echo "❌ ruff: lint errors found."
+        EXIT_CODE=1
+    fi
+fi
+
+# TS/JS/CSS/JSON — biome (blocks on error)
+if [[ ${#WEB_FILES[@]} -gt 0 ]] && command -v biome >/dev/null 2>&1; then
+    _btmp=$(mktemp -d) && cp ~/.claude/biome.json "$_btmp/"
+    if ! biome lint --config-path "$_btmp/biome.json" "${WEB_FILES[@]}"; then
+        echo "❌ biome: lint errors found."
+        EXIT_CODE=1
+    fi
+    rm -rf "$_btmp"
+fi
+
+# Bash — shellcheck (blocks on error)
+if [[ ${#SH_FILES[@]} -gt 0 ]] && command -v shellcheck >/dev/null 2>&1; then
+    if ! shellcheck "${SH_FILES[@]}"; then
+        echo "❌ shellcheck: lint errors found."
+        EXIT_CODE=1
+    fi
+fi
+
+# Swift — swiftlint (blocks on error)
+if [[ ${#SWIFT_FILES[@]} -gt 0 ]] && command -v swiftlint >/dev/null 2>&1; then
+    if ! swiftlint lint --strict --config ~/.claude/.swiftlint.yml "${SWIFT_FILES[@]}"; then
+        echo "❌ swiftlint: lint errors found."
+        EXIT_CODE=1
+    fi
+fi
+
+# YAML — yamllint (warning only, does NOT block)
+if [[ ${#YAML_FILES[@]} -gt 0 ]] && command -v yamllint >/dev/null 2>&1; then
+    if ! yamllint -c ~/.claude/.yamllint.yml "${YAML_FILES[@]}"; then
+        echo "⚠️  yamllint: warnings found (non-blocking)."
+    fi
+fi
+
+# Markdown — markdownlint-cli2 (warning only, does NOT block)
+if [[ ${#MD_FILES[@]} -gt 0 ]] && command -v markdownlint-cli2 >/dev/null 2>&1; then
+    if ! markdownlint-cli2 "${MD_FILES[@]}"; then
+        echo "⚠️  markdownlint: warnings found (non-blocking)."
+    fi
+fi
+
+exit $EXIT_CODE
