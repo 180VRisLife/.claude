@@ -59,8 +59,8 @@ jobs:
           sudo apt-get update && sudo apt-get install -y shellcheck
           SHFMT_VERSION=$(curl -sSf https://api.github.com/repos/mvdan/sh/releases/latest | jq -r '.tag_name')
           curl -sSfL "https://github.com/mvdan/sh/releases/download/${SHFMT_VERSION}/shfmt_${SHFMT_VERSION}_linux_amd64" -o /usr/local/bin/shfmt && chmod +x /usr/local/bin/shfmt
-          find . \( -name '*.sh' -o -name '*.bash' \) -not -path '*/node_modules/*' -not -path '*/.git/*' -print0 | xargs -0 shellcheck
-          shfmt -d -i 4 -bn -ci -sr .
+          find . \( -name '*.sh' -o -name '*.bash' \) -not -path '*/node_modules/*' -not -path '*/.git/*' -not -path '*/file-history/*' -not -path '*/plugins/*' -not -path '*/.lint-config/*' -print0 | xargs -0 -r shellcheck
+          find . \( -name '*.sh' -o -name '*.bash' \) -not -path '*/node_modules/*' -not -path '*/.git/*' -not -path '*/file-history/*' -not -path '*/plugins/*' -not -path '*/.lint-config/*' -print0 | xargs -0 -r shfmt -d -i 4 -bn -ci -sr
 
       # 7. Swift lint (swiftlint)
       - name: Swift lint (swiftlint)

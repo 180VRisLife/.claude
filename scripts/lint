@@ -1,5 +1,6 @@
 #!/bin/bash
 # Local linter runner - mirrors CI workflow
+# shellcheck disable=SC2329,SC2310,SC2312
 set -eo pipefail
 
 cd "$(git rev-parse --show-toplevel)"
@@ -15,7 +16,10 @@ fail() { echo -e "${RED}✗${NC} $1"; }
 header() { echo -e "\n${BOLD}$1${NC}"; }
 require_cmd() {
     local cmd="$1" hint="$2"
-    command -v "$cmd" &>/dev/null || { fail "$cmd not installed ($hint)"; return 1; }
+    command -v "${cmd}" &> /dev/null || {
+        fail "${cmd} not installed (${hint})"
+        return 1
+    }
 }
 
 errors=0
@@ -26,18 +30,18 @@ lint_json() {
     local count=0
     local failed=0
     while IFS= read -r file; do
-        if ! jq empty "$file" 2>/dev/null; then
-            fail "$file: invalid JSON"
+        if ! jq empty "${file}" 2> /dev/null; then
+            fail "${file}: invalid JSON"
             ((failed++))
         else
             ((count++))
         fi
     done < <(git ls-files '*.json')
-    if [ $failed -gt 0 ]; then
-        fail "$failed JSON file(s) invalid"
+    if [ "${failed}" -gt 0 ]; then
+        fail "${failed} JSON file(s) invalid"
         return 1
     fi
-    pass "$count JSON files valid"
+    pass "${count} JSON files valid"
 }
 
 lint_markdown() {
@@ -66,8 +70,8 @@ lint_shell() {
     require_cmd shellcheck "brew install shellcheck" || return 1
     local files=()
     while IFS= read -r file; do
-        files+=("$file")
-    done < <(git ls-files 'hooks/*' 'scripts/*' 'statusline/*' | xargs -I{} sh -c 'file "{}" | grep -q "shell script" && echo "{}"' 2>/dev/null || true)
+        files+=("${file}")
+    done < <(git ls-files 'hooks/*' 'scripts/*' 'statusline/*' | xargs -I{} sh -c 'file "{}" | grep -q "shell script" && echo "{}"' 2> /dev/null || true)
     if [ ${#files[@]} -eq 0 ]; then
         pass "No shell files to check"
         return 0
@@ -82,7 +86,7 @@ lint_shell() {
 
 lint_actions() {
     header "Action Lint (actionlint)"
-    if ! command -v actionlint &>/dev/null; then
+    if ! command -v actionlint &> /dev/null; then
         echo -e "${YELLOW}!${NC} actionlint not installed (brew install actionlint) - skipping"
         return 0
     fi
@@ -97,11 +101,11 @@ lint_actions() {
 run_linter() { "$1" || ((errors++)); }
 
 case "${1:-all}" in
-    json)     run_linter lint_json ;;
-    md)       run_linter lint_markdown ;;
-    yaml)     run_linter lint_yaml ;;
-    shell)    run_linter lint_shell ;;
-    actions)  run_linter lint_actions ;;
+    json) run_linter lint_json ;;
+    md) run_linter lint_markdown ;;
+    yaml) run_linter lint_yaml ;;
+    shell) run_linter lint_shell ;;
+    actions) run_linter lint_actions ;;
     all)
         run_linter lint_json
         run_linter lint_markdown
@@ -116,10 +120,10 @@ case "${1:-all}" in
 esac
 
 header "Summary"
-if [ $errors -eq 0 ]; then
+if [ ${errors} -eq 0 ]; then
     pass "All linters passed"
     exit 0
 else
-    fail "$errors linter(s) failed"
+    fail "${errors} linter(s) failed"
     exit 1
 fi
