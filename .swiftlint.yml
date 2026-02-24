@@ -1,0 +1,222 @@
+disabled_rules:
+  - trailing_comma
+  - opening_brace
+  - todo
+
+opt_in_rules:
+  - array_init
+  - closure_body_length
+  - closure_end_indentation
+  - closure_spacing
+  - collection_alignment
+  - contains_over_filter_count
+  - contains_over_first_not_nil
+  - deployment_target
+  - discouraged_optional_boolean
+  - discouraged_optional_collection
+  - empty_collection_literal
+  - empty_count
+  - empty_string
+  - explicit_init
+  - fatal_error_message
+  - first_where
+  - flatmap_over_map_reduce
+  - identical_operands
+  - implicit_return
+  - implicitly_unwrapped_optional
+  - joined_default_parameter
+  - last_where
+  - modifier_order
+  - overridden_super_call
+  - private_action
+  - private_outlet
+  - private_subject
+  - reduce_boolean
+  - reduce_into
+  - redundant_nil_coalescing
+  - redundant_type_annotation
+  - sorted_imports
+  - strong_iboutlet
+  - toggle_bool
+  - unavailable_function
+  - unowned_variable_capture
+  - weak_delegate
+  - yoda_condition
+
+included:
+  - Sources
+  - Tests
+  - Package.swift
+
+excluded:
+  - Carthage
+  - Pods
+  - .build
+  - .swiftpm
+  - DerivedData
+  - vendor
+  - Packages
+
+analyzer_rules:
+  - capture_variable
+  - explicit_self
+  - typesafe_array_init
+  - unused_declaration
+  - unused_import
+
+# Rule Configurations
+line_length:
+  warning: 120
+  error: 200
+  ignores_function_declarations: true
+  ignores_comments: true
+  ignores_urls: true
+
+type_body_length:
+  warning: 250
+  error: 400
+
+file_length:
+  warning: 400
+  error: 800
+  ignore_comment_only_lines: true
+
+function_body_length:
+  warning: 40
+  error: 80
+
+closure_body_length:
+  warning: 30
+  error: 50
+
+cyclomatic_complexity:
+  warning: 10
+  error: 20
+  ignores_case_statements: false
+
+function_parameter_count:
+  warning: 5
+  error: 8
+  ignores_default_parameters: true
+
+type_name:
+  min_length: 3
+  max_length:
+    warning: 45
+    error: 60
+  allowed_symbols: ['_']
+  validates_start_with_lowercase: false
+
+identifier_name:
+  min_length:
+    warning: 2
+    error: 1
+  max_length:
+    warning: 50
+    error: 60
+  excluded: [id, x, y, z, i, j, k, db, to, at, by, ok, on, no, go]
+
+nesting:
+  type_level:
+    warning: 2
+    error: 3
+  function_level:
+    warning: 3
+    error: 5
+
+large_tuple:
+  warning: 3
+  error: 4
+
+enum_case_associated_values_count:
+  warning: 5
+  error: 6
+
+trailing_whitespace:
+  ignores_empty_lines: true
+  ignores_comments: true
+
+vertical_whitespace:
+  max_empty_lines: 1
+
+colon:
+  apply_to_dictionaries: true
+
+comma: warning
+
+force_cast: error
+force_try: error
+force_unwrapping: error
+
+implicitly_unwrapped_optional:
+  mode: all_except_iboutlets
+  severity: warning
+
+private_outlet:
+  allow_private_set: true
+
+private_over_fileprivate:
+  validate_extensions: true
+
+implicit_getter:
+  severity: warning
+
+legacy_constructor: error
+legacy_constant: error
+legacy_nsgeometry_functions: error
+legacy_cggeometry_functions: error
+
+custom_rules:
+  no_print_statements:
+    name: 'No Print Statements'
+    regex: "\\bprint\\s*\\("
+    message: 'Use a logging framework instead of print statements'
+    severity: warning
+    match_kinds:
+      - identifier
+
+  no_hardcoded_strings_in_ui:
+    name: 'No Hardcoded UI Strings'
+    regex: '(?:title|text|placeholder|message)\s*[:=]\s*"[^"]*[a-zA-Z][^"]*"'
+    message: 'Use localized strings for UI text'
+    severity: warning
+
+  no_insecure_url:
+    name: 'No Insecure URLs'
+    regex: 'http://'
+    message: 'Use HTTPS instead of HTTP for security'
+    severity: error
+    match_kinds:
+      - string
+
+  no_hardcoded_credentials:
+    name: 'No Hardcoded Credentials'
+    regex: '(?i)(password|secret|api_?key|token|auth)\s*[:=]\s*"[^"]{8,}"'
+    message: 'Do not hardcode credentials; use secure storage'
+    severity: error
+
+  no_md5_usage:
+    name: 'No MD5 Usage'
+    regex: '\bCC_MD5\b|\bInsecure\.MD5\b'
+    message: 'MD5 is cryptographically broken; use SHA-256 or better'
+    severity: error
+
+  no_deprecated_crypto:
+    name: 'No Deprecated Crypto'
+    regex: '\b(DES|3DES|RC4|MD4)\b'
+    message: 'Deprecated cryptographic algorithm detected'
+    severity: error
+
+  no_file_manager_default:
+    name: 'Avoid FileManager.default in Production'
+    regex: 'FileManager\.default'
+    message: 'Consider using dependency injection for FileManager'
+    severity: warning
+
+  secure_random_required:
+    name: 'Use Secure Random'
+    regex: '\barc4random\b(?!_uniform)'
+    message: 'Use SecRandomCopyBytes or arc4random_uniform for secure randomness'
+    severity: warning
+
+reporter: 'xcode'
