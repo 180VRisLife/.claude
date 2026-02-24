@@ -14,7 +14,8 @@
       "!**/node_modules",
       "!**/dist",
       "!**/coverage",
-      "!**/package-lock.json"
+      "!**/package-lock.json",
+      "!**/*.xcassets"
     ]
   },
   "assist": { "actions": { "source": { "organizeImports": "on" } } },
