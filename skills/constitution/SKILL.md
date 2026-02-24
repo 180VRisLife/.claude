@@ -28,17 +28,17 @@ $ARGUMENTS
 ### 1. Load or Initialize
 
 - **Amendment**: Read `.spec/constitution.md`, parse current version from footer (`Version: X.Y.Z`)
-	- Extract existing sections
+  - Extract existing sections
 - **Creation**: Read `skills/constitution/template.md` and use it as the base structure
-	- Set initial version to `0.0.0`
+  - Set initial version to `0.0.0`
 
 ### 2. Collect Principles and Context
 
 - Parse `$ARGUMENTS` for explicit principles, constraints, or update descriptions
-- Scan for context: 
-	- `README.md`, `CLAUDE.md`
-	- Project manifests (`package.json`/`Cargo.toml`/`pyproject.toml`)
-	- `.spec/` feature specs
+- Scan for context:
+  - `README.md`, `CLAUDE.md`
+  - Project manifests (`package.json`/`Cargo.toml`/`pyproject.toml`)
+  - `.spec/` feature specs
 - **Amendment**: Identify which existing sections the user input affects
 
 If `$ARGUMENTS` is empty **and** creation workflow: ask the user to describe core principles and constraints. Present 2-3 starter questions (one at a time, multiple choice preferred).
@@ -46,11 +46,12 @@ If `$ARGUMENTS` is empty **and** creation workflow: ask the user to describe cor
 ### 3. Draft Constitution Content
 
 Write concrete, declarative, testable principles. Each must be:
+
 - **Declarative**: States what IS, not what SHOULD be
 - **Testable**: An observer could verify compliance
 - **Specific**: No vague adjectives without quantification
 
-**Creation**: Populate all template sections from step 2. 
+**Creation**: Populate all template sections from step 2.
 **Amendment**: Apply changes to relevant sections; preserve unchanged content.
 Replace `[PLACEHOLDER]` tokens with concrete values. If undetermined, ask the user.
 

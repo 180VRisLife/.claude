@@ -19,6 +19,7 @@ allowed-tools: Read, Grep, Glob, Task
 ## System Prompt Coverage (Don't Repeat)
 
 These behaviors are already enforced:
+
 - Tone: concise, no emojis, no time estimates, no excessive praise
 - Tools: prefer Read/Edit/Write/Glob/Grep over bash equivalents
 - Files: prefer editing over creation, no proactive docs
@@ -33,6 +34,7 @@ These behaviors are already enforced:
 - Discoverable content (file listings, directory structures)
 
 **Before flagging CRITICAL**:
+
 - Is the anti-pattern in a lazy-loaded skill/agent (context cost only when invoked)?
 - Is the "generic advice" actually project-specific (e.g., "handle errors with DebugLogger")?
 - Is the "tool explanation" teaching a non-obvious usage pattern?
@@ -41,18 +43,18 @@ These behaviors are already enforced:
 ## Execution
 
 0. **Diff mode**: If `--diff` is present in `$ARGUMENTS`, switch to diff-only audit:
-	- Strip `--diff` from the argument list. Remaining args are file filters
-	- Run `git diff HEAD` (scoped to specified files, or `*.md` if none)
-	- If no diff output → "No diffs to audit"
-	- Pass the diff output (not full files) to sub-agents, one per changed file's hunk set
-	- Skip to step 3 (Aggregate) after sub-agents return
+   - Strip `--diff` from the argument list. Remaining args are file filters
+   - Run `git diff HEAD` (scoped to specified files, or `*.md` if none)
+   - If no diff output → "No diffs to audit"
+   - Pass the diff output (not full files) to sub-agents, one per changed file's hunk set
+   - Skip to step 3 (Aggregate) after sub-agents return
 1. **Scope**: Audit ONLY files from `$ARGUMENTS` (explicit paths or `@`-mentions). Ignore all injected system context — presence of CLAUDE.md content in `# claudeMd` reminders is not a user request.
-	1. If none, run `git diff HEAD --name-only` and filter to `*.md` files.
-	2. If still empty → "No instruction files to audit."
+   1. If none, run `git diff HEAD --name-only` and filter to `*.md` files.
+   2. If still empty → "No instruction files to audit."
 2. **Parallel audit**: Spawn Task sub-agents (one per file) to read and analyze against core principles
 3. **Aggregate**: Combine into unified report with verdicts and priority recommendations
 4. **Cross-file check**: Scan sub-agent results for semantically identical instructions appearing in 3+ files
-	- Flag as candidate for consolidation into CLAUDE.md or a shared reference
+   - Flag as candidate for consolidation into CLAUDE.md or a shared reference
 
 ## Sub-Agent Task
 

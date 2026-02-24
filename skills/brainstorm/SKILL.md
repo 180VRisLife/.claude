@@ -13,11 +13,12 @@ Do NOT start implementation, write code, or scaffold anything until you have sta
 
 ## Anti-Pattern: Skipping Understanding
 
-Simple tasks are where unchecked assumptions cause the most damage. You think you know the *what* and miss preferences about the *how*. Even when the task seems obvious, confirm before building.
+Simple tasks are where unchecked assumptions cause the most damage. You think you know the _what_ and miss preferences about the _how_. Even when the task seems obvious, confirm before building.
 
 ## The Process
 
 **Phase 1 -- Understanding the idea:**
+
 - Check current project state first (files, docs, recent commits)
 - Ask questions one at a time (only one per message)
 - Prefer multiple choice when possible
@@ -25,11 +26,13 @@ Simple tasks are where unchecked assumptions cause the most damage. You think yo
 - State your understanding and get user confirmation before moving on
 
 **Phase 2 -- Exploring approaches:**
+
 - Propose 2-3 approaches with trade-offs
 - Lead with your recommendation and reasoning
 - Favor designs with isolated units and clean boundaries. In brownfield projects, explore existing codebase patterns before proposing new ones. Extend what's there rather than inventing parallel structures.
 
 **Phase 3 -- Presenting the design:**
+
 - Present in sections of 200-300 words
 - Scale detail to section complexity: a simple CRUD endpoint gets a short section, a novel algorithm or tricky state machine gets a thorough one. Don't spread detail uniformly.
 - Ask after each section whether it looks right
@@ -42,10 +45,12 @@ Steps 1-2 always happen. Step 3 scales to the task — for small changes, ask th
 ## After the Design
 
 **Documentation:**
+
 - Write validated design to `docs/plans/YYYY-MM-DD-<topic>-design.md`
 - Commit via `/commit`
 
 **Brainstorm marker:**
+
 - Write `.brainstorm-latest` at repo root (gitignored):
   ```
   doc: docs/plans/YYYY-MM-DD-<topic>-design.md
@@ -54,6 +59,7 @@ Steps 1-2 always happen. Step 3 scales to the task — for small changes, ask th
 - Consumed by `wc` shell command for AI-powered branch naming.
 
 **End the session** with:
+
 > "To start implementation, create a worktree with `wc` -- it will use this brainstorm for branch naming."
 
 Do NOT chain into planning, execution, or implementation. The brainstorm ends with the design.

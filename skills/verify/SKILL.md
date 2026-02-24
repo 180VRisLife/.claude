@@ -26,41 +26,46 @@ Skip any step = unverified claim
 
 ## Verification Requirements
 
-| Claim | Requires | Not Sufficient |
-|-------|----------|----------------|
-| Tests pass | Test output: 0 failures | Previous run, "should pass" |
-| Linter clean | Linter output: 0 errors | Partial check, extrapolation |
-| Build succeeds | Build command: exit 0 | Linter passing, "logs look good" |
-| Bug fixed | Original symptom: passes | Code changed, assumed fixed |
-| Regression test | Red-green cycle verified | Test passes once |
-| Agent completed | VCS diff shows changes | Agent reports "success" |
-| Requirements met | Line-by-line checklist | Tests passing alone |
+| Claim            | Requires                 | Not Sufficient                   |
+| ---------------- | ------------------------ | -------------------------------- |
+| Tests pass       | Test output: 0 failures  | Previous run, "should pass"      |
+| Linter clean     | Linter output: 0 errors  | Partial check, extrapolation     |
+| Build succeeds   | Build command: exit 0    | Linter passing, "logs look good" |
+| Bug fixed        | Original symptom: passes | Code changed, assumed fixed      |
+| Regression test  | Red-green cycle verified | Test passes once                 |
+| Agent completed  | VCS diff shows changes   | Agent reports "success"          |
+| Requirements met | Line-by-line checklist   | Tests passing alone              |
 
 ## Key Patterns
 
 **Tests:**
+
 ```
 [Run test command] -> [See: 34/34 pass] -> "All tests pass"
 NOT: "Should pass now" / "Looks correct"
 ```
 
 **Regression tests (TDD Red-Green):**
+
 ```
 Write -> Run (pass) -> Revert fix -> Run (MUST FAIL) -> Restore -> Run (pass)
 ```
 
 **Build:**
+
 ```
 [Run build] -> [See: exit 0] -> "Build passes"
 NOT: "Linter passed" (linter != compiler)
 ```
 
 **Requirements:**
+
 ```
 Re-read plan -> Create checklist -> Verify each -> Report gaps or completion
 ```
 
 **Agent delegation:**
+
 ```
 Agent reports success -> Check VCS diff -> Verify changes -> Report actual state
 ```

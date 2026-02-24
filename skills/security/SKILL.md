@@ -13,16 +13,17 @@ user-invocable: true
 
 ## Scope Resolution
 
-| Argument | Diff Command |
-|----------|--------------|
-| (none) | `git diff HEAD` |
-| `staged` | `git diff --cached` |
-| `<commit>` or `<range>` | `git diff <commit>` |
-| `<file>` | `git diff HEAD -- <file>` |
+| Argument                | Diff Command              |
+| ----------------------- | ------------------------- |
+| (none)                  | `git diff HEAD`           |
+| `staged`                | `git diff --cached`       |
+| `<commit>` or `<range>` | `git diff <commit>`       |
+| `<file>`                | `git diff HEAD -- <file>` |
 
 ## Vulnerability Categories
 
 Scan for patterns in these categories:
+
 - Command injection (shell/exec/eval/subprocess)
 - XSS (innerHTML, dangerouslySetInnerHTML, document.write)
 - SQL injection (string concatenation, missing parameterization)
@@ -45,6 +46,7 @@ Before reporting, test each finding against: (1) Context check — is there sani
 ## Output
 
 Report findings as:
+
 ```
 ### [SEVERITY] Category - file:line
 <code snippet>

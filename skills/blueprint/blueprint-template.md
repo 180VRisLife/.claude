@@ -66,6 +66,6 @@ api/ + ios/ or android/ (platform-specific structure)
 
 > Fill ONLY if there are violations that must be justified.
 
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| [e.g., 4th project] | [reason] | [why simpler insufficient] |
+| Violation           | Why Needed | Simpler Alternative Rejected Because |
+| ------------------- | ---------- | ------------------------------------ |
+| [e.g., 4th project] | [reason]   | [why simpler insufficient]           |

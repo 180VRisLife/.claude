@@ -23,17 +23,18 @@ disable-model-invocation: true
 ## Intent-Aware Analysis
 
 Read diffs through the lens of parsed intent:
+
 - **Relevant**: Changes that matter for the user's request
 - **Completed**: What's done that the intent cares about
 - **Remaining**: What the intent needs that isn't done yet
 
 ## Execution
 
-| Intent Type | Action |
-|-------------|--------|
-| No args | Summarize changes, ask what to focus on |
-| "What's left?" | Summarize remaining work, ask if should continue |
-| Specific instruction | Execute using current state as context |
-| Issue number | Fetch issue and relate to changes |
+| Intent Type          | Action                                           |
+| -------------------- | ------------------------------------------------ |
+| No args              | Summarize changes, ask what to focus on          |
+| "What's left?"       | Summarize remaining work, ask if should continue |
+| Specific instruction | Execute using current state as context           |
+| Issue number         | Fetch issue and relate to changes                |
 
 Create a todo list aligned to intent, then execute.

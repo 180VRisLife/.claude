@@ -25,10 +25,11 @@ Offer optional remediation plan (user must approve before any edits).
 ## Setup
 
 Determine the current feature context:
+
 1. Look for `.spec/` at the repo root. If missing: error — instruct user to run `/specify` first (it creates `.spec/`).
 2. Within `.spec/`, find feature directories matching the `NNN-feature-name` pattern.
 3. If one feature: use it. If multiple: list them and ask the user to choose (suggest most recently modified).
-	- If none: error — instruct user to run `/specify` first.
+   - If none: error — instruct user to run `/specify` first.
 4. Resolve: FEATURE_DIR = `.spec/<NNN-feature-name>/`
 5. Check which docs exist: spec.md, blueprint.md, tasks.md, research.md, data-model.md, contracts/, checklists/
 
@@ -41,6 +42,7 @@ Abort with error if any required file is missing (instruct user to run the prere
 Derive paths from FEATURE_DIR: SPEC, BLUEPRINT, TASKS = FEATURE_DIR/{spec,blueprint,tasks}.md
 
 Load minimal necessary context from each:
+
 - **spec.md**: Overview, Functional/Non-Functional Requirements, User Stories, Edge Cases
 - **blueprint.md**: Architecture/stack, Data Model refs, Phases, Technical constraints
 - **tasks.md**: Task IDs, Descriptions, Phase grouping, Parallel markers [P], Referenced file paths
@@ -48,6 +50,7 @@ Load minimal necessary context from each:
 ### 2. Build Semantic Models
 
 Internal representations (not included in output):
+
 - **Requirements inventory**: Each requirement with a stable slug key (e.g., "User can upload file" -> `user-can-upload-file`)
 - **User story/action inventory**: Discrete actions with acceptance criteria
 - **Task coverage mapping**: Map tasks to requirements/stories by keyword and explicit references
@@ -59,21 +62,25 @@ Limit to 50 findings total; summarize overflow.
 **A. Duplication**: Near-duplicate requirements; mark lower-quality phrasing for consolidation.
 
 **B. Ambiguity**: Vague adjectives (fast, scalable, secure, intuitive, robust) lacking measurable criteria.
+
 - Unresolved placeholders (TODO, TKTK, ???, `<placeholder>`).
 
 **C. Underspecification**: Requirements with verbs but missing object/measurable outcome.
+
 - User stories missing acceptance criteria. Tasks referencing undefined components.
 
 **D. Coverage Gaps**: Requirements with zero tasks. Tasks with no mapped requirement. Non-functional requirements not reflected in tasks.
 
 **E. Inconsistency**: Terminology drift across files. Data entities in plan but absent in spec (or vice versa).
+
 - Task ordering contradictions. Conflicting requirements.
 
-**F. Cross-Feature Consistency** *(only when multiple feature specs exist in `.spec/`)*:
-  - Shared entities defined consistently across feature specs
-  - Technical Context doesn't conflict between feature blueprints
-  - No terminology drift across feature specs
-  - Feature dependencies from any application-level spec are satisfied (dependent features are specified)
+**F. Cross-Feature Consistency** _(only when multiple feature specs exist in `.spec/`)_:
+
+- Shared entities defined consistently across feature specs
+- Technical Context doesn't conflict between feature blueprints
+- No terminology drift across feature specs
+- Feature dependencies from any application-level spec are satisfied (dependent features are specified)
 
 ### 4. Severity Assignment
 
@@ -88,15 +95,15 @@ Limit to 50 findings total; summarize overflow.
 
 Output Markdown report (no file writes):
 
-| ID | Category | Severity | Location(s) | Summary | Recommendation |
-|----|----------|----------|-------------|---------|----------------|
+| ID  | Category | Severity | Location(s) | Summary | Recommendation |
+| --- | -------- | -------- | ----------- | ------- | -------------- |
 
 (One row per finding; stable IDs prefixed by category initial.)
 
 **Coverage Summary:**
 
 | Requirement Key | Has Task? | Task IDs | Notes |
-|-----------------|-----------|----------|-------|
+| --------------- | --------- | -------- | ----- |
 
 **Unmapped Tasks:** (if any)
 

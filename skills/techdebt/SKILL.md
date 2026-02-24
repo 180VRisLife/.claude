@@ -43,8 +43,8 @@ Skip for superficial or non-critical changes.
 ## Execution Phases
 
 1. **Code Simplification:** Spawn code-simplifier agents in parallel with file lists.
-	1. Focus: duplicates, dead code, unnecessary abstractions.
-	2. Before simplifying: verify each "dead code" candidate isn't reached via dynamic dispatch, reflection, or external entry points not visible in static analysis.
+   1. Focus: duplicates, dead code, unnecessary abstractions.
+   2. Before simplifying: verify each "dead code" candidate isn't reached via dynamic dispatch, reflection, or external entry points not visible in static analysis.
 2. **Validation:** Spawn build-validator and verify-app in parallel as needed.
 
 ## Output

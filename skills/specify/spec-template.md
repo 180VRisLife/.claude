@@ -4,7 +4,7 @@
 **Status**: Draft
 **Input**: User description: "[FEATURE_DESCRIPTION]"
 
-## User Scenarios & Testing *(mandatory)*
+## User Scenarios & Testing _(mandatory)_
 
 <!-- Prioritize as user journeys (P1, P2, P3...). -->
 <!-- Each story must be independently testable and deliver standalone value. -->
@@ -45,31 +45,31 @@
 - What happens when [boundary condition]?
 - How does system handle [error scenario]?
 
-## Requirements *(mandatory)*
+## Requirements _(mandatory)_
 
 ### Functional Requirements
 
 - **FR-001**: System MUST [specific testable capability]
 - **FR-002**: Users MUST be able to [key interaction]
 
-*Mark unclear requirements with*: `[NEEDS CLARIFICATION: specific question]`
+_Mark unclear requirements with_: `[NEEDS CLARIFICATION: specific question]`
 
-### Key Entities *(include if feature involves data)*
+### Key Entities _(include if feature involves data)_
 
 <!-- For application-level specs, track which features use each entity to define the shared domain model. -->
 
 - **[Entity 1]**: [What it represents, key attributes without implementation] | Used by: [feature list]
 - **[Entity 2]**: [What it represents, relationships to other entities] | Used by: [feature list]
 
-## Feature Dependencies *(optional — application-level specs only)*
+## Feature Dependencies _(optional — application-level specs only)_
 
 <!-- Include when the spec covers multiple features. Remove for single-feature specs. -->
 
-| Feature | Depends On | Priority |
-|---------|------------|----------|
+| Feature        | Depends On                          | Priority |
+| -------------- | ----------------------------------- | -------- |
 | [Feature name] | [Features that must be built first] | P1/P2/P3 |
 
-## Success Criteria *(mandatory)*
+## Success Criteria _(mandatory)_
 
 <!-- Measurable, technology-agnostic, user-focused outcomes. -->
 

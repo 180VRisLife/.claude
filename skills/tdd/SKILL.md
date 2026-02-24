@@ -40,12 +40,13 @@ test('retries failed operations 3 times', async () => {
     return 'success';
   };
 
-  const result = await retryOperation(operation);
+const result = await retryOperation(operation);
 
-  expect(result).toBe('success');
-  expect(attempts).toBe(3);
+expect(result).toBe('success');
+expect(attempts).toBe(3);
 });
-```
+
+````
 Clear name, tests real behavior, one thing
 </Good>
 
@@ -59,7 +60,8 @@ test('retry works', async () => {
   await retryOperation(mock);
   expect(mock).toHaveBeenCalledTimes(3);
 });
-```
+````
+
 Vague name, tests mock not code
 </Bad>
 
@@ -70,6 +72,7 @@ Vague name, tests mock not code
 **MANDATORY. Never skip.**
 
 Run tests. Confirm:
+
 - Test fails (not errors)
 - Failure message is expected
 - Fails because feature missing (not typos)
@@ -127,31 +130,33 @@ Then: next failing test for next behavior.
 
 ## Good Tests
 
-| Quality | Good | Bad |
-|---------|------|-----|
-| **Minimal** | One thing. "and" in name? Split it. | `test('validates email and domain and whitespace')` |
-| **Clear** | Name describes behavior | `test('test1')` |
-| **Shows intent** | Demonstrates desired API | Obscures what code should do |
+| Quality          | Good                                | Bad                                                 |
+| ---------------- | ----------------------------------- | --------------------------------------------------- |
+| **Minimal**      | One thing. "and" in name? Split it. | `test('validates email and domain and whitespace')` |
+| **Clear**        | Name describes behavior             | `test('test1')`                                     |
+| **Shows intent** | Demonstrates desired API            | Obscures what code should do                        |
 
 ## Example: Bug Fix
 
 **Bug:** Empty email accepted
 
 **RED**
+
 ```typescript
-test('rejects empty email', async () => {
-  const result = await submitForm({ email: '' });
-  expect(result.error).toBe('Email required');
+test("rejects empty email", async () => {
+  const result = await submitForm({ email: "" });
+  expect(result.error).toBe("Email required");
 });
 ```
 
 **Verify RED** -- `FAIL: expected 'Email required', got undefined`
 
 **GREEN**
+
 ```typescript
 function submitForm(data: FormData) {
   if (!data.email?.trim()) {
-    return { error: 'Email required' };
+    return { error: "Email required" };
   }
   // ...
 }
@@ -172,12 +177,12 @@ function submitForm(data: FormData) {
 
 ## When Stuck
 
-| Problem | Solution |
-|---------|----------|
+| Problem                | Solution                                                        |
+| ---------------------- | --------------------------------------------------------------- |
 | Don't know how to test | Write wished-for API. Write assertion first. Ask human partner. |
-| Test too complicated | Design too complicated. Simplify interface. |
-| Must mock everything | Code too coupled. Use dependency injection. |
-| Test setup huge | Extract helpers. Still complex? Simplify design. |
+| Test too complicated   | Design too complicated. Simplify interface.                     |
+| Must mock everything   | Code too coupled. Use dependency injection.                     |
+| Test setup huge        | Extract helpers. Still complex? Simplify design.                |
 
 ## Verification Checklist
 

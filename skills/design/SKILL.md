@@ -9,6 +9,7 @@ license: Complete terms in LICENSE.txt
 ## Design Thinking
 
 Before coding, commit to a BOLD, intentional aesthetic direction:
+
 - **Purpose**: What problem does this solve? Who uses it?
 - **Tone**: Pick an extreme — brutally minimal, maximalist chaos, retro-futuristic, organic/natural, luxury/refined, playful/toy-like, editorial/magazine, brutalist/raw, art deco/geometric, soft/pastel, industrial/utilitarian. Use for inspiration but design one true to the direction.
 - **Constraints**: Framework, performance, accessibility requirements.

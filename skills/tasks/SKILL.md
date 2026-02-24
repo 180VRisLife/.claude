@@ -18,13 +18,14 @@ $ARGUMENTS
 ## Setup
 
 Determine the current feature context:
+
 1. Look for `.spec/` at the repo root. If missing: error — instruct user to run `/specify` first (it creates `.spec/`).
 2. Within `.spec/`, find feature directories matching the `NNN-feature-name` pattern.
 3. If one feature: use it. If multiple: list them and ask the user to choose (suggest most recently modified).
-	- If none: error — instruct user to run `/specify` first.
+   - If none: error — instruct user to run `/specify` first.
 4. Resolve: FEATURE_DIR = `.spec/<NNN-feature-name>/`
-5. Check which docs exist: 
-	- constitution.md, spec.md, blueprint.md, tasks.md, research.md, data-model.md, contracts/, checklists/
+5. Check which docs exist:
+   - constitution.md, spec.md, blueprint.md, tasks.md, research.md, data-model.md, contracts/, checklists/
 
 Abort with error if any required file is missing (instruct user to run the prerequisite command).
 
@@ -60,18 +61,19 @@ Every task MUST follow: `- [ ] [TaskID] [P?] [Story?] Description with file path
 - **Description**: Clear action with exact file path
 
 Examples:
+
 - `- [ ] T001 Create project structure per implementation plan`
 - `- [ ] T012 [P] [US1] Create User model in src/models/user.py`
 - WRONG: `- [ ] Create User model` (missing ID) | `- [ ] T001 [US1] Create model` (missing file path)
 
 ## Task Organization
 
-- **From User Stories**: 
-	- Each story (P1, P2, P3) gets its own phase with models, services, interfaces, and optionally tests
+- **From User Stories**:
+  - Each story (P1, P2, P3) gets its own phase with models, services, interfaces, and optionally tests
 - **From Contracts/Data Model**:
-	- Map each interface contract and entity to the user story it serves; shared entities go in Setup or earliest story
-- **From Infrastructure**: 
-	- Shared -> Setup (Phase 1), blocking -> Foundational (Phase 2), story-specific -> within that story
+  - Map each interface contract and entity to the user story it serves; shared entities go in Setup or earliest story
+- **From Infrastructure**:
+  - Shared -> Setup (Phase 1), blocking -> Foundational (Phase 2), story-specific -> within that story
 
 Tests are OPTIONAL -- only generate test tasks if explicitly requested.
 

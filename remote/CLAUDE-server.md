@@ -1,6 +1,6 @@
 # Git & GitHub: READ-ONLY Access
 
-Remote write operations are disabled on this machine and will fail. 
+Remote write operations are disabled on this machine and will fail.
 
 Do not attempt them. This includes:
 
@@ -12,7 +12,7 @@ Do not attempt them. This includes:
 
 # DebugLogger
 
-Use project's DebugLogger utility for debug logging. 
+Use project's DebugLogger utility for debug logging.
 
 # Internet Access
 

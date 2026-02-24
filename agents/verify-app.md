@@ -17,6 +17,7 @@ Start the app in development or preview mode. For CLIs, run with typical argumen
 
 **3. Test Key Workflows**
 Exercise the primary user journeys:
+
 - For web apps: Navigate pages, submit forms, verify UI renders correctly
 - For CLIs: Run common commands, verify output is correct
 - For APIs: Hit key endpoints, verify responses
@@ -24,6 +25,7 @@ Exercise the primary user journeys:
 
 **4. Verify Expected Behavior**
 Confirm the app does what it should:
+
 - Features work as documented
 - User inputs produce correct outputs
 - Error states are handled gracefully

@@ -40,7 +40,8 @@ test('renders sidebar', () => {
 
 ```typescript
 class Session {
-  async destroy() {  // Only used in afterEach()
+  async destroy() {
+    // Only used in afterEach()
     await this._workspaceManager?.destroyWorkspace(this.id);
   }
 }
@@ -65,23 +66,23 @@ export async function cleanupSession(session: Session) {
 **Bad:** Over-mocking breaks behavior the test depends on.
 
 ```typescript
-test('detects duplicate server', () => {
+test("detects duplicate server", () => {
   // Mock prevents config write that test depends on!
-  vi.mock('ToolCatalog', () => ({
-    discoverAndCacheTools: vi.fn().mockResolvedValue(undefined)
+  vi.mock("ToolCatalog", () => ({
+    discoverAndCacheTools: vi.fn().mockResolvedValue(undefined),
   }));
   await addServer(config);
-  await addServer(config);  // Should throw - but won't!
+  await addServer(config); // Should throw - but won't!
 });
 ```
 
 **Fix:** Mock at the correct level -- preserve behavior the test needs.
 
 ```typescript
-test('detects duplicate server', () => {
-  vi.mock('MCPServerManager'); // Just mock slow server startup
-  await addServer(config);  // Config written
-  await addServer(config);  // Duplicate detected
+test("detects duplicate server", () => {
+  vi.mock("MCPServerManager"); // Just mock slow server startup
+  await addServer(config); // Config written
+  await addServer(config); // Duplicate detected
 });
 ```
 
@@ -95,8 +96,8 @@ Red flags: "I'll mock this to be safe", mocking without understanding the depend
 
 ```typescript
 const mockResponse = {
-  status: 'success',
-  data: { userId: '123', name: 'Alice' }
+  status: "success",
+  data: { userId: "123", name: "Alice" },
   // Missing: metadata that downstream code uses
 };
 ```
@@ -105,9 +106,9 @@ const mockResponse = {
 
 ```typescript
 const mockResponse = {
-  status: 'success',
-  data: { userId: '123', name: 'Alice' },
-  metadata: { requestId: 'req-789', timestamp: 1234567890 }
+  status: "success",
+  data: { userId: "123", name: "Alice" },
+  metadata: { requestId: "req-789", timestamp: 1234567890 },
 };
 ```
 
@@ -115,13 +116,13 @@ const mockResponse = {
 
 ## Quick Reference
 
-| Anti-Pattern | Fix |
-|--------------|-----|
-| Assert on mock elements | Test real component or unmock it |
-| Test-only methods in production | Move to test utilities |
-| Mock without understanding | Understand dependencies first, mock minimally |
-| Incomplete mocks | Mirror real API completely |
-| Over-complex mocks (setup >50% of test) | Consider integration tests |
+| Anti-Pattern                            | Fix                                           |
+| --------------------------------------- | --------------------------------------------- |
+| Assert on mock elements                 | Test real component or unmock it              |
+| Test-only methods in production         | Move to test utilities                        |
+| Mock without understanding              | Understand dependencies first, mock minimally |
+| Incomplete mocks                        | Mirror real API completely                    |
+| Over-complex mocks (setup >50% of test) | Consider integration tests                    |
 
 ## Red Flags
 

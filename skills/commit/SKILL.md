@@ -2,10 +2,11 @@
 name: commit
 description: Create a git commit, optionally with PR workflow (--pr flag)
 user-invocable: true
-disable-model-invocation: true
+disable-model-invocation: false
 allowed-tools: >-
-  Bash(git:*), Bash(gh:*), Bash(grep:*), Bash(rm:*), Bash(find:*), Bash(cd:*)
-argument-hint: [--pr]
+  Bash(git:*), Bash(gh:*), Bash(grep:*), Bash(rm:*), Bash(find:*), Bash(cd:*),
+  Read, Edit, Write, Glob, Grep
+argument-hint: [--pr] [--promote]
 ---
 
 ## CRITICAL RULE — NO PRs WITHOUT `--pr` FLAG
@@ -54,14 +55,38 @@ Stage changes → commit → push → verify with `git status` → stop.
 
 Only when `$ARGUMENTS` contains `--pr`:
 
-| Context                      | Action                                                                   |
-| ---------------------------- | ------------------------------------------------------------------------ |
-| On protected branch          | Create feature branch. Push. `gh pr create`. `gh pr merge --auto --merge`. |
-| On feature branch            | Push. `gh pr create`. `gh pr merge --auto --merge`.                      |
-| Trivial on feature branch    | Offer direct merge to base                                               |
+| Context                   | Action                                                                     |
+| ------------------------- | -------------------------------------------------------------------------- |
+| On protected branch       | Create feature branch. Push. `gh pr create`. `gh pr merge --auto --merge`. |
+| On feature branch         | Push. `gh pr create`. `gh pr merge --auto --merge`.                        |
+| Trivial on feature branch | Offer direct merge to base                                                 |
+
+### CI fix loop (`--pr` only)
+
+After creating the PR, monitor checks until they resolve:
+
+1. Run `gh pr checks <PR_NUMBER> --watch` to wait for CI results
+2. If checks **pass** → proceed to post-merge cleanup
+3. If checks **fail**:
+   a. Read the failing check logs: `gh run view <RUN_ID> --log-failed`
+   b. Identify and fix the code issues locally
+   c. Stage, commit (with `fix:` tag), and push
+   d. Go back to step 1 — repeat until all checks pass
+4. Do NOT give up after one attempt. Keep iterating until checks are green.
+
+### Post-merge cleanup (`--pr` only)
+
+After the PR merges (via automerge or manual merge):
+
+1. Switch back to the base branch and pull: `git checkout <base> && git pull`
+2. **Delete the feature branch** if and only if it is NOT a protected branch:
+   - **NEVER delete:** `main`, `develop`, `staging`
+   - Delete local: `git branch -d <feature-branch>`
+   - Delete remote: `git push origin --delete <feature-branch>`
+3. If the current branch IS a protected branch, skip branch deletion entirely.
 
 ## Output
 
-Show `git log --oneline -n` (n = number of commits created this execution). 
+Show `git log --oneline -n` (n = number of commits created this execution).
 
 PR mode: Include URL with all commits.

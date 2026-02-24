@@ -18,10 +18,11 @@ $ARGUMENTS
 ## Setup
 
 Determine the current feature context:
+
 1. Look for `.spec/` at the repo root. If missing: it will be created in step 2 of Outline.
 2. Within `.spec/`, find feature directories matching the `NNN-feature-name` pattern.
 3. If one feature: use it. If multiple: list them and ask the user to choose (suggest most recently modified).
-	- If none: proceed (this is expected for new features).
+   - If none: proceed (this is expected for new features).
 4. Resolve: FEATURE_DIR = `.spec/<NNN-feature-name>/` (will be created in step 2 of Outline)
 5. Check which docs exist: spec.md, constitution.md, blueprint.md, tasks.md, research.md, data-model.md, contracts/, checklists/
 
@@ -36,8 +37,8 @@ The text after `/specify` is the feature description. If empty: ERROR "No featur
 2. **Create spec directory**:
    a. Find the highest feature number in `.spec/` directories matching the NNN pattern
    b. Use N+1 (or 1 if none found) to create:
-      - `mkdir -p .spec/<N+1>-<short-name>/checklists`
-      - Set FEATURE_DIR = `.spec/<N+1>-<short-name>/` and SPEC_FILE = `FEATURE_DIR/spec.md`
+   - `mkdir -p .spec/<N+1>-<short-name>/checklists`
+   - Set FEATURE_DIR = `.spec/<N+1>-<short-name>/` and SPEC_FILE = `FEATURE_DIR/spec.md`
 
 3. Load `spec-template.md` for required sections.
 
@@ -56,7 +57,7 @@ The text after `/specify` is the feature description. If empty: ERROR "No featur
    - Make informed guesses using context and industry standards
    - For each assumption made instead of marking NEEDS CLARIFICATION: would a different reasonable assumption change scope, data model, or UX significantly? If yes, mark it NEEDS CLARIFICATION instead.
    - Mark with `[NEEDS CLARIFICATION: question]` ONLY when:
-	   - choice significantly impacts scope/UX, multiple reasonable interpretations exist, and no default exists
+     - choice significantly impacts scope/UX, multiple reasonable interpretations exist, and no default exists
    - **Maximum 3 `[NEEDS CLARIFICATION]` markers** -- prioritize: scope > security > UX > technical
    - Document assumptions in the Assumptions section
    - Every requirement must be testable
@@ -67,30 +68,31 @@ The text after `/specify` is the feature description. If empty: ERROR "No featur
 7. **Specification Quality Validation**:
 
    a. Generate `FEATURE_DIR/checklists/requirements.md` with validation items covering:
-	   - Content quality (no implementation details, user-focused)
-	   - Requirement completeness (testable, measurable, bounded scope)
-	   - Feature readiness (acceptance criteria, user scenarios, no implementation leakage)
+   - Content quality (no implementation details, user-focused)
+   - Requirement completeness (testable, measurable, bounded scope)
+   - Feature readiness (acceptance criteria, user scenarios, no implementation leakage)
 
    b. Review spec against each checklist item. For failures:
-      - Update the spec to fix issues (max 3 iterations)
-      - If still failing after 3 iterations, document in checklist notes
+   - Update the spec to fix issues (max 3 iterations)
+   - If still failing after 3 iterations, document in checklist notes
 
    c. If `[NEEDS CLARIFICATION]` markers remain (max 3), present to user:
 
-      ```markdown
-      ## Question [N]: [Topic]
-      **Context**: [Quote relevant spec section]
-      **What we need to know**: [Specific question]
-      **Suggested Answers**:
-      | Option | Answer | Implications |
-      |--------|--------|--------------|
-      | A      | [answer] | [implications] |
-      | B      | [answer] | [implications] |
-      | C      | [answer] | [implications] |
-      | Custom | Provide your own | |
-      ```
+   ```markdown
+   ## Question [N]: [Topic]
 
-    Present all questions together, wait for responses, update spec, re-validate.
+   **Context**: [Quote relevant spec section]
+   **What we need to know**: [Specific question]
+   **Suggested Answers**:
+   | Option | Answer | Implications |
+   |--------|--------|--------------|
+   | A | [answer] | [implications] |
+   | B | [answer] | [implications] |
+   | C | [answer] | [implications] |
+   | Custom | Provide your own | |
+   ```
+
+   Present all questions together, wait for responses, update spec, re-validate.
 
    d. Update checklist with pass/fail status after each iteration.
 

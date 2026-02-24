@@ -44,8 +44,8 @@
 
 ### Tests (optional -- only if requested)
 
-- [ ] T010 [P] [US1] Contract test for [endpoint] in tests/contract/test_[name].py
-- [ ] T011 [P] [US1] Integration test for [journey] in tests/integration/test_[name].py
+- [ ] T010 [P] [US1] Contract test for [endpoint] in tests/contract/test\_[name].py
+- [ ] T011 [P] [US1] Integration test for [journey] in tests/integration/test\_[name].py
 
 ### Implementation
 

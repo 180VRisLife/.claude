@@ -18,10 +18,11 @@ $ARGUMENTS
 ## Setup
 
 Determine the current feature context:
+
 1. Look for `.spec/` at the repo root. If missing: error — instruct user to run `/specify` first (it creates `.spec/`).
 2. Within `.spec/`, find feature directories matching the `NNN-feature-name` pattern.
 3. If one feature: use it. If multiple: list them and ask the user to choose (suggest most recently modified).
-	- If none: error — instruct user to run `/specify` first.
+   - If none: error — instruct user to run `/specify` first.
 4. Resolve: FEATURE_DIR = `.spec/<NNN-feature-name>/`
 5. Check which docs exist: spec.md, constitution.md, blueprint.md, tasks.md, research.md, data-model.md, contracts/, checklists/
 
@@ -38,15 +39,14 @@ If user explicitly skips clarification (e.g., exploratory spike), warn that down
 1. Load spec from FEATURE_DIR/spec.md. If missing, instruct user to run `/specify` first.
 
 2. Perform ambiguity scan using this taxonomy (mark each: Clear / Partial / Missing):
-
    - **Functional Scope**: Core goals, success criteria, explicit out-of-scope, user roles
-     - *Application-level*: Are features well-bounded? Any overlap or gaps between features?
+     - _Application-level_: Are features well-bounded? Any overlap or gaps between features?
    - **Domain & Data Model**: Entities/attributes/relationships, identity rules, state transitions, scale assumptions
-     - *Application-level*: Are shared entities consistent across features? Any entity claimed by multiple features with conflicting definitions?
+     - _Application-level_: Are shared entities consistent across features? Any entity claimed by multiple features with conflicting definitions?
    - **Interaction & UX**: Critical user journeys, error/empty/loading states, accessibility/localization
    - **Non-Functional**: Performance targets, scalability limits, reliability/availability, security/privacy, compliance
    - **Integration**: External services/APIs and failure modes, import/export formats, protocol/versioning
-     - *Application-level*: How do features interact with each other (not just external services)?
+     - _Application-level_: How do features interact with each other (not just external services)?
    - **Edge Cases**: Negative scenarios, rate limiting, conflict resolution
    - **Constraints & Tradeoffs**: Technical constraints, rejected alternatives
    - **Terminology**: Canonical glossary terms, deprecated synonyms
@@ -59,7 +59,7 @@ If user explicitly skips clarification (e.g., exploratory spike), warn that down
 3. Generate prioritized queue of up to 5 clarification questions (max 10 across session). Before finalizing your question queue: verify you haven't over-indexed on one taxonomy category at the expense of others. A single missed category can matter more than depth in an already-covered one. Constraints:
    - Each answerable via multiple-choice (2-5 options) OR short answer (<=5 words)
    - Only questions whose answers impact...
-	   - Architecture, data modeling, task decomposition, test design, UX, ops readiness, or compliance
+     - Architecture, data modeling, task decomposition, test design, UX, ops readiness, or compliance
    - Cover highest-impact unresolved categories first; balance coverage
    - Exclude already-answered, stylistic, or plan-level execution details
    - Favor clarifications that reduce downstream rework risk
@@ -67,12 +67,12 @@ If user explicitly skips clarification (e.g., exploratory spike), warn that down
 4. Sequential questioning loop:
    - Present ONE question at a time.
    - **Multiple-choice**: Analyze options and present recommended option prominently with reasoning.
-	   - Render all options as Markdown table.
-	   - Allow reply by letter, "yes"/"recommended" to accept recommendation, or custom short answer.
+     - Render all options as Markdown table.
+     - Allow reply by letter, "yes"/"recommended" to accept recommendation, or custom short answer.
    - **Short-answer**: Provide suggested answer with reasoning.
-	   - Allow "yes"/"suggested" to accept, or custom answer (<=5 words).
+     - Allow "yes"/"suggested" to accept, or custom answer (<=5 words).
    - Validate answer maps to an option or fits constraint.
-	   - Disambiguate if unclear (does not count as new question).
+     - Disambiguate if unclear (does not count as new question).
    - Record accepted answer in memory; advance to next question.
    - Stop when: all critical ambiguities resolved, user signals done, or 5 questions asked.
    - Never reveal future queued questions.

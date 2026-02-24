@@ -6,7 +6,7 @@ Never commit without `/commit` (use `--pr` flag for PR workflow).
 
 # DebugLogger
 
-Use project's DebugLogger utility for debug logging. 
+Use project's DebugLogger utility for debug logging.
 
 Logs to `/tmp/{ProjectName}-Debug.log`.
 
