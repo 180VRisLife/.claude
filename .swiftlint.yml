@@ -114,7 +114,7 @@ identifier_name:
   max_length:
     warning: 50
     error: 60
-  excluded: [id, x, y, z, i, j, k, db, to, at, by, ok, on, no, go]
+  excluded: [id, x, y, z, i, j, k, db, to, at, by, ok, 'on', 'no', go]
 
 nesting:
   type_level:
