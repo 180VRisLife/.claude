@@ -20,7 +20,6 @@ jobs:
           path: .lint-config
           sparse-checkout: |
             ruff.toml
-            biome.json
             .swiftlint.yml
             stylua.toml
             .prettierrc
@@ -50,7 +49,7 @@ jobs:
         if: hashFiles('**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx', '**/*.css', '**/*.json') != ''
         run: |
           npm install -g @biomejs/biome
-          biome check --config-path .lint-config/ .
+          biome check .
 
       # 6. Bash lint (shellcheck + shfmt)
       - name: Bash lint (shellcheck + shfmt)
