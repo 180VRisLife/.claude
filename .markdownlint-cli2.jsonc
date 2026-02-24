@@ -1,6 +1,17 @@
 {
   "config": {
-    "first-line-heading": false
+    "default": false,
+    // Keep only high-value rules enabled
+    "heading-style": true,
+    "no-empty-links": true
   },
-  "ignores": ["cache/**", "plans/**", "plugins/**", "node_modules/**"]
+  "ignores": [
+    "cache/**",
+    "plans/**",
+    "plugins/**",
+    "node_modules/**",
+    ".lint-config/**",
+    "file-history/**",
+    "projects/**"
+  ]
 }
