@@ -56,7 +56,7 @@ jobs:
       - name: Bash lint (shellcheck + shfmt)
         if: hashFiles('**/*.sh', '**/*.bash') != ''
         run: |
-          apt-get update && apt-get install -y shellcheck
+          sudo apt-get update && sudo apt-get install -y shellcheck
           SHFMT_VERSION=$(curl -sSf https://api.github.com/repos/mvdan/sh/releases/latest | jq -r '.tag_name')
           curl -sSfL "https://github.com/mvdan/sh/releases/download/${SHFMT_VERSION}/shfmt_${SHFMT_VERSION}_linux_amd64" -o /usr/local/bin/shfmt && chmod +x /usr/local/bin/shfmt
           find . \( -name '*.sh' -o -name '*.bash' \) -not -path '*/node_modules/*' -not -path '*/.git/*' -print0 | xargs -0 shellcheck
@@ -77,7 +77,7 @@ jobs:
         run: |
           curl -sSfL https://github.com/JohnnyMorganz/StyLua/releases/latest/download/stylua-linux-x86_64.zip -o /tmp/stylua.zip
           unzip -o /tmp/stylua.zip -d /usr/local/bin && chmod +x /usr/local/bin/stylua
-          apt-get update && apt-get install -y luarocks
+          sudo apt-get update && sudo apt-get install -y luarocks
           luarocks install luacheck
           stylua --check --config-path .lint-config/stylua.toml .
           luacheck .

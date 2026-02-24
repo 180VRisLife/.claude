@@ -1,9 +1,10 @@
 #!/bin/bash
 
 # Skip sound for utility/silent Claude calls
-[[ -n "$CLAUDE_SILENT_HOOK" ]] && exit 0
+[[ -n "${CLAUDE_SILENT_HOOK}" ]] && exit 0
 
 # Suppress sound when user is not at the Mac (screen locked or SSH sessions)
+# shellcheck source=_guard-local-sound.sh disable=SC1091
 source "${HOME}/.claude/hooks/_guard-local-sound.sh"
 
 # Only play sound for main agent stops (not subagents)
@@ -14,7 +15,7 @@ fi
 
 # Remote: write event to log for local Mac to pick up
 if [[ -n "${SSH_CONNECTION:-}" ]]; then
-    printf 'stop\t%s\n' "$(basename "$PWD")" >> /tmp/devkit-hook-events.log
+    printf 'stop\t%s\n' "$(basename "${PWD}")" >> /tmp/devkit-hook-events.log
     exit 0
 fi
 

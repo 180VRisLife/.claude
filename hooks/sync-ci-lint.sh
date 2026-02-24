@@ -66,11 +66,11 @@ fi
 # Hash includes: repo root path + contents of all source files (template + configs)
 flag_input=$(echo -n "${repo_root}")
 if [[ -f "${TEMPLATE}" ]]; then
-    flag_input+=$(cat "${TEMPLATE}" | _hash)
+    flag_input+=$(_hash < "${TEMPLATE}")
 fi
 for cfg in "${CONFIG_FILES[@]}"; do
     if [[ -f "${HOME}/.claude/${cfg}" ]]; then
-        flag_input+=$(cat "${HOME}/.claude/${cfg}" | _hash)
+        flag_input+=$(_hash < "${HOME}/.claude/${cfg}")
     fi
 done
 flag_hash=$(echo -n "${flag_input}" | _hash)
