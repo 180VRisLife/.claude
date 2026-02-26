@@ -1,12 +1,1 @@
----
-extends: default
-rules:
-  document-start: disable
-  line-length: disable
-  truthy:
-    check-keys: false
-  comments:
-    min-spaces-from-content: 2
-  indentation:
-    spaces: 2
-    indent-sequences: true
+/Users/chrisjamesbliss/Developer/2. Versioned/DevKit/lint/.yamllint.yml

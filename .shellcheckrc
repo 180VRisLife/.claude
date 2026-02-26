@@ -1,9 +1,1 @@
-# Enable strict checking
-enable=add-default-case
-enable=avoid-nullary-conditions
-enable=check-extra-masked-returns
-enable=check-set-e-suppressed
-enable=require-variable-braces
-
-# Shell dialect
-shell=bash
+/Users/chrisjamesbliss/Developer/2. Versioned/DevKit/lint/.shellcheckrc

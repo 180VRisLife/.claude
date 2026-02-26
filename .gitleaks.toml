@@ -1,11 +1,1 @@
-[extend]
-useDefault = true
-
-[allowlist]
-paths = [
-    '''\.gitleaks\.toml$''',
-    '''(.*?)(jpg|gif|png|doc|pdf|bin|svg)$''',
-    '''node_modules/''',
-    '''vendor/''',
-    '''\.venv/''',
-]
+/Users/chrisjamesbliss/Developer/2. Versioned/DevKit/lint/.gitleaks.toml
