@@ -146,20 +146,15 @@
             "command": "bash $HOME/.claude/hooks/beacon.sh"
           }
         ]
-      },
-      {
-        "matcher": "idle_prompt",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash $HOME/.claude/hooks/beacon.sh"
-          }
-        ]
       }
     ],
     "Stop": [
       {
         "hooks": [
+          {
+            "type": "command",
+            "command": "bash $HOME/.claude/hooks/batch-format.sh"
+          },
           {
             "type": "command",
             "command": "bash $HOME/.claude/hooks/_system-notifications-play-sound.sh"
@@ -177,8 +172,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash $HOME/.claude/hooks/auto-format.sh",
-            "async": true
+            "command": "bash $HOME/.claude/hooks/auto-format.sh"
           },
           {
             "type": "command",
@@ -203,5 +197,6 @@
   },
   "autoUpdatesChannel": "latest",
   "minimumVersion": "2.1.6",
-  "prefersReducedMotion": true
+  "prefersReducedMotion": true,
+  "skipDangerousModePermissionPrompt": true
 }
