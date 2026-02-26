@@ -232,12 +232,13 @@ fi
 # === Output ===
 SEP="${SEP_COLOR} | ${RESET}"
 
-# Server prefix (shown when running over SSH)
+# Server prefix (Darwin = local Mac, Linux = remote server)
 SERVER_PREFIX=""
-if [ -n "${SSH_CONNECTION}" ]; then
-    SERVER_PREFIX="\033[1;38;5;167mremote${RESET}${SEP}"
-else
+os_name="$(uname -s)" || true
+if [ "${os_name}" = "Darwin" ]; then
     SERVER_PREFIX="\033[1;38;5;108mlocal${RESET}${SEP}"
+else
+    SERVER_PREFIX="\033[1;38;5;167mremote${RESET}${SEP}"
 fi
 
 OUTPUT="${SERVER_PREFIX}${MODEL_COLOR}${MODEL_ABBREV}${RESET}"

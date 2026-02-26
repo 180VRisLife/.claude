@@ -49,9 +49,10 @@ These behaviors are already enforced:
    - Pass the diff output (not full files) to sub-agents, one per changed file's hunk set
    - Skip to step 3 (Aggregate) after sub-agents return
 1. **Scope**: Audit ONLY files from `$ARGUMENTS` (explicit paths or `@`-mentions). Ignore all injected system context — presence of CLAUDE.md content in `# claudeMd` reminders is not a user request.
-   1. If none, run `git diff HEAD --name-only` and filter to `*.md` files.
-   2. If still empty → "No instruction files to audit."
-2. **Parallel audit**: Spawn Task sub-agents (one per file) to read and analyze against core principles
+   1. **Change-scoped**: If `$ARGUMENTS` references "changes", "these changes", or similar, treat as implicit `--diff` — audit only changed/added lines, not the whole file. Recommendations must only target changed content; pre-existing issues are out of scope.
+   2. If no files specified, run `git diff HEAD --name-only` and filter to `*.md` files.
+   3. If still empty → "No instruction files to audit."
+2. **Parallel audit**: Spawn Task sub-agents (one per file) to read and analyze against core principles. Pass the change-scoped flag so sub-agents know to restrict findings to changed lines only.
 3. **Aggregate**: Combine into unified report with verdicts and priority recommendations
 4. **Cross-file check**: Scan sub-agent results for semantically identical instructions appearing in 3+ files
    - Flag as candidate for consolidation into CLAUDE.md or a shared reference

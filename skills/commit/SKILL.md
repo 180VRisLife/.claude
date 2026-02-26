@@ -1,12 +1,12 @@
 ---
 name: commit
-description: Create a git commit, optionally with PR workflow (--pr flag)
+description: Create a git commit, optionally with PR workflow (--pr flag, --promote flag)
 user-invocable: true
 disable-model-invocation: false
 allowed-tools: >-
   Bash(git:*), Bash(gh:*), Bash(grep:*), Bash(rm:*), Bash(find:*), Bash(cd:*),
   Read, Edit, Write, Glob, Grep
-argument-hint: [--pr] [--promote]
+argument-hint: [--pr [--promote]]
 ---
 
 ## CRITICAL RULE — NO PRs WITHOUT `--pr` FLAG
@@ -26,7 +26,10 @@ This applies regardless of branch, context, or how "helpful" a PR might seem. No
 
 ## Arguments
 
-$ARGUMENTS: `--pr` = commit + push + PR with automerge. No flag = commit + push.
+$ARGUMENTS:
+
+- `--pr` = commit + push + PR with automerge. No flag = commit + push.
+- `--promote` = (requires `--pr`) PR a protected branch into the next protected branch in the chain. Error if `--pr` is not also present. Error if not on a protected branch.
 
 ## Pre-Commit
 
@@ -55,18 +58,30 @@ Stage changes → commit → push → verify with `git status` → stop.
 
 Only when `$ARGUMENTS` contains `--pr`:
 
-| Context                   | Action                                                                     |
-| ------------------------- | -------------------------------------------------------------------------- |
-| On protected branch       | Create feature branch. Push. `gh pr create`. `gh pr merge --auto --merge`. |
-| On feature branch         | Push. `gh pr create`. `gh pr merge --auto --merge`.                        |
-| Trivial on feature branch | Offer direct merge to base                                                 |
+- `--pr` on protected (no `--promote`): Create feature branch, push, `gh pr create --base <current-protected>`, automerge
+- `--pr` on feature: Resolve base, push, `gh pr create --base <resolved-base>`, automerge
+- `--pr --promote` on protected: Stay on branch, push, `gh pr create --base <next-protected>`, automerge
+- `--pr --promote` on feature: **Error.** `--promote` only works from a protected branch.
+- `--promote` without `--pr`: **Error.** Requires `--pr`.
+
+### Base-branch resolution (`--pr` only)
+
+Determine the `--base` target for `gh pr create`. **Every `gh pr create` MUST include `--base <resolved-base>`.**
+
+Resolution order:
+
+1. **`--promote` flag present:** Use the next branch in the promotion chain: `develop → staging → main`. If the next branch does not exist on the remote (`git ls-remote --heads origin <branch>`), skip to the following one. If on `main`, error — nothing to promote to.
+2. **Feature branch:** Detect which protected branch the feature diverged from using `git log --oneline --decorate` to find the most recent protected-branch reference in ancestry. Default to `develop` if ambiguous.
+3. **Protected branch (no `--promote`):** The base is the current protected branch itself (the feature branch will PR back into it).
+
+Store the resolved base for use in post-merge cleanup.
 
 ### CI fix loop (`--pr` only)
 
 After creating the PR, monitor checks until they resolve:
 
 1. Run `gh pr checks <PR_NUMBER> --watch` to wait for CI results
-2. If checks **pass** → proceed to post-merge cleanup
+2. If checks **pass** → proceed to merge-completion wait
 3. If checks **fail**:
    a. Read the failing check logs: `gh run view <RUN_ID> --log-failed`
    b. Identify and fix the code issues locally
@@ -76,14 +91,14 @@ After creating the PR, monitor checks until they resolve:
 
 ### Post-merge cleanup (`--pr` only)
 
-After the PR merges (via automerge or manual merge):
+After checks pass, wait for automerge to complete before cleanup:
 
-1. Switch back to the base branch and pull: `git checkout <base> && git pull`
-2. **Delete the feature branch** if and only if it is NOT a protected branch:
-   - **NEVER delete:** `main`, `develop`, `staging`
-   - Delete local: `git branch -d <feature-branch>`
-   - Delete remote: `git push origin --delete <feature-branch>`
-3. If the current branch IS a protected branch, skip branch deletion entirely.
+1. Poll every 10s: `gh pr view <PR_NUMBER> --json state --jq '.state'` until `MERGED` (timeout 2 min → report PR URL and stop)
+2. Switch to resolved base and pull: `git checkout <resolved-base> && git pull`
+3. **If `--promote`:** Skip branch deletion — both sides are protected.
+4. **Otherwise:** Delete feature branch if not protected (`main`, `develop`, `staging`):
+   - Local: `git branch -d <feature-branch>`
+   - Remote: `git push origin --delete <feature-branch>`
 
 ## Output
 
