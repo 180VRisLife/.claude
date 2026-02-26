@@ -127,7 +127,11 @@ case "${NOTIFICATION_TYPE}" in
 esac
 
 [[ -n "${SSH_CONNECTION:-}" ]] && title="${title} (remote)"
-[[ -z "${tmux_session}" ]] && title="❌ ${title}"
+if [[ -n "${tmux_session}" ]]; then
+    title="${title} [T]"
+else
+    title="${title} [NT]"
+fi
 
 # --- Build deep link (Termius via ssh://) ---
 # Determine target host — local Mac or remote server depending on where
