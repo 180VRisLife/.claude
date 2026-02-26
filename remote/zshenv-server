@@ -1,5 +1,0 @@
-# Server zshenv (synced from local via _sync_claude_config)
-# Sourced for ALL zsh invocations (interactive, non-interactive, login, non-login)
-# Keep this minimal — only PATH and essential env vars
-
-export PATH="/opt/swift/usr/bin:$HOME/.local/bin:$HOME/bin:$PATH"

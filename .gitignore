@@ -83,5 +83,15 @@ backups/
 # Plugin blocklist
 plugins/blocklist.json
 
+# Remote server configs (symlink to DevKit)
+remote
+
+# Agent teams (session-specific)
+teams/
+
+# Credentials and auth cache
+.credentials.json
+mcp-needs-auth-cache.json
+
 # Unignore skills subdirectories matched by broad patterns above
 !skills/**/
