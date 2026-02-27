@@ -2,38 +2,17 @@
 # beacon.sh - Phone notification via ntfy with Termius deep link
 # Mode: auto = notify only when user is away, on = always, off = never
 #
-# === DEEP LINK STRATEGY (Termius Pro) ===
-#
-# Previous approach (Blink Shell) failed — blinkshell://run?cmd= is broken
-# in current versions, and ssh:// can't pass a remote command.
-#
-# New approach: Termius ssh:// deep link + startup snippet
+# === DEEP LINK STRATEGY (ba command) ===
 #
 # How it works:
-#   1. beacon.sh writes a per-session helper script to /tmp/beacon-{key}.sh
-#      (cd to project dir, attach tmux session, fallback to $SHELL)
-#   2. beacon.sh symlinks /tmp/beacon-latest.sh → the per-session script
-#   3. ntfy "Click" action uses ssh://user@host (Termius handles this)
-#   4. User taps notification → Termius opens → connects to saved host
-#   5. Termius startup snippet runs: [[ -x /tmp/beacon-latest.sh ]] && exec /tmp/beacon-latest.sh
-#   6. Helper script cd's to project, attaches tmux, done
+#   1. beacon.sh writes a per-session helper script to ~/.beacon/scripts/
+#      with metadata comment: # beacon: session | project | type
+#   2. ntfy "Click" action uses ssh://user@host (Termius handles this)
+#   3. User taps notification → Termius opens → connects to saved host
+#   4. User types 'ba' → scans ~/.beacon/scripts/ → auto-attaches or shows menu
+#   5. Helper script cd's to project, attaches tmux, self-destructs
 #
-# Termius setup required:
-#   - Host "local":  chrisjamesbliss@100.97.43.63, key: macbook-air
-#   - Host "remote": claude-dev@100.119.234.5, key: claude-sandbox
-#   - Startup snippet on BOTH hosts:
-#       [[ -x /tmp/beacon-latest.sh ]] && exec /tmp/beacon-latest.sh
-#
-# TODO: Test whether ssh://user@host matches a saved Termius host config
-#       (triggering the startup snippet) or creates an ad-hoc connection.
-#       If ad-hoc, we may need ssh://local instead — test both.
-#
-# TODO: Snippet variables are iOS-pending. If they ship, we could pass
-#       the session key through the deep link and skip the symlink.
-#       For now, /tmp/beacon-latest.sh (most-recent-wins) is the approach.
-#
-# TODO: Clean up unused blink_key / SSH_KEY_NAME config once Termius is
-#       confirmed working. Those were for blinkshell://run?key= which is dead.
+# No Termius Pro or startup snippets required.
 # ===
 
 set -euo pipefail
@@ -45,6 +24,7 @@ DEDUP_DIR="${HOME}/.beacon/dedup"
 # --- Read stdin early (needed for dedup) ---
 INPUT=$(cat)
 NOTIFICATION_TYPE=$(echo "${INPUT}" | jq -r '.notification_type // empty')
+claude_session_id=$(echo "${INPUT}" | jq -r '.session_id // empty')
 
 # --- Session identity (for per-session dedup) ---
 tmux_session=$(tmux display-message -p '#{session_name}' 2> /dev/null || true)
@@ -95,9 +75,7 @@ esac
 [[ -f "${ENV_FILE}" ]] && source "${ENV_FILE}"
 NTFY_TOPIC="${NTFY_TOPIC:-}"
 SSH_TARGET_HOST="${SSH_TARGET_HOST:-}"
-SSH_KEY_NAME="${SSH_KEY_NAME:-macbook-air}"
 REMOTE_SSH_TARGET_HOST="${REMOTE_SSH_TARGET_HOST:-}"
-REMOTE_SSH_KEY_NAME="${REMOTE_SSH_KEY_NAME:-}"
 [[ -z "${NTFY_TOPIC}" ]] && exit 0
 
 # --- Project detection ---
@@ -126,6 +104,8 @@ case "${NOTIFICATION_TYPE}" in
         ;;
 esac
 
+body="${body} — type 'ba' to attach"
+
 [[ -n "${SSH_CONNECTION:-}" ]] && title="${title} (remote)"
 if [[ -n "${tmux_session}" ]]; then
     title="${title} [T]"
@@ -144,40 +124,41 @@ else
     termius_host="${SSH_TARGET_HOST}"
 fi
 
-# Write per-session helper script to /tmp.
-# Termius startup snippet will exec this on connect.
+# Write per-session helper script to ~/.beacon/scripts/.
+# The 'ba' shell function scans these to attach to waiting sessions.
 # Per-session key ensures multiple Claude sessions get distinct scripts.
+BEACON_SCRIPTS="${HOME}/.beacon/scripts"
+mkdir -p "${BEACON_SCRIPTS}"
+chmod 700 "${BEACON_SCRIPTS}"
 safe_key="${session_key//[^a-zA-Z0-9_-]/_}"
-helper="/tmp/beacon-${safe_key}.sh"
+helper="${BEACON_SCRIPTS}/beacon-${safe_key}.sh"
+safe_pwd=$(printf '%q' "${PWD}")
 if [[ -n "${tmux_session}" ]]; then
     session_base="${tmux_session%% - *}"
     cat > "${helper}" << BEACON
 #!/bin/bash
-rm -f /tmp/beacon-latest.sh  # one-shot: disarm after use
-cd '${PWD}'
+# beacon: ${tmux_session} | ${project} | ${NOTIFICATION_TYPE}
+rm -f "${helper}"
+cd ${safe_pwd}
 t=\$(tmux ls -F '#{session_name}' | grep -m1 -F '${session_base} - ') && exec tmux attach -t "\$t"
-exec \$SHELL
+exec claude --resume '${claude_session_id}'
 BEACON
 else
     cat > "${helper}" << BEACON
 #!/bin/bash
-rm -f /tmp/beacon-latest.sh  # one-shot: disarm after use
-cd '${PWD}'
-exec \$SHELL
+# beacon: ${tmux_session:-no-tmux} | ${project} | ${NOTIFICATION_TYPE}
+rm -f "${helper}"
+cd ${safe_pwd}
+exec claude --resume '${claude_session_id}'
 BEACON
 fi
-chmod +x "${helper}"
+chmod 700 "${helper}"
 
-# Symlink latest — Termius startup snippet always runs beacon-latest.sh.
-# Most-recent-wins: if multiple sessions notify, tapping any notification
-# lands you in whichever session fired last. Once on the Mac you can
-# tmux ls and switch if needed.
-ln -sf "${helper}" /tmp/beacon-latest.sh
+# Symlink latest for quick single-session access.
+ln -sf "${helper}" "${BEACON_SCRIPTS}/beacon-latest.sh"
 
 # Deep link: ssh://user@host — Termius opens + connects to saved host.
-# The startup snippet on the Termius host config handles the rest.
-# TODO: Test if ssh://user@host matches saved config or goes ad-hoc.
-#       If ad-hoc, try Termius host label: may need a different URL format.
+# User then types 'ba' to attach to the waiting session.
 deep_link="ssh://${termius_host}"
 
 # --- Send ntfy notification (fire-and-forget) ---
