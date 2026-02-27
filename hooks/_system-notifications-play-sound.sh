@@ -20,4 +20,4 @@ if [[ -n "${SSH_CONNECTION:-}" ]]; then
 fi
 
 # Play a sound when main Claude Code session stops
-afplay /System/Library/Sounds/Glass.aiff
+afplay /System/Library/Sounds/Glass.aiff -v 0.3

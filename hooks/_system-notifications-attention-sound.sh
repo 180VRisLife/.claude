@@ -14,10 +14,10 @@ if [[ -n "${SSH_CONNECTION:-}" ]]; then
 fi
 
 SOUND=/System/Library/Sounds/Tink.aiff
-afplay "${SOUND}" -v 8 &
+afplay "${SOUND}" -v 0.4 &
 sleep 0.03
-afplay "${SOUND}" -v 5 &
+afplay "${SOUND}" -v 0.25 &
 sleep 0.07
-afplay "${SOUND}" -v 3 &
+afplay "${SOUND}" -v 0.15 &
 sleep 0.08
-afplay "${SOUND}" -v 8 &
+afplay "${SOUND}" -v 0.4 &
