@@ -47,6 +47,21 @@ abbreviate_branch() {
     esac
 }
 
+# Abbreviate branch name with prefix: feature/test→f/test, main→M, etc.
+abbreviate_branch_name() {
+    case "$1" in
+        main | master) echo "M" ;;
+        develop) echo "D" ;;
+        staging) echo "S" ;;
+        feature/*) echo "f/${1#feature/}" ;;
+        bugfix/*) echo "b/${1#bugfix/}" ;;
+        hotfix/*) echo "h/${1#hotfix/}" ;;
+        fix/*) echo "x/${1#fix/}" ;;
+        release/*) echo "r/${1#release/}" ;;
+        *) echo "$1" ;;
+    esac
+}
+
 # Get dirty marker for a repo path
 get_dirty_marker() {
     # shellcheck disable=SC2312
@@ -200,14 +215,14 @@ if [ -n "${GIT_BRANCH}" ]; then
 
     # Check if in a worktree (.git is a file in worktrees, directory in main repos)
     if [ -f "${CWD}/.git" ]; then
-        # Worktree: always show [wt] name:branch✓
-        WORKTREE_NAME=$(basename "${CWD}")
-        GIT_PART="${GIT_COLOR}[wt] ${WORKTREE_NAME}:$(abbreviate_branch "${GIT_BRANCH}")${DIRTY}${RESET}"
+        # Worktree: show [wt] repo:branch✓
+        REPO_NAME=$(get_worktree_repo_name "${CWD}")
+        GIT_PART="${GIT_COLOR}[wt] ${REPO_NAME}:$(abbreviate_branch_name "${GIT_BRANCH}")${DIRTY}${RESET}"
     else
         # Regular git repo - show repo:branch✓
         REPO_ROOT=$(git -C "${CWD}" rev-parse --show-toplevel 2> /dev/null)
         REPO_NAME=$(basename "${REPO_ROOT}")
-        GIT_PART="${GIT_COLOR}${REPO_NAME}:$(abbreviate_branch "${GIT_BRANCH}")${DIRTY}${RESET}"
+        GIT_PART="${GIT_COLOR}${REPO_NAME}:$(abbreviate_branch_name "${GIT_BRANCH}")${DIRTY}${RESET}"
     fi
 else
     # Only scan for workspace repos if under the Workspaces folder
